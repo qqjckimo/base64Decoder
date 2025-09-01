@@ -11,14 +11,16 @@
 
 ### 1. 啟用 GitHub Pages
 
+⚠️ **重要**：必須先手動啟用 GitHub Pages 才能使用自動部署工作流程
+
 1. 前往 GitHub 倉庫頁面
 2. 點擊 **Settings** 頁籤
 3. 在左側選單中找到 **Pages**
-4. 在 **Source** 部分選擇：
-   - **Deploy from a branch** 或 **GitHub Actions**（推薦）
-5. 如果選擇 **GitHub Actions**：
+4. 在 **Source** 部分選擇 **GitHub Actions**（推薦）
+5. 選擇後：
    - GitHub 會自動檢測到 `.github/workflows/pages.yml` 檔案
    - 工作流程會在推送到 `main` 分支時自動執行
+   - 首次設定後，後續的部署將完全自動化
 
 ### 2. 設定自訂網域（選用）
 
@@ -81,7 +83,10 @@ base64Decoder/
 - 檢查 Actions 頁籤中的錯誤訊息
 - 確認 `pages.yml` 檔案格式正確
 - 檢查 GitHub Pages 設定是否正確
-- 如果出現 "Get Pages site failed" 錯誤，確認 `actions/configure-pages@v4` 步驟包含 `enablement: true` 參數
+- 如果出現 "Resource not accessible by integration" 錯誤，請確認：
+  1. 在倉庫 **Settings > Pages** 中手動啟用 GitHub Pages
+  2. 選擇 **Source** 為 "GitHub Actions"
+  3. 確認工作流程擁有正確的權限設定
 
 ### 網站無法存取
 - 確認 GitHub Pages 已啟用
