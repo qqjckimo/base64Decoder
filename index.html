@@ -37,6 +37,30 @@
             padding: 30px;
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .language-toggle:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
         }
         
         h1 {
@@ -300,90 +324,93 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🖼️ Base64 圖片解碼與像素分析工具</h1>
-            <p class="subtitle">貼上 Base64 編碼的圖片字串，即可查看圖片並分析像素內容</p>
+            <button class="language-toggle" onclick="toggleLanguage()" id="languageToggle">
+                🌐 EN
+            </button>
+            <h1 id="mainTitle">🖼️ Base64 圖片解碼與像素分析工具</h1>
+            <p class="subtitle" id="subtitle">貼上 Base64 編碼的圖片字串，即可查看圖片並分析像素內容</p>
         </div>
         
         <div class="main-content">
             <div class="card input-section">
-                <h2>📝 輸入 Base64 字串</h2>
+                <h2 id="inputSectionTitle">📝 輸入 Base64 字串</h2>
                 <textarea id="base64Input" placeholder="貼上您的 Base64 字串，例如：
 data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
 或直接貼上 base64 編碼部分"></textarea>
                 <div class="button-group">
-                    <button onclick="decodeImage()">🔍 解碼並分析</button>
-                    <button class="secondary" onclick="clearAll()">🗑️ 清空</button>
-                    <button class="secondary" onclick="loadExample()">📋 載入範例</button>
+                    <button id="decodeButton" onclick="decodeImage()">🔍 解碼並分析</button>
+                    <button id="clearButton" class="secondary" onclick="clearAll()">🗑️ 清空</button>
+                    <button id="exampleButton" class="secondary" onclick="loadExample()">📋 載入範例</button>
                 </div>
                 <div id="alertMessage"></div>
             </div>
             
             <div class="card image-display">
-                <h2>🖼️ 圖片顯示</h2>
+                <h2 id="imageDisplayTitle">🖼️ 圖片顯示</h2>
                 <div id="imageContainer">
                     <div class="placeholder">等待圖片載入...</div>
                 </div>
                 <div id="imageInfo" class="image-info" style="display: none;">
                     <div class="info-row">
-                        <span class="info-label">尺寸：</span>
+                        <span class="info-label" id="dimensionLabel">尺寸：</span>
                         <span class="info-value" id="imageDimensions">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">格式：</span>
+                        <span class="info-label" id="formatLabel">格式：</span>
                         <span class="info-value" id="imageFormat">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">檔案大小：</span>
+                        <span class="info-label" id="fileSizeLabel">檔案大小：</span>
                         <span class="info-value" id="fileSize">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">總像素數：</span>
+                        <span class="info-label" id="totalPixelsLabel">總像素數：</span>
                         <span class="info-value" id="totalPixels">-</span>
                     </div>
                 </div>
             </div>
             
             <div class="card">
-                <h2>📊 像素分析</h2>
+                <h2 id="pixelAnalysisTitle">📊 像素分析</h2>
                 <div id="pixelAnalysis" style="display: none;">
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-value" id="uniqueColors">0</div>
-                            <div class="stat-label">獨特顏色數</div>
+                            <div class="stat-label" id="uniqueColorsLabel">獨特顏色數</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="avgBrightness">0%</div>
-                            <div class="stat-label">平均亮度</div>
+                            <div class="stat-label" id="avgBrightnessLabel">平均亮度</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value" id="transparentPixels">0</div>
-                            <div class="stat-label">透明像素</div>
+                            <div class="stat-label" id="transparentPixelsLabel">透明像素</div>
                         </div>
                     </div>
                     
                     <div class="color-info" style="margin-top: 15px;">
-                        <h3 style="margin-bottom: 10px;">主要顏色</h3>
+                        <h3 id="dominantColorsTitle" style="margin-bottom: 10px;">主要顏色</h3>
                         <div id="dominantColors"></div>
                     </div>
                     
                     <div style="margin-top: 15px;">
-                        <h3 style="margin-bottom: 10px;">點擊圖片查看像素資訊</h3>
+                        <h3 id="clickPixelTitle" style="margin-bottom: 10px;">點擊圖片查看像素資訊</h3>
                         <div id="clickedPixelInfo" class="color-info" style="display: none;">
                             <div class="color-preview" id="clickedColorPreview"></div>
                             <div class="info-row">
-                                <span class="info-label">座標：</span>
+                                <span class="info-label" id="coordsLabel">座標：</span>
                                 <span class="info-value" id="pixelCoords">-</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">RGB：</span>
+                                <span class="info-label" id="rgbLabel">RGB：</span>
                                 <span class="info-value" id="pixelRGB">-</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">HEX：</span>
+                                <span class="info-label" id="hexLabel">HEX：</span>
                                 <span class="info-value" id="pixelHEX">-</span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">HSL：</span>
+                                <span class="info-label" id="hslLabel">HSL：</span>
                                 <span class="info-value" id="pixelHSL">-</span>
                             </div>
                         </div>
@@ -396,6 +423,149 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
     <div id="pixelInfo"></div>
     
     <script>
+        // Language system
+        const translations = {
+            'zh-TW': {
+                mainTitle: '🖼️ Base64 圖片解碼與像素分析工具',
+                subtitle: '貼上 Base64 編碼的圖片字串，即可查看圖片並分析像素內容',
+                inputSectionTitle: '📝 輸入 Base64 字串',
+                inputPlaceholder: '貼上您的 Base64 字串，例如：\ndata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...\n或直接貼上 base64 編碼部分',
+                decodeButton: '🔍 解碼並分析',
+                clearButton: '🗑️ 清空',
+                exampleButton: '📋 載入範例',
+                imageDisplayTitle: '🖼️ 圖片顯示',
+                waitingText: '等待圖片載入...',
+                pixelAnalysisTitle: '📊 像素分析',
+                dimensionLabel: '尺寸：',
+                formatLabel: '格式：',
+                fileSizeLabel: '檔案大小：',
+                totalPixelsLabel: '總像素數：',
+                uniqueColorsLabel: '獨特顏色數',
+                avgBrightnessLabel: '平均亮度',
+                transparentPixelsLabel: '透明像素',
+                dominantColorsTitle: '主要顏色',
+                clickPixelTitle: '點擊圖片查看像素資訊',
+                coordsLabel: '座標：',
+                rgbLabel: 'RGB：',
+                hexLabel: 'HEX：',
+                hslLabel: 'HSL：',
+                pleaseInputBase64: '請輸入 Base64 字串',
+                decodeSuccess: '圖片解碼成功！',
+                decodeError: '無法解碼圖片，請確認 Base64 字串是否正確',
+                loadFailed: '圖片載入失敗',
+                aboutSize: '約'
+            },
+            'en': {
+                mainTitle: '🖼️ Base64 Image Decoder and Pixel Analysis Tool',
+                subtitle: 'Paste your Base64 encoded image string to view the image and analyze pixel content',
+                inputSectionTitle: '📝 Input Base64 String',
+                inputPlaceholder: 'Paste your Base64 string, for example:\ndata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...\nor paste the base64 encoded part directly',
+                decodeButton: '🔍 Decode & Analyze',
+                clearButton: '🗑️ Clear',
+                exampleButton: '📋 Load Example',
+                imageDisplayTitle: '🖼️ Image Display',
+                waitingText: 'Waiting for image to load...',
+                pixelAnalysisTitle: '📊 Pixel Analysis',
+                dimensionLabel: 'Dimensions:',
+                formatLabel: 'Format:',
+                fileSizeLabel: 'File Size:',
+                totalPixelsLabel: 'Total Pixels:',
+                uniqueColorsLabel: 'Unique Colors',
+                avgBrightnessLabel: 'Avg Brightness',
+                transparentPixelsLabel: 'Transparent Pixels',
+                dominantColorsTitle: 'Dominant Colors',
+                clickPixelTitle: 'Click on image to view pixel information',
+                coordsLabel: 'Coordinates:',
+                rgbLabel: 'RGB:',
+                hexLabel: 'HEX:',
+                hslLabel: 'HSL:',
+                pleaseInputBase64: 'Please enter Base64 string',
+                decodeSuccess: 'Image decoded successfully!',
+                decodeError: 'Unable to decode image, please check if the Base64 string is correct',
+                loadFailed: 'Image loading failed',
+                aboutSize: 'About'
+            }
+        };
+        
+        let currentLanguage = 'zh-TW';
+        
+        // Auto-detect language based on browser settings
+        function detectLanguage() {
+            const savedLang = localStorage.getItem('base64decoder-language');
+            if (savedLang && translations[savedLang]) {
+                return savedLang;
+            }
+            
+            const browserLang = navigator.language || navigator.userLanguage;
+            
+            // If browser language starts with 'zh', use Chinese, otherwise use English
+            if (browserLang.startsWith('zh')) {
+                return 'zh-TW';
+            } else {
+                return 'en';
+            }
+        }
+        
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'zh-TW' ? 'en' : 'zh-TW';
+            localStorage.setItem('base64decoder-language', currentLanguage);
+            applyLanguage();
+        }
+        
+        function applyLanguage() {
+            const t = translations[currentLanguage];
+            
+            // Update language toggle button
+            document.getElementById('languageToggle').innerHTML = 
+                currentLanguage === 'zh-TW' ? '🌐 EN' : '🌐 中文';
+            
+            // Update all text elements
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('inputSectionTitle').textContent = t.inputSectionTitle;
+            document.getElementById('base64Input').placeholder = t.inputPlaceholder;
+            document.getElementById('decodeButton').innerHTML = t.decodeButton;
+            document.getElementById('clearButton').innerHTML = t.clearButton;
+            document.getElementById('exampleButton').innerHTML = t.exampleButton;
+            document.getElementById('imageDisplayTitle').textContent = t.imageDisplayTitle;
+            document.getElementById('pixelAnalysisTitle').textContent = t.pixelAnalysisTitle;
+            
+            // Update info labels
+            document.getElementById('dimensionLabel').textContent = t.dimensionLabel;
+            document.getElementById('formatLabel').textContent = t.formatLabel;
+            document.getElementById('fileSizeLabel').textContent = t.fileSizeLabel;
+            document.getElementById('totalPixelsLabel').textContent = t.totalPixelsLabel;
+            
+            // Update stat labels
+            document.getElementById('uniqueColorsLabel').textContent = t.uniqueColorsLabel;
+            document.getElementById('avgBrightnessLabel').textContent = t.avgBrightnessLabel;
+            document.getElementById('transparentPixelsLabel').textContent = t.transparentPixelsLabel;
+            
+            // Update other labels
+            document.getElementById('dominantColorsTitle').textContent = t.dominantColorsTitle;
+            document.getElementById('clickPixelTitle').textContent = t.clickPixelTitle;
+            document.getElementById('coordsLabel').textContent = t.coordsLabel;
+            document.getElementById('rgbLabel').textContent = t.rgbLabel;
+            document.getElementById('hexLabel').textContent = t.hexLabel;
+            document.getElementById('hslLabel').textContent = t.hslLabel;
+            
+            // Update placeholder if no image is loaded
+            const imageContainer = document.getElementById('imageContainer');
+            if (imageContainer.querySelector('.placeholder')) {
+                imageContainer.innerHTML = `<div class="placeholder">${t.waitingText}</div>`;
+            }
+            
+            // Update page title and lang attribute
+            document.title = t.mainTitle;
+            document.documentElement.lang = currentLanguage === 'zh-TW' ? 'zh-TW' : 'en';
+        }
+        
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            currentLanguage = detectLanguage();
+            applyLanguage();
+        });
+        
         let currentCanvas = null;
         let currentContext = null;
         
@@ -411,9 +581,10 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
         
         function decodeImage() {
             const input = document.getElementById('base64Input').value.trim();
+            const t = translations[currentLanguage];
             
             if (!input) {
-                showAlert('請輸入 Base64 字串');
+                showAlert(t.pleaseInputBase64);
                 return;
             }
             
@@ -440,13 +611,13 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
             img.onload = function() {
                 displayImage(img, base64String);
                 analyzePixels(img);
-                showAlert('圖片解碼成功！', 'success');
+                showAlert(t.decodeSuccess, 'success');
             };
             
             img.onerror = function() {
-                showAlert('無法解碼圖片，請確認 Base64 字串是否正確');
+                showAlert(t.decodeError);
                 document.getElementById('imageContainer').innerHTML = 
-                    '<div class="placeholder">圖片載入失敗</div>';
+                    `<div class="placeholder">${t.loadFailed}</div>`;
             };
             
             img.src = base64String;
@@ -493,7 +664,8 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
             // 計算檔案大小
             const base64Length = base64String.split(',')[1]?.length || base64String.length;
             const fileSize = Math.round(base64Length * 0.75 / 1024);
-            document.getElementById('fileSize').textContent = `約 ${fileSize} KB`;
+            const t = translations[currentLanguage];
+            document.getElementById('fileSize').textContent = `${t.aboutSize} ${fileSize} KB`;
             
             document.getElementById('totalPixels').textContent = (img.width * img.height).toLocaleString();
         }
@@ -636,8 +808,9 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
         
         function clearAll() {
             document.getElementById('base64Input').value = '';
+            const t = translations[currentLanguage];
             document.getElementById('imageContainer').innerHTML = 
-                '<div class="placeholder">等待圖片載入...</div>';
+                `<div class="placeholder">${t.waitingText}</div>`;
             document.getElementById('imageInfo').style.display = 'none';
             document.getElementById('pixelAnalysis').style.display = 'none';
             document.getElementById('alertMessage').style.display = 'none';
