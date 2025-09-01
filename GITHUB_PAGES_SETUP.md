@@ -81,6 +81,7 @@ base64Decoder/
 - 檢查 Actions 頁籤中的錯誤訊息
 - 確認 `pages.yml` 檔案格式正確
 - 檢查 GitHub Pages 設定是否正確
+- 如果出現 "Get Pages site failed" 錯誤，確認 `actions/configure-pages@v4` 步驟包含 `enablement: true` 參數
 
 ### 網站無法存取
 - 確認 GitHub Pages 已啟用
