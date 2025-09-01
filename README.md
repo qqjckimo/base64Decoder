@@ -207,3 +207,6 @@ MIT License - 詳見 [LICENSE](LICENSE) 檔案
 ---
 
 Made with ❤️ by [Jason Chen](https://github.com/qqjckimo)
+
+**Note**: This tool processes images entirely in your browser. No data is sent to external servers, ensuring privacy and security of your images.
+
