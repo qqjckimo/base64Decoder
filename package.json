@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "description": "Build script for Base64 Decoder minification",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "build:watch": "nodemon build.js",
+    "serve": "cd docs && python3 -m http.server 8000",
+    "test:build": "npm run build && npm run serve"
   },
   "devDependencies": {
-    "html-minifier-terser": "^7.2.0"
+    "html-minifier-terser": "^7.2.0",
+    "clean-css": "^5.3.3",
+    "terser": "^5.24.0"
   }
 }
