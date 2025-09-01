@@ -16,6 +16,8 @@
 訪問 GitHub Pages 部署的版本：
 [https://qqjckimo.github.io/base64Decoder/](https://qqjckimo.github.io/base64Decoder/)
 
+> **注意**：GitHub Pages 部署已設定完成！請參考 [GitHub Pages 部署指南](GITHUB_PAGES_SETUP.md) 來啟用 GitHub Pages 功能。
+
 ## 📱 使用方法
 
 1. **輸入 Base64 字串**
