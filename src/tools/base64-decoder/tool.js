@@ -2,7 +2,7 @@ export default class Base64DecoderTool {
     constructor() {
         this.currentCanvas = null;
         this.currentContext = null;
-        this.currentLanguage = 'zh-TW';
+        this.currentLanguage = localStorage.getItem('preferredLanguage') || 'zh-TW';
         this.translations = {
             'zh-TW': {
                 title: 'Base64 圖片解碼器',
@@ -61,6 +61,13 @@ export default class Base64DecoderTool {
         this.container = container;
         this.render();
         this.attachEvents();
+        
+        // Listen for global language changes
+        window.addEventListener('languageChanged', (e) => {
+            this.currentLanguage = e.detail.language;
+            this.render();
+            this.attachEvents();
+        });
     }
 
     render() {
@@ -70,13 +77,11 @@ export default class Base64DecoderTool {
             <div class="base64-decoder-tool">
                 <div class="tool-header">
                     <h2>${t.title}</h2>
-                    <button class="language-toggle" data-action="toggleLanguage">
-                        ${this.currentLanguage === 'zh-TW' ? '🌐 EN' : '🌐 中文'}
-                    </button>
                 </div>
                 
                 <div class="tool-grid">
-                    <div class="input-section">
+                    <div class="card input-section">
+                        <h3>${t.inputPlaceholder.split('\n')[0]}</h3>
                         <div class="input-group">
                             <textarea 
                                 id="base64Input" 
@@ -98,72 +103,76 @@ export default class Base64DecoderTool {
                         </div>
                         
                         <div id="alertMessage" class="alert" style="display: none;"></div>
-                        
-                        <div id="imageInfo" class="info-card" style="display: none;">
-                            <h3>${t.imageInfo}</h3>
-                            <div class="info-item">
-                                <span>${t.dimensions}:</span>
-                                <span id="imageDimensions"></span>
-                            </div>
-                            <div class="info-item">
-                                <span>${t.format}:</span>
-                                <span id="imageFormat"></span>
-                            </div>
-                            <div class="info-item">
-                                <span>${t.fileSize}:</span>
-                                <span id="fileSize"></span>
-                            </div>
-                            <div class="info-item">
-                                <span>${t.totalPixels}:</span>
-                                <span id="totalPixels"></span>
-                            </div>
-                        </div>
                     </div>
                     
-                    <div class="output-section">
+                    <div class="card image-display">
+                        <h3>${t.waitingText.replace('等待', '圖片').replace('...', '')}</h3>
                         <div id="imageContainer" class="image-container">
                             <div class="placeholder">${t.waitingText}</div>
                         </div>
                         
-                        <div id="pixelAnalysis" class="info-card" style="display: none;">
-                            <h3>${t.pixelAnalysis}</h3>
-                            <div class="info-item">
-                                <span>${t.uniqueColors}:</span>
-                                <span id="uniqueColors"></span>
+                        <div id="imageInfo" class="image-info" style="display: none;">
+                            <div class="info-row">
+                                <span class="info-label">${t.dimensions}:</span>
+                                <span class="info-value" id="imageDimensions"></span>
                             </div>
-                            <div class="info-item">
-                                <span>${t.avgBrightness}:</span>
-                                <span id="avgBrightness"></span>
+                            <div class="info-row">
+                                <span class="info-label">${t.format}:</span>
+                                <span class="info-value" id="imageFormat"></span>
                             </div>
-                            <div class="info-item">
-                                <span>${t.transparentPixels}:</span>
-                                <span id="transparentPixels"></span>
+                            <div class="info-row">
+                                <span class="info-label">${t.fileSize}:</span>
+                                <span class="info-value" id="fileSize"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">${t.totalPixels}:</span>
+                                <span class="info-value" id="totalPixels"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card pixel-analysis-section">
+                        <h3>${t.pixelAnalysis}</h3>
+                        <div id="pixelAnalysis" style="display: none;">
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value" id="uniqueColors">0</div>
+                                    <div class="stat-label">${t.uniqueColors}</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value" id="avgBrightness">0%</div>
+                                    <div class="stat-label">${t.avgBrightness}</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value" id="transparentPixels">0</div>
+                                    <div class="stat-label">${t.transparentPixels}</div>
+                                </div>
                             </div>
                             
-                            <h4>${t.dominantColors}</h4>
-                            <div id="dominantColors"></div>
-                        </div>
-                        
-                        <div id="clickedPixelInfo" class="info-card" style="display: none;">
-                            <h3>${t.clickedPixel}</h3>
-                            <div class="pixel-info-grid">
-                                <div id="clickedColorPreview" class="color-preview"></div>
-                                <div>
-                                    <div class="info-item">
-                                        <span>${t.coordinates}:</span>
-                                        <span id="pixelCoords"></span>
+                            <div class="color-info" style="margin-top: 15px;">
+                                <h4 style="margin-bottom: 10px;">${t.dominantColors}</h4>
+                                <div id="dominantColors"></div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <h4 style="margin-bottom: 10px;">${t.clickedPixel}</h4>
+                                <div id="clickedPixelInfo" class="color-info" style="display: none;">
+                                    <div class="color-preview" id="clickedColorPreview"></div>
+                                    <div class="info-row">
+                                        <span class="info-label">${t.coordinates}:</span>
+                                        <span class="info-value" id="pixelCoords">-</span>
                                     </div>
-                                    <div class="info-item">
-                                        <span>RGB:</span>
-                                        <span id="pixelRGB"></span>
+                                    <div class="info-row">
+                                        <span class="info-label">RGB:</span>
+                                        <span class="info-value" id="pixelRGB">-</span>
                                     </div>
-                                    <div class="info-item">
-                                        <span>HEX:</span>
-                                        <span id="pixelHEX"></span>
+                                    <div class="info-row">
+                                        <span class="info-label">HEX:</span>
+                                        <span class="info-value" id="pixelHEX">-</span>
                                     </div>
-                                    <div class="info-item">
-                                        <span>HSL:</span>
-                                        <span id="pixelHSL"></span>
+                                    <div class="info-row">
+                                        <span class="info-label">HSL:</span>
+                                        <span class="info-value" id="pixelHSL">-</span>
                                     </div>
                                 </div>
                             </div>
@@ -228,11 +237,6 @@ export default class Base64DecoderTool {
         });
     }
 
-    toggleLanguage() {
-        this.currentLanguage = this.currentLanguage === 'zh-TW' ? 'en' : 'zh-TW';
-        this.render();
-        this.attachEvents();
-    }
 
     showAlert(message, type = 'error') {
         const alertDiv = this.container.querySelector('#alertMessage');
@@ -377,17 +381,26 @@ export default class Base64DecoderTool {
             const percentage = ((count / pixelCount) * 100).toFixed(2);
             
             const colorDiv = document.createElement('div');
-            colorDiv.className = 'color-item';
+            colorDiv.style.cssText = `
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            `;
             
             const colorBox = document.createElement('div');
-            colorBox.className = 'color-box';
-            colorBox.style.background = `rgba(${r}, ${g}, ${b}, ${a/255})`;
+            colorBox.style.cssText = `
+                width: 40px;
+                height: 40px;
+                background: rgba(${r}, ${g}, ${b}, ${a/255});
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                margin-right: 15px;
+            `;
             
             const colorInfo = document.createElement('div');
-            colorInfo.className = 'color-info';
             colorInfo.innerHTML = `
-                <div class="color-hex">${this.rgbToHex(r, g, b)}</div>
-                <div class="color-rgb">RGB(${r}, ${g}, ${b}) - ${percentage}%</div>
+                <div style="font-weight: 600;">${this.rgbToHex(r, g, b)}</div>
+                <div style="color: #666; font-size: 0.9em;">RGB(${r}, ${g}, ${b}) - ${percentage}%</div>
             `;
             
             colorDiv.appendChild(colorBox);

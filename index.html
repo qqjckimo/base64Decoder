@@ -1,17 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>開發者工具集 - Developer Tools Collection</title>
-    <meta name="description" content="一個輕量級的開發者工具集合，包含 Base64 解碼器等實用工具">
-    <meta name="keywords" content="developer tools, base64, decoder, web tools">
-</head>
-<body>
+    <meta
+      name="description"
+      content="一個輕量級的開發者工具集合，包含 Base64 解碼器等實用工具"
+    />
+    <meta
+      name="keywords"
+      content="developer tools, base64, decoder, web tools"
+    />
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  </head>
+  <body>
     <div id="app-container">
-        <div class="loading">載入中...</div>
+      <div class="loading">載入中...</div>
     </div>
-    
+
     <!-- Webpack will inject the script here -->
-</body>
+    <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+    <script>
+      kofiWidgetOverlay.draw("jzso_biz", {
+        type: "floating-chat",
+        "floating-chat.donateButton.text": "Support me",
+        "floating-chat.donateButton.background-color": "#00b9fe",
+        "floating-chat.donateButton.text-color": "#fff",
+      });
+    </script>
+  </body>
 </html>

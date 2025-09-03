@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 圖片解碼與像素分析工具</title>
+    <meta name="description" content="一個簡單易用的 Base64 圖片解碼工具，支援圖片顯示與詳細的像素分析功能">
+    <meta name="keywords" content="Base64, 圖片解碼, 像素分析, 圖片工具, 圖像處理">
+    <meta name="author" content="Jason Chen">
+    <meta property="og:title" content="Base64 圖片解碼與像素分析工具">
+    <meta property="og:description" content="一個簡單易用的 Base64 圖片解碼工具，支援圖片顯示與詳細的像素分析功能">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://qqjckimo.github.io/base64Decoder/">
+    <link rel="canonical" href="https://qqjckimo.github.io/base64Decoder/">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: 
+                linear-gradient(135deg, rgba(156, 163, 175, 0.6) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(147, 197, 253, 0.5) 100%),
+                linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            backdrop-filter: blur(12px) saturate(1.2);
+            -webkit-backdrop-filter: blur(12px) saturate(1.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+            position: relative;
+        }
+        
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(107, 114, 128, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .language-toggle:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(75, 85, 99, 0.95) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+        
+        .input-section {
+            grid-column: 1 / -1;
+        }
+        
+        h2 {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 150px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: rgba(147, 197, 253, 0.8);
+            box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.9) 0%, rgba(156, 163, 175, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(125, 185, 252, 0.95) 0%, rgba(107, 114, 128, 0.95) 100%);
+            box-shadow: 0 6px 20px rgba(147, 197, 253, 0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.9) 0%, rgba(156, 163, 175, 0.9) 100%);
+        }
+        
+        .image-display {
+            text-align: center;
+        }
+        
+        #imageContainer {
+            background: rgba(248, 249, 250, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        #imageContainer img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        #imageContainer canvas {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            cursor: crosshair;
+        }
+        
+        .placeholder {
+            color: #999;
+            font-size: 1.1em;
+        }
+        
+        .image-info {
+            background: rgba(248, 249, 250, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .pixel-analysis {
+            background: rgba(248, 249, 250, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            gap: 2px;
+            margin-top: 10px;
+        }
+        
+        .pixel {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .pixel:hover {
+            transform: scale(1.5);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .color-info {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .color-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            color: #856404;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        
+        #pixelInfo {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border: 1px solid rgba(147, 197, 253, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+            z-index: 1000;
+            display: none;
+            font-size: 0.9em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #93c5fd 0%, #6b7280 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="language-toggle" onclick="toggleLanguage()" id="languageToggle">
+                🌍 EN
+            </button>
+            <h1 id="mainTitle">🖼️ Base64 圖片解碼與像素分析工具</h1>
+            <p class="subtitle" id="subtitle">貼上 Base64 編碼的圖片字串，即可查看圖片並分析像素內容</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="card input-section">
+                <h2 id="inputSectionTitle">📝 輸入 Base64 字串</h2>
+                <textarea id="base64Input" placeholder="貼上您的 Base64 字串，例如：
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...
+或直接貼上 base64 編碼部分"></textarea>
+                <div class="button-group">
+                    <button id="decodeButton" onclick="decodeImage()">🔍 解碼並分析</button>
+                    <button id="clearButton" class="secondary" onclick="clearAll()">🗑️ 清空</button>
+                    <button id="exampleButton" class="secondary" onclick="loadExample()">📋 載入範例</button>
+                </div>
+                <div id="alertMessage"></div>
+            </div>
+            
+            <div class="card image-display">
+                <h2 id="imageDisplayTitle">🖼️ 圖片顯示</h2>
+                <div id="imageContainer">
+                    <div class="placeholder">等待圖片載入...</div>
+                </div>
+                <div id="imageInfo" class="image-info" style="display: none;">
+                    <div class="info-row">
+                        <span class="info-label" id="dimensionLabel">尺寸：</span>
+                        <span class="info-value" id="imageDimensions">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label" id="formatLabel">格式：</span>
+                        <span class="info-value" id="imageFormat">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label" id="fileSizeLabel">檔案大小：</span>
+                        <span class="info-value" id="fileSize">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label" id="totalPixelsLabel">總像素數：</span>
+                        <span class="info-value" id="totalPixels">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 id="pixelAnalysisTitle">📊 像素分析</h2>
+                <div id="pixelAnalysis" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="uniqueColors">0</div>
+                            <div class="stat-label" id="uniqueColorsLabel">獨特顏色數</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="avgBrightness">0%</div>
+                            <div class="stat-label" id="avgBrightnessLabel">平均亮度</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="transparentPixels">0</div>
+                            <div class="stat-label" id="transparentPixelsLabel">透明像素</div>
+                        </div>
+                    </div>
+                    
+                    <div class="color-info" style="margin-top: 15px;">
+                        <h3 id="dominantColorsTitle" style="margin-bottom: 10px;">主要顏色</h3>
+                        <div id="dominantColors"></div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <h3 id="clickPixelTitle" style="margin-bottom: 10px;">點擊圖片查看像素資訊</h3>
+                        <div id="clickedPixelInfo" class="color-info" style="display: none;">
+                            <div class="color-preview" id="clickedColorPreview"></div>
+                            <div class="info-row">
+                                <span class="info-label" id="coordsLabel">座標：</span>
+                                <span class="info-value" id="pixelCoords">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label" id="rgbLabel">RGB：</span>
+                                <span class="info-value" id="pixelRGB">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label" id="hexLabel">HEX：</span>
+                                <span class="info-value" id="pixelHEX">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label" id="hslLabel">HSL：</span>
+                                <span class="info-value" id="pixelHSL">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pixelInfo"></div>
+    
+    <script>
+        // Language system
+        const translations = {
+            'zh-TW': {
+                mainTitle: '🖼️ Base64 圖片解碼與像素分析工具',
+                subtitle: '貼上 Base64 編碼的圖片字串，即可查看圖片並分析像素內容',
+                inputSectionTitle: '📝 輸入 Base64 字串',
+                inputPlaceholder: '貼上您的 Base64 字串，例如：\ndata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...\n或直接貼上 base64 編碼部分',
+                decodeButton: '🔍 解碼並分析',
+                clearButton: '🗑️ 清空',
+                exampleButton: '📋 載入範例',
+                imageDisplayTitle: '🖼️ 圖片顯示',
+                waitingText: '等待圖片載入...',
+                pixelAnalysisTitle: '📊 像素分析',
+                dimensionLabel: '尺寸：',
+                formatLabel: '格式：',
+                fileSizeLabel: '檔案大小：',
+                totalPixelsLabel: '總像素數：',
+                uniqueColorsLabel: '獨特顏色數',
+                avgBrightnessLabel: '平均亮度',
+                transparentPixelsLabel: '透明像素',
+                dominantColorsTitle: '主要顏色',
+                clickPixelTitle: '點擊圖片查看像素資訊',
+                coordsLabel: '座標：',
+                rgbLabel: 'RGB：',
+                hexLabel: 'HEX：',
+                hslLabel: 'HSL：',
+                pleaseInputBase64: '請輸入 Base64 字串',
+                decodeSuccess: '圖片解碼成功！',
+                decodeError: '無法解碼圖片，請確認 Base64 字串是否正確',
+                loadFailed: '圖片載入失敗',
+                aboutSize: '約'
+            },
+            'en': {
+                mainTitle: '🖼️ Base64 Image Decoder and Pixel Analysis Tool',
+                subtitle: 'Paste your Base64 encoded image string to view the image and analyze pixel content',
+                inputSectionTitle: '📝 Input Base64 String',
+                inputPlaceholder: 'Paste your Base64 string, for example:\ndata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...\nor paste the base64 encoded part directly',
+                decodeButton: '🔍 Decode & Analyze',
+                clearButton: '🗑️ Clear',
+                exampleButton: '📋 Load Example',
+                imageDisplayTitle: '🖼️ Image Display',
+                waitingText: 'Waiting for image to load...',
+                pixelAnalysisTitle: '📊 Pixel Analysis',
+                dimensionLabel: 'Dimensions:',
+                formatLabel: 'Format:',
+                fileSizeLabel: 'File Size:',
+                totalPixelsLabel: 'Total Pixels:',
+                uniqueColorsLabel: 'Unique Colors',
+                avgBrightnessLabel: 'Avg Brightness',
+                transparentPixelsLabel: 'Transparent Pixels',
+                dominantColorsTitle: 'Dominant Colors',
+                clickPixelTitle: 'Click on image to view pixel information',
+                coordsLabel: 'Coordinates:',
+                rgbLabel: 'RGB:',
+                hexLabel: 'HEX:',
+                hslLabel: 'HSL:',
+                pleaseInputBase64: 'Please enter Base64 string',
+                decodeSuccess: 'Image decoded successfully!',
+                decodeError: 'Unable to decode image, please check if the Base64 string is correct',
+                loadFailed: 'Image loading failed',
+                aboutSize: 'About'
+            }
+        };
+        
+        let currentLanguage = 'zh-TW';
+        
+        // Auto-detect language based on browser settings
+        function detectLanguage() {
+            const savedLang = localStorage.getItem('base64decoder-language');
+            if (savedLang && translations[savedLang]) {
+                return savedLang;
+            }
+            
+            const browserLang = navigator.language || navigator.userLanguage;
+            
+            // If browser language starts with 'zh', use Chinese, otherwise use English
+            if (browserLang.startsWith('zh')) {
+                return 'zh-TW';
+            } else {
+                return 'en';
+            }
+        }
+        
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'zh-TW' ? 'en' : 'zh-TW';
+            localStorage.setItem('base64decoder-language', currentLanguage);
+            applyLanguage();
+        }
+        
+        function applyLanguage() {
+            const t = translations[currentLanguage];
+            
+            // Update language toggle button
+            document.getElementById('languageToggle').innerHTML = 
+                currentLanguage === 'zh-TW' ? '🌍 EN' : '🌍 中文';
+            
+            // Update all text elements
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('inputSectionTitle').textContent = t.inputSectionTitle;
+            document.getElementById('base64Input').placeholder = t.inputPlaceholder;
+            document.getElementById('decodeButton').innerHTML = t.decodeButton;
+            document.getElementById('clearButton').innerHTML = t.clearButton;
+            document.getElementById('exampleButton').innerHTML = t.exampleButton;
+            document.getElementById('imageDisplayTitle').textContent = t.imageDisplayTitle;
+            document.getElementById('pixelAnalysisTitle').textContent = t.pixelAnalysisTitle;
+            
+            // Update info labels
+            document.getElementById('dimensionLabel').textContent = t.dimensionLabel;
+            document.getElementById('formatLabel').textContent = t.formatLabel;
+            document.getElementById('fileSizeLabel').textContent = t.fileSizeLabel;
+            document.getElementById('totalPixelsLabel').textContent = t.totalPixelsLabel;
+            
+            // Update stat labels
+            document.getElementById('uniqueColorsLabel').textContent = t.uniqueColorsLabel;
+            document.getElementById('avgBrightnessLabel').textContent = t.avgBrightnessLabel;
+            document.getElementById('transparentPixelsLabel').textContent = t.transparentPixelsLabel;
+            
+            // Update other labels
+            document.getElementById('dominantColorsTitle').textContent = t.dominantColorsTitle;
+            document.getElementById('clickPixelTitle').textContent = t.clickPixelTitle;
+            document.getElementById('coordsLabel').textContent = t.coordsLabel;
+            document.getElementById('rgbLabel').textContent = t.rgbLabel;
+            document.getElementById('hexLabel').textContent = t.hexLabel;
+            document.getElementById('hslLabel').textContent = t.hslLabel;
+            
+            // Update placeholder if no image is loaded
+            const imageContainer = document.getElementById('imageContainer');
+            if (imageContainer.querySelector('.placeholder')) {
+                imageContainer.innerHTML = `<div class="placeholder">${t.waitingText}</div>`;
+            }
+            
+            // Update page title and lang attribute
+            document.title = t.mainTitle;
+            document.documentElement.lang = currentLanguage === 'zh-TW' ? 'zh-TW' : 'en';
+        }
+        
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            currentLanguage = detectLanguage();
+            applyLanguage();
+        });
+        
+        let currentCanvas = null;
+        let currentContext = null;
+        
+        function showAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = 'alert ' + type;
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function decodeImage() {
+            const input = document.getElementById('base64Input').value.trim();
+            const t = translations[currentLanguage];
+            
+            if (!input) {
+                showAlert(t.pleaseInputBase64);
+                return;
+            }
+            
+            let base64String = input;
+            
+            // 如果輸入包含 data:image 前綴，直接使用
+            // 否則嘗試加上前綴
+            if (!input.startsWith('data:image')) {
+                // 嘗試判斷圖片格式
+                if (input.startsWith('iVBORw0')) {
+                    base64String = 'data:image/png;base64,' + input;
+                } else if (input.startsWith('/9j/')) {
+                    base64String = 'data:image/jpeg;base64,' + input;
+                } else if (input.startsWith('R0lGOD')) {
+                    base64String = 'data:image/gif;base64,' + input;
+                } else {
+                    // 預設為 PNG
+                    base64String = 'data:image/png;base64,' + input;
+                }
+            }
+            
+            const img = new Image();
+            
+            img.onload = function() {
+                displayImage(img, base64String);
+                analyzePixels(img);
+                showAlert(t.decodeSuccess, 'success');
+            };
+            
+            img.onerror = function() {
+                showAlert(t.decodeError);
+                document.getElementById('imageContainer').innerHTML = 
+                    `<div class="placeholder">${t.loadFailed}</div>`;
+            };
+            
+            img.src = base64String;
+        }
+        
+        function displayImage(img, base64String) {
+            const container = document.getElementById('imageContainer');
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            currentCanvas = canvas;
+            currentContext = ctx;
+            
+            container.innerHTML = '';
+            container.appendChild(canvas);
+            
+            // 添加點擊事件
+            canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const x = Math.floor((e.clientX - rect.left) * scaleX);
+                const y = Math.floor((e.clientY - rect.top) * scaleY);
+                
+                showPixelInfo(x, y);
+            });
+            
+            // 顯示圖片資訊
+            document.getElementById('imageInfo').style.display = 'block';
+            document.getElementById('imageDimensions').textContent = `${img.width} × ${img.height} px`;
+            
+            // 判斷格式
+            let format = 'Unknown';
+            if (base64String.includes('image/png')) format = 'PNG';
+            else if (base64String.includes('image/jpeg') || base64String.includes('image/jpg')) format = 'JPEG';
+            else if (base64String.includes('image/gif')) format = 'GIF';
+            else if (base64String.includes('image/webp')) format = 'WebP';
+            document.getElementById('imageFormat').textContent = format;
+            
+            // 計算檔案大小
+            const base64Length = base64String.split(',')[1]?.length || base64String.length;
+            const fileSize = Math.round(base64Length * 0.75 / 1024);
+            const t = translations[currentLanguage];
+            document.getElementById('fileSize').textContent = `${t.aboutSize} ${fileSize} KB`;
+            
+            document.getElementById('totalPixels').textContent = (img.width * img.height).toLocaleString();
+            
+            // 設定解碼後的圖片作為背景
+            document.body.style.background = `
+                linear-gradient(135deg, rgba(156, 163, 175, 0.6) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(147, 197, 253, 0.5) 100%),
+                url('${base64String}')
+            `;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        }
+        
+        function analyzePixels(img) {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+            
+            const colorMap = new Map();
+            let transparentCount = 0;
+            let totalBrightness = 0;
+            
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
+                const a = pixels[i + 3];
+                
+                if (a < 255) transparentCount++;
+                
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                totalBrightness += brightness;
+                
+                const colorKey = `${r},${g},${b},${a}`;
+                colorMap.set(colorKey, (colorMap.get(colorKey) || 0) + 1);
+            }
+            
+            const pixelCount = pixels.length / 4;
+            const avgBrightness = Math.round(totalBrightness / pixelCount / 255 * 100);
+            
+            // 顯示統計資訊
+            document.getElementById('pixelAnalysis').style.display = 'block';
+            document.getElementById('uniqueColors').textContent = colorMap.size.toLocaleString();
+            document.getElementById('avgBrightness').textContent = avgBrightness + '%';
+            document.getElementById('transparentPixels').textContent = transparentCount.toLocaleString();
+            
+            // 找出主要顏色
+            const sortedColors = Array.from(colorMap.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const dominantColorsDiv = document.getElementById('dominantColors');
+            dominantColorsDiv.innerHTML = '';
+            
+            sortedColors.forEach(([color, count]) => {
+                const [r, g, b, a] = color.split(',').map(Number);
+                const percentage = ((count / pixelCount) * 100).toFixed(2);
+                
+                const colorDiv = document.createElement('div');
+                colorDiv.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 10px;
+                `;
+                
+                const colorBox = document.createElement('div');
+                colorBox.style.cssText = `
+                    width: 40px;
+                    height: 40px;
+                    background: rgba(${r}, ${g}, ${b}, ${a/255});
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    margin-right: 15px;
+                `;
+                
+                const colorInfo = document.createElement('div');
+                colorInfo.innerHTML = `
+                    <div style="font-weight: 600;">${rgbToHex(r, g, b)}</div>
+                    <div style="color: #666; font-size: 0.9em;">RGB(${r}, ${g}, ${b}) - ${percentage}%</div>
+                `;
+                
+                colorDiv.appendChild(colorBox);
+                colorDiv.appendChild(colorInfo);
+                dominantColorsDiv.appendChild(colorDiv);
+            });
+        }
+        
+        function showPixelInfo(x, y) {
+            if (!currentContext) return;
+            
+            const pixel = currentContext.getImageData(x, y, 1, 1).data;
+            const r = pixel[0];
+            const g = pixel[1];
+            const b = pixel[2];
+            const a = pixel[3];
+            
+            document.getElementById('clickedPixelInfo').style.display = 'block';
+            document.getElementById('clickedColorPreview').style.background = 
+                `rgba(${r}, ${g}, ${b}, ${a/255})`;
+            document.getElementById('pixelCoords').textContent = `(${x}, ${y})`;
+            document.getElementById('pixelRGB').textContent = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('pixelHEX').textContent = rgbToHex(r, g, b);
+            
+            const hsl = rgbToHsl(r, g, b);
+            document.getElementById('pixelHSL').textContent = 
+                `hsl(${hsl.h}°, ${hsl.s}%, ${hsl.l}%)`;
+        }
+        
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('').toUpperCase();
+        }
+        
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                
+                switch (max) {
+                    case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                    case g: h = ((b - r) / d + 2) / 6; break;
+                    case b: h = ((r - g) / d + 4) / 6; break;
+                }
+            }
+            
+            return {
+                h: Math.round(h * 360),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+        
+        function clearAll() {
+            document.getElementById('base64Input').value = '';
+            const t = translations[currentLanguage];
+            document.getElementById('imageContainer').innerHTML = 
+                `<div class="placeholder">${t.waitingText}</div>`;
+            document.getElementById('imageInfo').style.display = 'none';
+            document.getElementById('pixelAnalysis').style.display = 'none';
+            document.getElementById('alertMessage').style.display = 'none';
+            currentCanvas = null;
+            currentContext = null;
+            
+            // 還原預設背景
+            document.body.style.background = `
+                linear-gradient(135deg, rgba(156, 163, 175, 0.6) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(147, 197, 253, 0.5) 100%),
+                linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%)
+            `;
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            document.body.style.backgroundAttachment = 'fixed';
+        }
+        
+        function loadExample() {
+            // 載入一個簡單的範例 base64 圖片（1x1 紅色像素）
+            const exampleBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
+            document.getElementById('base64Input').value = exampleBase64;
+            decodeImage();
+        }
+        
+        // 支援拖放功能
+        const textarea = document.getElementById('base64Input');
+        
+        textarea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            textarea.style.borderColor = 'rgba(147, 197, 253, 0.8)';
+            textarea.style.boxShadow = '0 0 0 3px rgba(147, 197, 253, 0.1)';
+        });
+        
+        textarea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            textarea.style.borderColor = '#e0e0e0';
+            textarea.style.boxShadow = 'none';
+        });
+        
+        textarea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            textarea.style.borderColor = '#e0e0e0';
+            textarea.style.boxShadow = 'none';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    textarea.value = e.target.result;
+                    decodeImage();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // 支援貼上圖片
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('base64Input').value = e.target.result;
+                        decodeImage();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    </script>
+    <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+    <script>
+      kofiWidgetOverlay.draw('jzso_biz', {
+        'type': 'floating-chat',
+        'floating-chat.donateButton.text': 'Support me',
+        'floating-chat.donateButton.background-color': '#00b9fe',
+        'floating-chat.donateButton.text-color': '#fff'
+      });
+    </script>
+</body>
+</html>

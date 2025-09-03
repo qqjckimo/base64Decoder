@@ -41,11 +41,13 @@ class App {
 
     async registerRoutes() {
         router
-            .register('home', () => this.showHome())
             .register('tool', async (params) => {
                 const toolName = params[0];
                 if (toolName) {
                     await this.loadTool(toolName);
+                } else {
+                    // No tool specified, redirect to default tool
+                    router.navigate('tool/base64-decoder');
                 }
             })
             .setDefault('tool/base64-decoder');
@@ -88,20 +90,6 @@ class App {
             <div class="home-content">
                 <h1>開發者工具集</h1>
                 <p>請從左側選單選擇工具</p>
-                <div class="features">
-                    <div class="feature-card">
-                        <h3>🚀 快速載入</h3>
-                        <p>動態載入模組，最佳化初始載入時間</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>🔒 隱私優先</h3>
-                        <p>所有處理都在本地進行，無需上傳資料</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>📱 響應式設計</h3>
-                        <p>支援桌面、平板和手機裝置</p>
-                    </div>
-                </div>
             </div>
         `;
     }
