@@ -1,0 +1,15 @@
+{
+  "id": "base64-decoder",
+  "name": "Base64 圖片解碼器",
+  "nameEn": "Base64 Image Decoder",
+  "description": "解碼 Base64 編碼的圖片並進行像素分析",
+  "descriptionEn": "Decode Base64 encoded images with pixel analysis",
+  "category": "圖片處理",
+  "categoryEn": "Image Processing",
+  "icon": "🖼️",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "estimatedSize": "15KB",
+  "keywords": ["base64", "image", "decoder", "pixel", "analysis"],
+  "preload": true
+}

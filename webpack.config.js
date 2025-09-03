@@ -1,0 +1,310 @@
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const portfinder = require('portfinder');
+
+const isProduction = process.env.NODE_ENV === 'production';
+const shouldAnalyze = process.env.ANALYZE === 'true';
+
+// Size limit configuration
+const SIZE_LIMITS = {
+    core: 50 * 1024,        // 50KB
+    common: 100 * 1024,     // 100KB
+    perTool: 30 * 1024,     // 30KB per tool
+    total: 150 * 1024       // 150KB initial experience
+};
+
+class BundleSizePlugin {
+    apply(compiler) {
+        compiler.hooks.afterEmit.tap('BundleSizePlugin', (compilation) => {
+            // Skip size checks in development mode
+            if (!isProduction) {
+                console.log('📦 Skipping bundle size checks in development mode');
+                return;
+            }
+            
+            const assets = compilation.assets;
+            const warnings = [];
+            
+            console.log('\n📊 Bundle Size Analysis:');
+            Object.keys(assets).forEach(filename => {
+                if (filename.endsWith('.js') || filename.endsWith('.css')) {
+                    const size = assets[filename].size();
+                    console.log(`   ${filename}: ${(size/1024).toFixed(2)}KB`);
+                    
+                    if (filename.includes('core') && size > SIZE_LIMITS.core) {
+                        warnings.push(`Core bundle (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.core/1024}KB`);
+                    }
+                    if (filename.includes('tools') && size > SIZE_LIMITS.common) {
+                        warnings.push(`Tools bundle (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.common/1024}KB`);
+                    }
+                    if (filename.includes('chunks/') && size > SIZE_LIMITS.perTool) {
+                        warnings.push(`Chunk (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.perTool/1024}KB`);
+                    }
+                }
+            });
+            
+            if (warnings.length > 0) {
+                console.warn('\n⚠️  Bundle Size Warnings:');
+                warnings.forEach(w => console.warn(`   ${w}`));
+                if (isProduction) {
+                    throw new Error('Bundle size limits exceeded. Build failed.');
+                }
+            } else {
+                console.log('✅ All bundles within size limits');
+            }
+        });
+    }
+}
+
+// Log configuration for debugging
+console.log('🔧 Webpack Configuration:');
+console.log(`   Mode: ${isProduction ? 'production' : 'development'}`);
+console.log(`   Analyze: ${shouldAnalyze}`);
+
+// Base port configuration
+const DEFAULT_PORT = 3000;
+portfinder.basePort = DEFAULT_PORT;
+
+const webpackConfig = {
+    mode: isProduction ? 'production' : 'development',
+    entry: {
+        core: './src/core/app.js'
+        // Removed 'common' entry to avoid conflict with splitChunks cache group
+    },
+    output: {
+        path: path.resolve(__dirname, 'docs'),
+        filename: isProduction ? '[name].[contenthash:8].bundle.js' : '[name].bundle.js',
+        chunkFilename: isProduction ? 'chunks/[name].[contenthash:8].chunk.js' : 'chunks/[name].chunk.js',
+        publicPath: '/',
+        clean: true
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            ['@babel/preset-env', {
+                                targets: {
+                                    chrome: '90',
+                                    firefox: '88',
+                                    safari: '14',
+                                    edge: '90'
+                                },
+                                modules: false,
+                                useBuiltIns: false // No polyfills
+                            }]
+                        ]
+                    }
+                }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            sourceMap: !isProduction
+                        }
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    ['autoprefixer'],
+                                    isProduction && ['cssnano', {
+                                        preset: ['default', {
+                                            discardComments: { removeAll: true },
+                                            normalizeWhitespace: true
+                                        }]
+                                    }]
+                                ].filter(Boolean)
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    plugins: [
+        new CleanWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            template: './index.html',
+            minify: isProduction ? {
+                collapseWhitespace: true,
+                removeComments: true,
+                removeRedundantAttributes: true,
+                removeScriptTypeAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                useShortDoctype: true,
+                minifyCSS: true,
+                minifyJS: true
+            } : false,
+            chunks: ['core'],
+            inject: 'body'
+        }),
+        isProduction && new MiniCssExtractPlugin({
+            filename: '[name].[contenthash:8].css',
+            chunkFilename: 'chunks/[name].[contenthash:8].css'
+        }),
+        isProduction && new CompressionPlugin({
+            test: /\.(js|css|html)$/,
+            algorithm: 'gzip',
+            threshold: 1024,
+            minRatio: 0.8
+        }),
+        isProduction && new CompressionPlugin({
+            test: /\.(js|css|html)$/,
+            algorithm: 'brotliCompress',
+            filename: '[path][base].br',
+            threshold: 1024,
+            minRatio: 0.8
+        }),
+        isProduction && new BundleSizePlugin(),
+        shouldAnalyze && new BundleAnalyzerPlugin({
+            analyzerMode: 'static',
+            reportFilename: 'bundle-report.html',
+            openAnalyzer: true
+        })
+    ].filter(Boolean),
+    optimization: {
+        minimize: isProduction,
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    parse: { ecma: 2020 },
+                    compress: {
+                        ecma: 2020,
+                        drop_console: isProduction,
+                        drop_debugger: true,
+                        pure_funcs: ['console.log'],
+                        passes: 2
+                    },
+                    mangle: {
+                        safari10: true
+                    },
+                    format: {
+                        ecma: 2020,
+                        comments: false,
+                        ascii_only: true
+                    }
+                },
+                extractComments: false
+            }),
+            new CssMinimizerPlugin({
+                minimizerOptions: {
+                    preset: ['default', {
+                        discardComments: { removeAll: true }
+                    }]
+                }
+            })
+        ],
+        splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+                core: {
+                    test: /[\\/]src[\\/]core[\\/]/,
+                    name: 'core',
+                    priority: 30,
+                    enforce: true
+                },
+                tools: {
+                    test: /[\\/]src[\\/]tools[\\/]/,
+                    name: 'tools',
+                    priority: 20,
+                    enforce: true
+                },
+                utils: {
+                    test: /[\\/]src[\\/]utils[\\/]/,
+                    name: 'utils',
+                    priority: 10,
+                    minSize: 1024
+                }
+            }
+        },
+        runtimeChunk: false, // Keep runtime inline to reduce requests
+        moduleIds: 'deterministic'
+    },
+    resolve: {
+        extensions: ['.js', '.json', '.css'],
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+            '@core': path.resolve(__dirname, 'src/core'),
+            '@tools': path.resolve(__dirname, 'src/tools'),
+            '@components': path.resolve(__dirname, 'src/components'),
+            '@utils': path.resolve(__dirname, 'src/utils')
+        }
+    },
+    devServer: {
+        static: {
+            directory: path.join(__dirname, 'docs')
+        },
+        compress: true,
+        port: DEFAULT_PORT,
+        hot: true,
+        open: true,
+        historyApiFallback: true,
+        onListening: function(devServer) {
+            if (!devServer) {
+                throw new Error('webpack-dev-server is not defined');
+            }
+            const port = devServer.server.address().port;
+            console.log(`\n🚀 Dev server running at: http://localhost:${port}\n`);
+        }
+    },
+    performance: {
+        hints: isProduction ? 'error' : false,
+        maxEntrypointSize: SIZE_LIMITS.total,
+        maxAssetSize: SIZE_LIMITS.perTool,
+        assetFilter: (assetFilename) => {
+            return !assetFilename.endsWith('.map');
+        }
+    },
+    devtool: isProduction ? false : 'eval-source-map',
+    stats: {
+        assets: true,
+        chunks: true,
+        modules: false,
+        entrypoints: true,
+        children: false,
+        cached: false,
+        cachedAssets: false,
+        colors: true,
+        performance: true
+    }
+};
+
+// Export configuration with port finding for dev server
+module.exports = (env, argv) => {
+    const mode = argv.mode || 'development';
+    
+    if (mode === 'development') {
+        return portfinder.getPortPromise({
+            port: DEFAULT_PORT,
+            stopPort: DEFAULT_PORT + 100 // Try ports 3000-3100
+        }).then(port => {
+            if (port !== DEFAULT_PORT) {
+                console.log(`⚠️  Port ${DEFAULT_PORT} is in use, using port ${port} instead`);
+            }
+            
+            webpackConfig.devServer.port = port;
+            return webpackConfig;
+        }).catch(err => {
+            console.error('Could not find an available port:', err);
+            return webpackConfig;
+        });
+    }
+    
+    return webpackConfig;
+};

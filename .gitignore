@@ -1,6 +1,22 @@
-# Temporary files
-*.tmp
-*.temp
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+*.log
+
+# Build outputs (docs is committed for GitHub Pages)
+bundle-report.html
+*.map
+.cache/
+.parcel-cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
 *~
 
 # OS generated files
@@ -12,18 +28,20 @@
 ehthumbs.db
 Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
+# Environment
+.env
+.env.local
+.env.*.local
 
-# Log files
-*.log
+# Testing
+coverage/
 
-# Node modules (if any)
-node_modules/
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
 
-# Build artifacts
+# Build artifacts (keep docs for GitHub Pages)
 dist/
 build/
