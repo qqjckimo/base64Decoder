@@ -1,15 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(start index.html)",
-      "Bash(npm run dev:*)",
-      "Bash(npm install:*)",
-      "Bash(python:*)",
-      "Bash(node:*)",
-      "Bash(curl:*)",
-      "WebSearch",
-      "WebFetch(domain:github.com)"
-    ],
+    "allow": [],
     "deny": [],
     "ask": []
   }
