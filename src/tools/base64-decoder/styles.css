@@ -39,6 +39,54 @@
   grid-column: 1 / -1;
 }
 
+/* Input Header */
+.input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.input-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+/* Editor Badge */
+.editor-badge {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.2;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  cursor: help;
+}
+
+.editor-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.badge-text {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-subtitle {
+  font-size: 9px;
+  opacity: 0.9;
+  font-weight: 400;
+  margin-top: 1px;
+}
+
 .card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px) saturate(1.5);
@@ -80,6 +128,61 @@
 .input-group textarea.dragover {
   border-color: rgba(147, 197, 253, 0.8);
   background: rgba(37, 99, 235, 0.05);
+}
+
+/* Monaco Editor Styles */
+.monaco-editor-wrapper {
+  width: 100%;
+  height: 80px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+.monaco-editor-wrapper:focus-within {
+  border-color: rgba(147, 197, 253, 0.8);
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.1);
+}
+
+.monaco-editor-wrapper .monaco-editor.dragover {
+  background: rgba(37, 99, 235, 0.05) !important;
+}
+
+.monaco-editor-wrapper .monaco-editor {
+  transition: background-color 0.3s;
+}
+
+/* Editor Loading State */
+.editor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #f8f9fa;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e0e0e0;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .button-group {

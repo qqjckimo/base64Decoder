@@ -1,12 +1,20 @@
+import { MonacoLoader } from '../../utils/monacoLoader.js';
+
 export default class Base64DecoderTool {
   constructor() {
     this.currentCanvas = null;
     this.currentContext = null;
+    this.editor = null;
+    this.editorContainer = null;
     this.currentLanguage = localStorage.getItem("preferredLanguage") || "zh-TW";
     this.translations = {
       "zh-TW": {
         title: "Base64 圖片解碼",
         inputPlaceholder: "在此貼上 Base64 編碼的圖片字串...",
+        loadingEditor: "正在載入編輯器...",
+        enhancedEditor: "✨ 增強編輯器",
+        largeFileSupport: "支援大型檔案",
+        editorFeatures: "支援大型 Base64 字串、語法高亮、搜尋替換",
         decode: "解碼圖片",
         clear: "清除",
         loadExample: "載入範例",
@@ -32,6 +40,10 @@ export default class Base64DecoderTool {
       en: {
         title: "Base64 Image Decoder",
         inputPlaceholder: "Paste Base64 encoded image string here...",
+        loadingEditor: "Loading editor...",
+        enhancedEditor: "✨ Enhanced Editor",
+        largeFileSupport: "Large File Support",
+        editorFeatures: "Supports large Base64 strings, syntax highlighting, find & replace",
         decode: "Decode Image",
         clear: "Clear",
         loadExample: "Load Example",
@@ -60,13 +72,153 @@ export default class Base64DecoderTool {
   async init(container) {
     this.container = container;
     this.render();
+    await this.initMonacoEditor();
     this.attachEvents();
 
     // Listen for global language changes
-    window.addEventListener("languageChanged", (e) => {
+    window.addEventListener("languageChanged", async (e) => {
+      const editorValue = this.editor?.getValue() || '';
       this.currentLanguage = e.detail.language;
       this.render();
+      await this.initMonacoEditor();
+      if (editorValue) {
+        this.editor.setValue(editorValue);
+      }
       this.attachEvents();
+    });
+  }
+
+  async initMonacoEditor() {
+    const t = this.translations[this.currentLanguage];
+    this.editorContainer = this.container.querySelector('#monacoEditorContainer');
+    
+    if (!this.editorContainer) return;
+
+    // Show loading spinner
+    this.editorContainer.innerHTML = `
+      <div class="editor-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">${t.loadingEditor}</div>
+      </div>
+    `;
+
+    try {
+      // Load Monaco Editor from CDN
+      await MonacoLoader.load();
+      
+      // Clear loading state
+      this.editorContainer.innerHTML = '';
+      
+      // Create editor instance with error handling
+      this.editor = MonacoLoader.createEditor(this.editorContainer, {
+        value: '',
+        language: 'plaintext',
+        automaticLayout: true
+      });
+
+      // Set up drag and drop for editor
+      this.setupEditorDragDrop();
+      
+      // Show enhanced editor badge
+      this.showEditorBadge();
+      
+      console.log('Monaco Editor initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize Monaco Editor:', error);
+      this.fallbackToTextarea(t);
+    }
+  }
+
+  showEditorBadge() {
+    const badge = this.container.querySelector('#editorBadge');
+    if (badge) {
+      badge.style.display = 'flex';
+      // Add a subtle animation
+      badge.style.opacity = '0';
+      setTimeout(() => {
+        badge.style.opacity = '1';
+      }, 100);
+    }
+  }
+
+  hideEditorBadge() {
+    const badge = this.container.querySelector('#editorBadge');
+    if (badge) {
+      badge.style.display = 'none';
+    }
+  }
+
+  fallbackToTextarea(t) {
+    // Fallback to textarea
+    this.editor = null;
+    this.hideEditorBadge();
+    this.editorContainer.innerHTML = `
+      <textarea 
+        id="base64Input" 
+        placeholder="${t.inputPlaceholder}"
+        rows="3"
+      ></textarea>
+    `;
+    
+    // Set up drag and drop for textarea fallback
+    const textarea = this.editorContainer.querySelector('#base64Input');
+    if (textarea) {
+      textarea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        textarea.classList.add('dragover');
+      });
+
+      textarea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        textarea.classList.remove('dragover');
+      });
+
+      textarea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        textarea.classList.remove('dragover');
+
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            textarea.value = e.target.result;
+            this.decode();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  }
+
+  setupEditorDragDrop() {
+    if (!this.editor || !this.editorContainer) return;
+
+    const editorDom = this.editorContainer.querySelector('.monaco-editor');
+    if (!editorDom) return;
+
+    editorDom.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      editorDom.classList.add('dragover');
+    });
+
+    editorDom.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      editorDom.classList.remove('dragover');
+    });
+
+    editorDom.addEventListener('drop', (e) => {
+      e.preventDefault();
+      editorDom.classList.remove('dragover');
+
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.editor.setValue(e.target.result);
+          this.decode();
+        };
+        reader.readAsDataURL(file);
+      }
     });
   }
 
@@ -81,13 +233,15 @@ export default class Base64DecoderTool {
                 
                 <div class="tool-grid">
                     <div class="card input-section">
-                        <h3>${t.inputPlaceholder.split("\n")[0]}</h3>
+                        <div class="input-header">
+                            <h3>${t.inputPlaceholder.split("\n")[0]}</h3>
+                            <div id="editorBadge" class="editor-badge" style="display: none;" title="${t.editorFeatures}">
+                                <span class="badge-text">${t.enhancedEditor}</span>
+                                <span class="badge-subtitle">${t.largeFileSupport}</span>
+                            </div>
+                        </div>
                         <div class="input-group">
-                            <textarea 
-                                id="base64Input" 
-                                placeholder="${t.inputPlaceholder}"
-                                rows="3"
-                            ></textarea>
+                            <div id="monacoEditorContainer" class="monaco-editor-wrapper"></div>
                         </div>
                         
                         <div class="button-group">
@@ -208,50 +362,57 @@ export default class Base64DecoderTool {
       }
     });
 
-    const textarea = this.container.querySelector("#base64Input");
-
-    textarea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      textarea.classList.add("dragover");
-    });
-
-    textarea.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      textarea.classList.remove("dragover");
-    });
-
-    textarea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      textarea.classList.remove("dragover");
-
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          textarea.value = e.target.result;
-          this.decode();
-        };
-        reader.readAsDataURL(file);
+    // Handle paste events
+    document.addEventListener("paste", (e) => {
+      if (!this.container.contains(document.activeElement)) return;
+      
+      // Check if Monaco editor is focused
+      if (this.editor && this.editor.hasTextFocus()) {
+        const items = e.clipboardData.items;
+        for (let item of items) {
+          if (item.type.indexOf("image") !== -1) {
+            e.preventDefault();
+            const file = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              this.editor.setValue(e.target.result);
+              this.decode();
+            };
+            reader.readAsDataURL(file);
+            break;
+          }
+        }
       }
     });
 
-    document.addEventListener("paste", (e) => {
-      if (!this.container.contains(document.activeElement)) return;
+    // Fallback for textarea if Monaco fails to load
+    const textarea = this.container.querySelector("#base64Input");
+    if (textarea) {
+      textarea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        textarea.classList.add("dragover");
+      });
 
-      const items = e.clipboardData.items;
-      for (let item of items) {
-        if (item.type.indexOf("image") !== -1) {
-          const file = item.getAsFile();
+      textarea.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        textarea.classList.remove("dragover");
+      });
+
+      textarea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        textarea.classList.remove("dragover");
+
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
           const reader = new FileReader();
           reader.onload = (e) => {
             textarea.value = e.target.result;
             this.decode();
           };
           reader.readAsDataURL(file);
-          break;
         }
-      }
-    });
+      });
+    }
   }
 
   showAlert(message, type = "error") {
@@ -266,7 +427,16 @@ export default class Base64DecoderTool {
   }
 
   decode() {
-    const input = this.container.querySelector("#base64Input").value.trim();
+    // Get value from Monaco editor or fallback textarea
+    let input = '';
+    if (this.editor) {
+      input = this.editor.getValue().trim();
+    } else {
+      const textarea = this.container.querySelector("#base64Input");
+      if (textarea) {
+        input = textarea.value.trim();
+      }
+    }
     const t = this.translations[this.currentLanguage];
 
     if (!input) {
@@ -521,7 +691,15 @@ export default class Base64DecoderTool {
   }
 
   clear() {
-    this.container.querySelector("#base64Input").value = "";
+    if (this.editor) {
+      this.editor.setValue("");
+      this.editor.focus();
+    } else {
+      const textarea = this.container.querySelector("#base64Input");
+      if (textarea) {
+        textarea.value = "";
+      }
+    }
     const t = this.translations[this.currentLanguage];
     this.container.querySelector(
       "#imageContainer"
@@ -535,8 +713,15 @@ export default class Base64DecoderTool {
   }
 
   loadExample() {
-    this.container.querySelector("#base64Input").value =
-      this._getExampleBase64();
+    const exampleBase64 = this._getExampleBase64();
+    if (this.editor) {
+      this.editor.setValue(exampleBase64);
+    } else {
+      const textarea = this.container.querySelector("#base64Input");
+      if (textarea) {
+        textarea.value = exampleBase64;
+      }
+    }
     this.decode();
   }
 
@@ -556,8 +741,15 @@ export default class Base64DecoderTool {
   }
 
   destroy() {
+    // Dispose Monaco editor if it exists
+    if (this.editor) {
+      this.editor.dispose();
+      this.editor = null;
+    }
+    
     this.currentCanvas = null;
     this.currentContext = null;
+    this.editorContainer = null;
     this.container.innerHTML = "";
   }
 

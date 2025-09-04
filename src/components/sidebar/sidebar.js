@@ -10,6 +10,7 @@ export class Sidebar {
                 sidebarTitle: '開發工具',
                 categoryImageProcessing: '圖片處理',
                 base64DecoderName: 'Base64 圖片解碼器',
+                base64EncoderName: 'Base64 圖片編碼器',
                 featureFastLoad: '快速載入',
                 featurePrivacyFirst: '隱私優先',
                 languageToggle: '🌐 EN',
@@ -20,6 +21,7 @@ export class Sidebar {
                 sidebarTitle: 'Developer Tools',
                 categoryImageProcessing: 'Image Processing',
                 base64DecoderName: 'Base64 Image Decoder',
+                base64EncoderName: 'Base64 Image Encoder',
                 featureFastLoad: 'Fast Loading',
                 featurePrivacyFirst: 'Privacy First',
                 languageToggle: '🌐 中文',
@@ -43,6 +45,12 @@ export class Sidebar {
                 id: 'base64-decoder',
                 name: t.base64DecoderName,
                 icon: createIcon('image', 20, 'tool-icon'),
+                category: t.categoryImageProcessing
+            },
+            {
+                id: 'base64-encoder',
+                name: t.base64EncoderName,
+                icon: createIcon('camera', 20, 'tool-icon'),
                 category: t.categoryImageProcessing
             }
         ];

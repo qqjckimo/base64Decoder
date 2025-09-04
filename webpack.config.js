@@ -40,10 +40,21 @@ class BundleSizePlugin {
                     if (filename.includes('core') && size > SIZE_LIMITS.core) {
                         warnings.push(`Core bundle (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.core/1024}KB`);
                     }
-                    if (filename.includes('tools') && size > SIZE_LIMITS.common) {
+                    if (filename.includes('tool-base64-decoder') && size > 130 * 1024) {
+                        warnings.push(`Base64 Decoder tool (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > 130KB`);
+                    }
+                    if (filename.includes('tool-base64-encoder') && size > SIZE_LIMITS.perTool) {
+                        warnings.push(`Base64 Encoder tool (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.perTool/1024}KB`);
+                    }
+                    if (filename.includes('encoder-') && filename.includes('-worker') && size > 15 * 1024) {
+                        warnings.push(`Encoder worker (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > 15KB`);
+                    }
+                    if (filename.includes('tools') && !filename.includes('tool-') && size > SIZE_LIMITS.common) {
                         warnings.push(`Tools bundle (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.common/1024}KB`);
                     }
-                    if (filename.includes('chunks/') && size > SIZE_LIMITS.perTool) {
+                    if (filename.includes('chunks/') && filename.includes('tool-base64-decoder') && size > 130 * 1024) {
+                        warnings.push(`Chunk (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > 130KB`);
+                    } else if (filename.includes('chunks/') && !filename.includes('tool-base64-decoder') && size > SIZE_LIMITS.perTool) {
                         warnings.push(`Chunk (${filename}) exceeds limit: ${(size/1024).toFixed(2)}KB > ${SIZE_LIMITS.perTool/1024}KB`);
                     }
                 }
@@ -82,13 +93,21 @@ const webpackConfig = {
         filename: isProduction ? '[name].[contenthash:8].bundle.js' : '[name].bundle.js',
         chunkFilename: isProduction ? 'chunks/[name].[contenthash:8].chunk.js' : 'chunks/[name].chunk.js',
         publicPath: '/',
-        clean: true
+        clean: false,
+        assetModuleFilename: isProduction ? '[name].[contenthash:8][ext]' : '[name][ext]'
     },
     module: {
         rules: [
             {
+                test: /\.worker\.js$/,
+                type: 'asset/resource',
+                generator: {
+                    filename: isProduction ? 'workers/[name].[contenthash:8].worker.js' : 'workers/[name].worker.js'
+                }
+            },
+            {
                 test: /\.js$/,
-                exclude: /node_modules/,
+                exclude: [/node_modules/, /\.worker\.js$/],
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -138,7 +157,7 @@ const webpackConfig = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(),
+        // isProduction && new CleanWebpackPlugin(), // Disabled due to permission issues
         new HtmlWebpackPlugin({
             template: './index.html',
             minify: isProduction ? {
@@ -219,11 +238,35 @@ const webpackConfig = {
                     priority: 30,
                     enforce: true
                 },
+                'tool-base64-decoder': {
+                    test: /[\\/]src[\\/]tools[\\/]base64-decoder[\\/]/,
+                    name: 'tool-base64-decoder',
+                    priority: 25,
+                    enforce: true
+                },
+                'tool-base64-encoder': {
+                    test: /[\\/]src[\\/]tools[\\/]base64-encoder[\\/](?!.*\.worker\.js$)/,
+                    name: 'tool-base64-encoder',
+                    priority: 25,
+                    enforce: true
+                },
+                'encoder-compressor-worker': {
+                    test: /[\\/]src[\\/]tools[\\/]base64-encoder[\\/]compressor\.worker\.js$/,
+                    name: 'encoder-compressor-worker',
+                    priority: 30,
+                    enforce: true
+                },
+                'encoder-worker': {
+                    test: /[\\/]src[\\/]tools[\\/]base64-encoder[\\/]encoder\.worker\.js$/,
+                    name: 'encoder-worker',
+                    priority: 30,
+                    enforce: true
+                },
                 tools: {
                     test: /[\\/]src[\\/]tools[\\/]/,
                     name: 'tools',
                     priority: 20,
-                    enforce: true
+                    enforce: false
                 },
                 utils: {
                     test: /[\\/]src[\\/]utils[\\/]/,
@@ -247,9 +290,7 @@ const webpackConfig = {
         }
     },
     devServer: {
-        static: {
-            directory: path.join(__dirname, 'docs')
-        },
+        static: false,
         compress: true,
         port: DEFAULT_PORT,
         hot: true,

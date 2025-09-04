@@ -11,7 +11,7 @@
     "clean": "rimraf docs",
     "create-tool": "node scripts/create-tool.js",
     "test:size": "node scripts/check-size.js",
-    "serve:prod": "npx serve docs -p 3000",
+    "serve:prod": "npx serve docs -p 8080",
     "build:legacy": "node build.js"
   },
   "keywords": [

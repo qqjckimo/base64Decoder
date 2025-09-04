@@ -3,7 +3,7 @@ export class Router {
         this.routes = new Map();
         this.currentRoute = null;
         this.defaultRoute = 'home';
-        this.validTools = ['base64-decoder']; // List of valid tools
+        this.validTools = ['base64-decoder', 'base64-encoder']; // List of valid tools
         this.init();
     }
 
@@ -49,9 +49,11 @@ export class Router {
             }
         }
         
-        if (this.currentRoute === route) return;
+        // For tool routes, we need to compare the full path including the tool name
+        const fullRoute = route === 'tool' && params.length > 0 ? `${route}/${params[0]}` : route;
+        if (this.currentRoute === fullRoute) return;
         
-        this.currentRoute = route;
+        this.currentRoute = fullRoute;
         await handler(params);
         this.updateActiveNav(route);
     }

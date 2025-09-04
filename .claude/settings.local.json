@@ -1,6 +1,21 @@
 {
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Read(/C:\\Users\\JasonChenCH\\Documents\\Repo\\GSelfProject\\base64Decoder\\src\\tools\\base64-decoder/**)",
+      "Read(/C:\\Users\\JasonChenCH\\Documents\\Repo\\GSelfProject\\base64Decoder\\docs\\chunks/**)",
+      "Read(/C:\\Users\\JasonChenCH\\Documents\\Repo\\GSelfProject\\base64Decoder/**)",
+      "Bash(curl:*)",
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Bash(npm:*)",
+      "Bash(node:*)",
+      "Bash(git:*)",
+      "Glob",
+      "Grep",
+      "LS"
+    ],
     "deny": [],
     "ask": []
   }

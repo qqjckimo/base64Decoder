@@ -1,0 +1,15 @@
+{
+  "id": "base64-encoder",
+  "name": "Base64 圖片編碼器",
+  "nameEn": "Base64 Image Encoder",
+  "description": "將圖片轉換為 Base64 編碼，並提供檔案大小比較分析",
+  "descriptionEn": "Convert images to Base64 encoding with file size comparison analysis",
+  "category": "圖片處理",
+  "categoryEn": "Image Processing",
+  "icon": "📷",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "estimatedSize": "135KB",
+  "keywords": ["base64", "image", "encoder", "compression", "gzip", "jsquash"],
+  "preload": false
+}
