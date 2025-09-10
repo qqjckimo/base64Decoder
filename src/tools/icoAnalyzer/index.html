@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ICO File Analyzer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #3494e6 0%, #ec6ead 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        padding: 40px;
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+      }
+
+      .upload-area {
+        border: 3px dashed #3494e6;
+        border-radius: 15px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: #f0f7ff;
+      }
+
+      .upload-area.dragover {
+        background: #e1f0ff;
+        border-color: #ec6ead;
+        transform: scale(1.02);
+      }
+
+      .upload-area:hover {
+        background: #e1f0ff;
+      }
+
+      .upload-icon {
+        font-size: 48px;
+        color: #3494e6;
+        margin-bottom: 15px;
+      }
+
+      .upload-text {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .upload-hint {
+        color: #999;
+        font-size: 14px;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .results-section {
+        margin-top: 30px;
+        display: none;
+      }
+
+      .results-section.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .file-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: #555;
+      }
+
+      .info-value {
+        color: #333;
+      }
+
+      .images-container {
+        margin-top: 20px;
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 20px;
+      }
+
+      .image-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .image-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .image-preview {
+        width: 100%;
+        height: 100px;
+        object-fit: contain;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        padding: 5px;
+      }
+
+      .image-details {
+        font-size: 12px;
+        color: #666;
+        text-align: left;
+      }
+
+      .image-detail {
+        margin: 4px 0;
+      }
+
+      .format-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 5px;
+      }
+
+      .format-png {
+        background: #d4edda;
+        color: #155724;
+      }
+
+      .format-bmp {
+        background: #fff3cd;
+        color: #856404;
+      }
+
+      .reset-btn {
+        margin-top: 20px;
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #3494e6 0%, #ec6ead 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 148, 230, 0.4);
+      }
+
+      .error-message {
+        background: #fee;
+        color: #c33;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+        display: none;
+      }
+
+      .error-message.active {
+        display: block;
+      }
+
+      .hex-view {
+        background: #1e1e1e;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        margin-top: 10px;
+      }
+
+      .hex-row {
+        margin: 2px 0;
+      }
+
+      .hex-offset {
+        color: #888;
+        margin-right: 10px;
+      }
+
+      .hex-bytes {
+        color: #00ff00;
+        margin-right: 10px;
+      }
+
+      .hex-ascii {
+        color: #ffff00;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 ICO File Analyzer</h1>
+
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag and drop ICO file here</div>
+        <div class="upload-hint">
+          Analyze ICO file internal format (PNG or BMP)
+        </div>
+        <input type="file" id="fileInput" accept=".ico,image/x-icon" />
+      </div>
+
+      <div class="results-section" id="resultsSection">
+        <div class="file-info">
+          <div class="info-row">
+            <span class="info-label">File Name:</span>
+            <span class="info-value" id="fileName"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">File Size:</span>
+            <span class="info-value" id="fileSize"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Image Count:</span>
+            <span class="info-value" id="imageCount"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">File Format:</span>
+            <span class="info-value" id="formatSummary"></span>
+          </div>
+        </div>
+
+        <div class="images-container">
+          <h2 class="section-title">
+            <span>📊</span>
+            <span>Image Details</span>
+          </h2>
+          <div class="image-grid" id="imageGrid"></div>
+        </div>
+
+        <details style="margin-top: 20px">
+          <summary
+            style="
+              cursor: pointer;
+              padding: 10px;
+              background: #f8f9fa;
+              border-radius: 8px;
+            "
+          >
+            🔧 View HEX Data (First 256 bytes)
+          </summary>
+          <div class="hex-view" id="hexView"></div>
+        </details>
+
+        <button class="reset-btn" id="resetBtn">Analyze Another File</button>
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+      class ICOAnalyzer {
+        constructor() {
+          this.pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+        }
+
+        async analyzeICO(arrayBuffer) {
+          const view = new DataView(arrayBuffer);
+          const results = {
+            isValid: false,
+            imageCount: 0,
+            images: [],
+            totalSize: arrayBuffer.byteLength,
+          };
+
+          // Check ICO header
+          if (view.getUint16(0, true) !== 0 || view.getUint16(2, true) !== 1) {
+            throw new Error("Not a valid ICO file");
+          }
+
+          results.isValid = true;
+          results.imageCount = view.getUint16(4, true);
+
+          // Read directory entries for each image
+          let offset = 6; // After header
+          for (let i = 0; i < results.imageCount; i++) {
+            const image = {
+              index: i + 1,
+              width: view.getUint8(offset) || 256,
+              height: view.getUint8(offset + 1) || 256,
+              colorCount: view.getUint8(offset + 2),
+              reserved: view.getUint8(offset + 3),
+              planes: view.getUint16(offset + 4, true),
+              bitCount: view.getUint16(offset + 6, true),
+              dataSize: view.getUint32(offset + 8, true),
+              dataOffset: view.getUint32(offset + 12, true),
+              format: "unknown",
+            };
+
+            // Check image data format
+            if (image.dataOffset + 8 <= arrayBuffer.byteLength) {
+              const isPNG = this.checkPNGSignature(view, image.dataOffset);
+              image.format = isPNG ? "PNG" : "BMP";
+
+              // If it's PNG, read actual dimensions
+              if (isPNG && image.dataOffset + 24 <= arrayBuffer.byteLength) {
+                const pngWidth = view.getUint32(image.dataOffset + 16, false);
+                const pngHeight = view.getUint32(image.dataOffset + 20, false);
+                image.actualWidth = pngWidth;
+                image.actualHeight = pngHeight;
+              }
+
+              // Extract image data for preview
+              const imageData = new Uint8Array(
+                arrayBuffer,
+                image.dataOffset,
+                image.dataSize
+              );
+              if (isPNG) {
+                image.blob = new Blob([imageData], { type: "image/png" });
+              } else {
+                // BMP needs file header
+                image.blob = this.createBMPBlob(imageData, image);
+              }
+            }
+
+            results.images.push(image);
+            offset += 16; // Each directory entry is 16 bytes
+          }
+
+          return results;
+        }
+
+        checkPNGSignature(view, offset) {
+          for (let i = 0; i < this.pngSignature.length; i++) {
+            if (view.getUint8(offset + i) !== this.pngSignature[i]) {
+              return false;
+            }
+          }
+          return true;
+        }
+
+        createBMPBlob(data, imageInfo) {
+          // Simplified BMP creation (may not handle all cases)
+          const bmpHeader = new Uint8Array(14);
+          const dibHeader = new Uint8Array(40);
+
+          // BMP file header
+          bmpHeader[0] = 0x42; // 'B'
+          bmpHeader[1] = 0x4d; // 'M'
+
+          // File size
+          const fileSize = 14 + 40 + data.length;
+          bmpHeader[2] = fileSize & 0xff;
+          bmpHeader[3] = (fileSize >> 8) & 0xff;
+          bmpHeader[4] = (fileSize >> 16) & 0xff;
+          bmpHeader[5] = (fileSize >> 24) & 0xff;
+
+          // Data offset
+          bmpHeader[10] = 54;
+
+          // DIB header
+          dibHeader[0] = 40; // Header size
+
+          // Width and height
+          dibHeader[4] = imageInfo.width & 0xff;
+          dibHeader[5] = (imageInfo.width >> 8) & 0xff;
+          dibHeader[8] = imageInfo.height & 0xff;
+          dibHeader[9] = (imageInfo.height >> 8) & 0xff;
+
+          // Color planes and bit depth
+          dibHeader[12] = 1;
+          dibHeader[14] = imageInfo.bitCount || 32;
+
+          return new Blob([bmpHeader, dibHeader, data], { type: "image/bmp" });
+        }
+
+        formatHexView(arrayBuffer, maxBytes = 256) {
+          const bytes = new Uint8Array(arrayBuffer);
+          const limit = Math.min(bytes.length, maxBytes);
+          let hexView = "";
+
+          for (let i = 0; i < limit; i += 16) {
+            const offset = i.toString(16).padStart(8, "0").toUpperCase();
+            let hexBytes = "";
+            let ascii = "";
+
+            for (let j = 0; j < 16 && i + j < limit; j++) {
+              const byte = bytes[i + j];
+              hexBytes +=
+                byte.toString(16).padStart(2, "0").toUpperCase() + " ";
+              ascii +=
+                byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : ".";
+            }
+
+            hexView += `<div class="hex-row">`;
+            hexView += `<span class="hex-offset">${offset}:</span>`;
+            hexView += `<span class="hex-bytes">${hexBytes.padEnd(
+              48,
+              " "
+            )}</span>`;
+            hexView += `<span class="hex-ascii">${ascii}</span>`;
+            hexView += `</div>`;
+          }
+
+          return hexView;
+        }
+      }
+
+      // DOM elements
+      const uploadArea = document.getElementById("uploadArea");
+      const fileInput = document.getElementById("fileInput");
+      const resultsSection = document.getElementById("resultsSection");
+      const fileName = document.getElementById("fileName");
+      const fileSize = document.getElementById("fileSize");
+      const imageCount = document.getElementById("imageCount");
+      const formatSummary = document.getElementById("formatSummary");
+      const imageGrid = document.getElementById("imageGrid");
+      const hexView = document.getElementById("hexView");
+      const resetBtn = document.getElementById("resetBtn");
+      const errorMessage = document.getElementById("errorMessage");
+
+      const analyzer = new ICOAnalyzer();
+
+      // Event handling
+      uploadArea.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          handleFile(file);
+        }
+      });
+
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("dragover");
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+
+        const file = e.dataTransfer.files[0];
+        if (file) {
+          handleFile(file);
+        }
+      });
+
+      resetBtn.addEventListener("click", () => {
+        fileInput.value = "";
+        resultsSection.classList.remove("active");
+        errorMessage.classList.remove("active");
+      });
+
+      async function handleFile(file) {
+        try {
+          errorMessage.classList.remove("active");
+
+          const arrayBuffer = await file.arrayBuffer();
+          const results = await analyzer.analyzeICO(arrayBuffer);
+
+          // Display basic information
+          fileName.textContent = file.name;
+          fileSize.textContent = formatFileSize(file.size);
+          imageCount.textContent = results.imageCount;
+
+          // Count formats
+          const pngCount = results.images.filter(
+            (img) => img.format === "PNG"
+          ).length;
+          const bmpCount = results.images.filter(
+            (img) => img.format === "BMP"
+          ).length;
+
+          let formatText = "";
+          if (pngCount > 0 && bmpCount === 0) {
+            formatText = "Pure PNG format (Modern ICO)";
+          } else if (bmpCount > 0 && pngCount === 0) {
+            formatText = "Pure BMP format (Traditional ICO)";
+          } else {
+            formatText = `Mixed format (${pngCount} PNG, ${bmpCount} BMP)`;
+          }
+          formatSummary.textContent = formatText;
+
+          // Display each image
+          imageGrid.innerHTML = "";
+          for (const image of results.images) {
+            const card = document.createElement("div");
+            card.className = "image-card";
+
+            const imgElement = document.createElement("img");
+            imgElement.className = "image-preview";
+
+            if (image.blob) {
+              imgElement.src = URL.createObjectURL(image.blob);
+            }
+
+            const actualSize =
+              image.actualWidth && image.actualHeight
+                ? `${image.actualWidth}×${image.actualHeight}`
+                : `${image.width}×${image.height}`;
+
+            card.innerHTML = `
+                        <div class="image-preview-container"></div>
+                        <div class="image-details">
+                            <div class="image-detail"><strong>#${
+                              image.index
+                            }</strong></div>
+                            <div class="image-detail">Size: ${actualSize}</div>
+                            <div class="image-detail">Bytes: ${formatFileSize(
+                              image.dataSize
+                            )}</div>
+                            <div class="image-detail">Bits: ${
+                              image.bitCount || "N/A"
+                            }</div>
+                            <span class="format-badge format-${image.format.toLowerCase()}">${
+              image.format
+            }</span>
+                        </div>
+                    `;
+
+            card
+              .querySelector(".image-preview-container")
+              .appendChild(imgElement);
+            imageGrid.appendChild(card);
+          }
+
+          // Display HEX view
+          hexView.innerHTML = analyzer.formatHexView(arrayBuffer);
+
+          resultsSection.classList.add("active");
+        } catch (error) {
+          console.error("Analysis error:", error);
+          showError(
+            error.message ||
+              "Unable to analyze this file, please confirm it's a valid ICO file"
+          );
+        }
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (
+          Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
+        );
+      }
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("active");
+      }
+    </script>
+  </body>
+</html>

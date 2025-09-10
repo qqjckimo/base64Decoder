@@ -14,7 +14,11 @@
       "Bash(git:*)",
       "Glob",
       "Grep",
-      "LS"
+      "LS",
+      "WebFetch(domain:localhost)",
+      "Bash(pkill:*)",
+      "WebSearch",
+      "WebFetch(domain:caniuse.com)"
     ],
     "deny": [],
     "ask": []

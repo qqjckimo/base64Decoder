@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PNG to ICO Converter</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+      }
+
+      .upload-area {
+        border: 3px dashed #667eea;
+        border-radius: 15px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: #f8f9ff;
+      }
+
+      .upload-area.dragover {
+        background: #e8ebff;
+        border-color: #764ba2;
+        transform: scale(1.02);
+      }
+
+      .upload-area:hover {
+        background: #e8ebff;
+      }
+
+      .upload-icon {
+        font-size: 48px;
+        color: #667eea;
+        margin-bottom: 15px;
+      }
+
+      .upload-text {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .upload-hint {
+        color: #999;
+        font-size: 14px;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .preview-section {
+        margin-top: 30px;
+        display: none;
+      }
+
+      .preview-section.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .preview-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        background: #f8f9ff;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .preview-image {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: white;
+        padding: 5px;
+      }
+
+      .file-info {
+        flex: 1;
+      }
+
+      .file-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+        word-break: break-all;
+      }
+
+      .file-size {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .options-group {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9ff;
+        border-radius: 10px;
+      }
+
+      .option-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+
+      .option-label:last-child {
+        margin-bottom: 0;
+      }
+
+      .option-label input[type="checkbox"],
+      .option-label input[type="radio"] {
+        margin-right: 10px;
+      }
+
+      .option-text {
+        color: #333;
+        font-size: 14px;
+      }
+
+      .option-hint {
+        color: #999;
+        font-size: 12px;
+        margin-left: 24px;
+        margin-top: 5px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+      }
+
+      .btn-secondary:hover {
+        background: #e0e0e0;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error-message {
+        background: #fee;
+        color: #c33;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+        display: none;
+      }
+
+      .error-message.active {
+        display: block;
+      }
+
+      .success-message {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 15px;
+        display: none;
+      }
+
+      .success-message.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎨 PNG to ICO Converter</h1>
+
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Click or drag and drop PNG files here</div>
+        <div class="upload-hint">
+          Support single or multiple PNG files (generate multi-size ICO)
+        </div>
+        <input type="file" id="fileInput" accept="image/png" multiple />
+      </div>
+
+      <div class="preview-section" id="previewSection">
+        <div class="preview-container">
+          <img id="previewImage" class="preview-image" alt="Preview" />
+          <div class="file-info">
+            <div class="file-name" id="fileName"></div>
+            <div class="file-size" id="fileSize"></div>
+          </div>
+        </div>
+
+        <div class="options-group">
+          <label class="option-label">
+            <input
+              type="radio"
+              name="sizeOption"
+              id="optOriginalSize"
+              checked
+            />
+            <div>
+              <div class="option-text">Keep original size (Standard mode)</div>
+              <div class="option-hint">
+                Keep PNG original size, must be less than 256x256 pixel limit
+              </div>
+            </div>
+          </label>
+          <label class="option-label">
+            <input type="radio" name="sizeOption" id="optIgnoreLimit" />
+            <div>
+              <div class="option-text">Keep original size (Ignore limit)</div>
+              <div class="option-hint">
+                ICO standard limit is 256x256, but most programs can still open
+                files exceeding this limit
+              </div>
+            </div>
+          </label>
+          <label class="option-label">
+            <input type="radio" name="sizeOption" id="optMultiSize" />
+            <div>
+              <div class="option-text">Generate multi-size icon</div>
+              <div class="option-hint">
+                Automatically generate common sizes like 16x16, 32x32, 48x48,
+                192x192
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-secondary" id="resetBtn">Select Again</button>
+          <button class="btn btn-primary" id="convertBtn">
+            <span id="btnText">Convert to ICO</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+      <div class="success-message" id="successMessage"></div>
+    </div>
+
+    <script type="module">
+      // PNG2ICOjs library core code (embedded version)
+      class PngIcoConverter {
+        constructor() {
+          this.headerSize = 6;
+          this.directorySize = 16;
+          this.icoTag = new Uint8Array([0, 0, 1, 0]);
+          this.pngSignature = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+        }
+
+        async convertToBlobAsync(inputs, mime = "image/x-icon") {
+          const arr = await this.convertAsync(inputs);
+          return new Blob([arr], { type: mime });
+        }
+
+        async convertAsync(inputs) {
+          const pngs = await Promise.all(
+            inputs.map((input) => this.parsePngAsync(input))
+          );
+          const totalSize =
+            this.headerSize +
+            this.directorySize * pngs.length +
+            pngs.reduce((sum, png) => sum + png.data.length, 0);
+
+          const result = new Uint8Array(totalSize);
+          const view = new DataView(result.buffer);
+
+          // Write header
+          result.set(this.icoTag, 0);
+          view.setUint16(4, pngs.length, true);
+
+          let offset = this.headerSize + this.directorySize * pngs.length;
+          let directoryOffset = this.headerSize;
+
+          for (const png of pngs) {
+            // Write directory entry
+            view.setUint8(directoryOffset, png.width === 256 ? 0 : png.width);
+            view.setUint8(
+              directoryOffset + 1,
+              png.height === 256 ? 0 : png.height
+            );
+            view.setUint8(directoryOffset + 2, 0); // Color palette
+            view.setUint8(directoryOffset + 3, 0); // Reserved
+            view.setUint16(directoryOffset + 4, 1, true); // Color planes
+            view.setUint16(directoryOffset + 6, png.bpp || 32, true); // Bits per pixel
+            view.setUint32(directoryOffset + 8, png.data.length, true); // Size
+            view.setUint32(directoryOffset + 12, offset, true); // Offset
+
+            // Write PNG data
+            result.set(png.data, offset);
+
+            directoryOffset += this.directorySize;
+            offset += png.data.length;
+          }
+
+          return result;
+        }
+
+        async parsePngAsync(input) {
+          const buffer = await this.getArrayBufferAsync(input.png);
+          const view = new DataView(buffer);
+
+          // Check PNG signature
+          for (let i = 0; i < this.pngSignature.length; i++) {
+            if (view.getUint8(i) !== this.pngSignature[i]) {
+              throw new Error("Invalid PNG signature");
+            }
+          }
+
+          // Read IHDR chunk
+          const width = view.getUint32(16, false);
+          const height = view.getUint32(20, false);
+
+          if ((width > 256 || height > 256) && !input.ignoreSize) {
+            throw new Error(
+              `Image size ${width}x${height} exceeds 256x256. Check "Ignore Size" to proceed.`
+            );
+          }
+
+          return {
+            width,
+            height,
+            bpp: input.bpp || 32,
+            data: new Uint8Array(buffer),
+          };
+        }
+
+        async getArrayBufferAsync(input) {
+          if (input instanceof ArrayBuffer) {
+            return input;
+          } else if (input instanceof Blob) {
+            return await input.arrayBuffer();
+          }
+          throw new Error("Invalid input type");
+        }
+      }
+
+      // Main application logic
+      const uploadArea = document.getElementById("uploadArea");
+      const fileInput = document.getElementById("fileInput");
+      const previewSection = document.getElementById("previewSection");
+      const previewImage = document.getElementById("previewImage");
+      const fileName = document.getElementById("fileName");
+      const fileSize = document.getElementById("fileSize");
+      const convertBtn = document.getElementById("convertBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const btnText = document.getElementById("btnText");
+      const errorMessage = document.getElementById("errorMessage");
+      const successMessage = document.getElementById("successMessage");
+      const optOriginalSize = document.getElementById("optOriginalSize");
+      const optIgnoreLimit = document.getElementById("optIgnoreLimit");
+      const optMultiSize = document.getElementById("optMultiSize");
+
+      let currentFiles = [];
+
+      // Click upload area
+      uploadArea.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      // File selection
+      fileInput.addEventListener("change", (e) => {
+        const files = Array.from(e.target.files).filter(
+          (file) => file.type === "image/png"
+        );
+        if (files.length > 0) {
+          handleFiles(files);
+        } else if (e.target.files.length > 0) {
+          showError("Please select PNG format image files!");
+        }
+      });
+
+      // Drag and drop functionality
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("dragover");
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+
+        const files = Array.from(e.dataTransfer.files).filter(
+          (file) => file.type === "image/png"
+        );
+        if (files.length > 0) {
+          handleFiles(files);
+        } else if (e.dataTransfer.files.length > 0) {
+          showError("Please select PNG format image files!");
+        }
+      });
+
+      // Handle files
+      function handleFiles(files) {
+        currentFiles = files;
+
+        // Display preview of first file
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previewImage.src = e.target.result;
+          if (files.length === 1) {
+            fileName.textContent = files[0].name;
+            fileSize.textContent = formatFileSize(files[0].size);
+          } else {
+            fileName.textContent = `${files.length} files selected`;
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            fileSize.textContent = `Total size: ${formatFileSize(totalSize)}`;
+          }
+          previewSection.classList.add("active");
+          hideMessages();
+        };
+        reader.readAsDataURL(files[0]);
+      }
+
+      // Generate multiple sizes
+      async function generateMultipleSizes(imageFile) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          const reader = new FileReader();
+
+          reader.onload = (e) => {
+            img.src = e.target.result;
+
+            img.onload = async () => {
+              const sizes = [16, 32, 48, 192];
+              const pngBlobs = [];
+
+              for (const size of sizes) {
+                const canvas = document.createElement("canvas");
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext("2d");
+
+                // Use high-quality scaling
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = "high";
+
+                // Draw and scale image
+                ctx.drawImage(img, 0, 0, size, size);
+
+                // Convert to Blob
+                const blob = await new Promise((resolve) => {
+                  canvas.toBlob(resolve, "image/png");
+                });
+
+                pngBlobs.push(blob);
+              }
+
+              resolve(pngBlobs);
+            };
+          };
+
+          reader.readAsDataURL(imageFile);
+        });
+      }
+
+      // Convert button
+      convertBtn.addEventListener("click", async () => {
+        if (currentFiles.length === 0) return;
+
+        try {
+          // Show loading state
+          convertBtn.disabled = true;
+          btnText.innerHTML = '<span class="loading"></span>Converting...';
+          hideMessages();
+
+          const converter = new PngIcoConverter();
+          let inputs = [];
+
+          // Process according to selected option
+          if (optMultiSize.checked && currentFiles.length === 1) {
+            // Generate multi-size version
+            const pngBlobs = await generateMultipleSizes(currentFiles[0]);
+            inputs = pngBlobs.map((blob) => ({
+              png: blob,
+              ignoreSize: false,
+            }));
+          } else if (optOriginalSize.checked) {
+            // Keep original size (standard mode)
+            inputs = currentFiles.map((file) => ({
+              png: file,
+              ignoreSize: false,
+            }));
+          } else if (optIgnoreLimit.checked) {
+            // Keep original size and ignore limit
+            inputs = currentFiles.map((file) => ({
+              png: file,
+              ignoreSize: true,
+            }));
+          }
+
+          // Convert to ICO
+          const icoBlob = await converter.convertToBlobAsync(inputs);
+
+          // Create download link
+          const url = URL.createObjectURL(icoBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = currentFiles[0].name.replace(".png", ".ico");
+          a.click();
+
+          // Clean up URL
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+
+          // Show success message
+          showSuccess("Conversion successful! File download has started.");
+        } catch (error) {
+          console.error("Conversion error:", error);
+          showError(
+            error.message ||
+              "Conversion failed, please check if the file format is correct."
+          );
+        } finally {
+          // Restore button state
+          convertBtn.disabled = false;
+          btnText.textContent = "Convert to ICO";
+        }
+      });
+
+      // Reset button
+      resetBtn.addEventListener("click", () => {
+        currentFiles = [];
+        fileInput.value = "";
+        previewSection.classList.remove("active");
+        hideMessages();
+      });
+
+      // Format file size
+      function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (
+          Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
+        );
+      }
+
+      // Show error message
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("active");
+        successMessage.classList.remove("active");
+      }
+
+      // Show success message
+      function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.classList.add("active");
+        errorMessage.classList.remove("active");
+      }
+
+      // Hide all messages
+      function hideMessages() {
+        errorMessage.classList.remove("active");
+        successMessage.classList.remove("active");
+      }
+    </script>
+  </body>
+</html>
