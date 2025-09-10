@@ -1,40 +1,7 @@
-// Base64 Encoder Worker with fflate loading and progress tracking
-let fflate = null;
-let fflateLoading = false;
-let fflateLoadError = null;
+// Base64 Encoder Worker with local fflate
+import { gzipSync } from 'fflate';
 
-// Load fflate library with progress tracking
-async function loadFflateWithProgress() {
-  if (fflate || fflateLoadError) return fflate;
-  if (fflateLoading) {
-    // Wait for current loading to complete
-    while (fflateLoading && !fflate && !fflateLoadError) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    return fflate;
-  }
-
-  fflateLoading = true;
-
-  try {
-    importScripts("https://cdn.skypack.dev/fflate");
-    fflate = self.fflate || self;
-
-    if (fflate && fflate.gzipSync) {
-      fflateLoading = false;
-      return fflate;
-    }
-
-    throw new Error("fflate functions not available after importScripts");
-  } catch (importError) {
-    console.error("❌ Failed to load fflate library:", importError);
-    fflateLoadError = importError;
-    fflateLoading = false;
-    return null;
-  }
-}
-
-// Fallback gzip estimation
+// Fallback gzip estimation (in case gzipSync fails)
 function estimateGzipSize(text) {
   const baseEstimate = text.length * 0.7;
   const uniqueChars = new Set(text).size;
@@ -193,7 +160,7 @@ async function encodeImage(imageData, id) {
       progress: 95,
     });
 
-    const gzipSize = await calculateGzipSize(result);
+    const gzipSize = calculateGzipSize(result);
 
     const finalResult = {
       base64: result,
@@ -219,24 +186,17 @@ async function encodeImage(imageData, id) {
   }
 }
 
-async function calculateGzipSize(text) {
-  // Try to load fflate library first
-  const fflateLib = await loadFflateWithProgress();
-
-  if (fflateLib && fflateLib.gzipSync) {
-    try {
-      const textEncoder = new TextEncoder();
-      const uint8Array = textEncoder.encode(text);
-      const compressed = fflateLib.gzipSync(uint8Array);
-      return compressed.length;
-    } catch (error) {
-      console.error("❌ fflate compression failed:", error.message);
-      // Fall back to estimation
-    }
+function calculateGzipSize(text) {
+  try {
+    const textEncoder = new TextEncoder();
+    const uint8Array = textEncoder.encode(text);
+    const compressed = gzipSync(uint8Array);
+    return compressed.length;
+  } catch (error) {
+    console.error("❌ gzip compression failed:", error.message);
+    // Fall back to estimation
+    return estimateGzipSize(text);
   }
-
-  // Fallback to estimation if fflate not available
-  return estimateGzipSize(text);
 }
 
 // 輔助函數：格式化檔案大小

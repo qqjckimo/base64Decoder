@@ -63,14 +63,13 @@ class BundleSizePlugin {
             );
           }
           if (
-            filename.includes("encoder-") &&
-            filename.includes("-worker") &&
-            size > 15 * 1024
+            filename.includes("encoder-worker") &&
+            size > 20 * 1024  // Increased limit to account for fflate
           ) {
             warnings.push(
               `Encoder worker (${filename}) exceeds limit: ${(
                 size / 1024
-              ).toFixed(2)}KB > 15KB`
+              ).toFixed(2)}KB > 20KB`
             );
           }
           if (
@@ -135,6 +134,8 @@ const webpackConfig = {
   mode: isProduction ? "production" : "development",
   entry: {
     core: "./src/core/app.js",
+    "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
+    "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
   },
   output: {
     path: path.resolve(__dirname, "docs"),
@@ -156,7 +157,7 @@ const webpackConfig = {
     rules: [
       {
         test: /\.js$/,
-        exclude: [/node_modules/, /\.worker\.js$/],
+        exclude: /node_modules/,
         use: {
           loader: "babel-loader",
           options: {
@@ -297,7 +298,10 @@ const webpackConfig = {
       }),
     ],
     splitChunks: {
-      chunks: "all",
+      chunks: (chunk) => {
+        // Don't split worker chunks
+        return !chunk.name?.includes('-worker');
+      },
       cacheGroups: {
         core: {
           test: /[\\/]src[\\/]core[\\/]/,

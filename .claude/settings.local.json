@@ -18,7 +18,9 @@
       "WebFetch(domain:localhost)",
       "Bash(pkill:*)",
       "WebSearch",
-      "WebFetch(domain:caniuse.com)"
+      "WebFetch(domain:caniuse.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:bundlephobia.com)"
     ],
     "deny": [],
     "ask": []

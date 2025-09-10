@@ -119,7 +119,8 @@ export default class Base64EncoderTool {
       try {
         this.encoderWorker = new Worker(
           /* webpackChunkName: "encoder-worker" */
-          new URL("./encoder.worker.js", import.meta.url)
+          new URL("./encoder.worker.js", import.meta.url),
+          { type: "module" }
         );
       } catch (encoderError) {
         console.error("❌ Failed to create encoder worker:", encoderError);
@@ -129,7 +130,8 @@ export default class Base64EncoderTool {
       try {
         this.compressorWorker = new Worker(
           /* webpackChunkName: "compressor-worker" */
-          new URL("./compressor.worker.js", import.meta.url)
+          new URL("./compressor.worker.js", import.meta.url),
+          { type: "module" }
         );
       } catch (compressorError) {
         console.error(
