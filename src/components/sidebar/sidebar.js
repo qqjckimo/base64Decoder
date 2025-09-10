@@ -11,6 +11,7 @@ export class Sidebar {
                 categoryImageProcessing: '圖片處理',
                 base64DecoderName: 'Base64 圖片解碼器',
                 base64EncoderName: 'Base64 圖片編碼器',
+                pngToIcoName: 'PNG 轉 ICO 轉換器',
                 featureFastLoad: '快速載入',
                 featurePrivacyFirst: '隱私優先',
                 languageToggle: '🌐 EN',
@@ -22,6 +23,7 @@ export class Sidebar {
                 categoryImageProcessing: 'Image Processing',
                 base64DecoderName: 'Base64 Image Decoder',
                 base64EncoderName: 'Base64 Image Encoder',
+                pngToIcoName: 'PNG to ICO Converter',
                 featureFastLoad: 'Fast Loading',
                 featurePrivacyFirst: 'Privacy First',
                 languageToggle: '🌐 中文',
@@ -51,6 +53,12 @@ export class Sidebar {
                 id: 'base64-encoder',
                 name: t.base64EncoderName,
                 icon: createIcon('camera', 20, 'tool-icon'),
+                category: t.categoryImageProcessing
+            },
+            {
+                id: 'png-to-ico',
+                name: t.pngToIcoName,
+                icon: createIcon('palette', 20, 'tool-icon'),
                 category: t.categoryImageProcessing
             }
         ];

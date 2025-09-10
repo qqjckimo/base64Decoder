@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PNG to ICO Converter - Dev Template</title>
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #app {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      max-width: 1200px;
+      width: 100%;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  
+  <script type="module">
+    import PngToIcoTool from './tool.js';
+    
+    // 初始化工具
+    const container = document.getElementById('app');
+    const tool = new PngToIcoTool();
+    
+    // 模擬應用程式載入工具
+    tool.init(container);
+    
+    // 測試語言切換
+    window.testLanguageSwitch = () => {
+      const currentLang = localStorage.getItem('preferredLanguage') || 'zh-TW';
+      const newLang = currentLang === 'zh-TW' ? 'en' : 'zh-TW';
+      localStorage.setItem('preferredLanguage', newLang);
+      
+      // 發送語言變更事件
+      window.dispatchEvent(new CustomEvent('languageChanged', {
+        detail: { language: newLang }
+      }));
+      
+      console.log(`Language switched to: ${newLang}`);
+    };
+    
+    console.log('PNG to ICO Tool loaded successfully!');
+    console.log('Test language switch: window.testLanguageSwitch()');
+  </script>
+</body>
+</html>

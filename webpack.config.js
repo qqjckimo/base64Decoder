@@ -73,6 +73,16 @@ class BundleSizePlugin {
             );
           }
           if (
+            filename.includes("compressor-worker") &&
+            size > 80 * 1024 // Increased limit for bundled jSquash libraries
+          ) {
+            warnings.push(
+              `Compressor worker (${filename}) exceeds limit: ${(
+                size / 1024
+              ).toFixed(2)}KB > 80KB`
+            );
+          }
+          if (
             filename.includes("tools") &&
             !filename.includes("tool-") &&
             size > SIZE_LIMITS.common
@@ -136,10 +146,15 @@ const webpackConfig = {
     core: "./src/core/app.js",
     "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
     "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
+    "avif-lib": "./src/avif-entry.js",
   },
   output: {
     path: path.resolve(__dirname, "docs"),
     filename: (pathData) => {
+      // AVIF 模組使用特定路徑和格式
+      if (pathData.chunk.name === "avif-lib") {
+        return "tools/base64-encoder/avif-lib.js";
+      }
       return isProduction
         ? "[name].[contenthash:8].bundle.js"
         : "[name].bundle.js";
@@ -152,7 +167,9 @@ const webpackConfig = {
     assetModuleFilename: isProduction
       ? "[name].[contenthash:8][ext]"
       : "[name][ext]",
+    // Classic script output. We don't expose a library interface; avif-lib attaches to global itself.
   },
+  // No experiments.outputModule needed since avif-lib is classic script.
   module: {
     rules: [
       {
@@ -178,6 +195,26 @@ const webpackConfig = {
             ],
           },
         },
+      },
+      {
+        test: /\.wasm$/,
+        type: "asset/resource",
+        generator: {
+          filename: isProduction
+            ? "[name].[contenthash:8][ext]"
+            : "[name][ext]",
+        },
+      },
+      {
+        test: /avif_enc_mt\.worker\.mjs$/,
+        type: "asset/resource",
+        generator: {
+          filename: isProduction
+            ? "[name].[contenthash:8][ext]"
+            : "[name][ext]",
+        },
+        // Prevent webpack from parsing and injecting runtime deps
+        parser: { javascript: { commonjsMagicComments: false } },
       },
       {
         test: /\.txt$/,
@@ -225,6 +262,12 @@ const webpackConfig = {
       },
     ],
   },
+  ignoreWarnings: [
+    {
+      module: /\.worker\.mjs$/,
+      message: /the request of a dependency is an expression/,
+    },
+  ],
   plugins: [
     // isProduction && new CleanWebpackPlugin(), // Disabled due to permission issues
     new HtmlWebpackPlugin({
@@ -309,9 +352,11 @@ const webpackConfig = {
     ],
     splitChunks: {
       chunks: (chunk) => {
-        // Don't split worker chunks
+        // Don't split worker chunks to avoid circular dependencies
         return !chunk.name?.includes("-worker");
       },
+      maxAsyncRequests: 30,
+      maxInitialRequests: 30,
       cacheGroups: {
         core: {
           test: /[\\/]src[\\/]core[\\/]/,
@@ -330,6 +375,7 @@ const webpackConfig = {
           name: "tool-base64-encoder",
           priority: 25,
           enforce: true,
+          chunks: (chunk) => chunk.name !== "compressor-worker",
         },
         tools: {
           test: /[\\/]src[\\/]tools[\\/](?!.*\.worker\.js$)/,
@@ -343,6 +389,9 @@ const webpackConfig = {
           priority: 10,
           minSize: 1024,
         },
+        // Disable default cache groups to prevent vendor extraction creating circular runtimes
+        default: false,
+        defaultVendors: false,
       },
     },
     runtimeChunk: false, // Keep runtime inline to reduce requests

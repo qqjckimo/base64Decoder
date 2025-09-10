@@ -1,0 +1,15 @@
+{
+  "id": "png-to-ico",
+  "name": "PNG 轉 ICO 轉換器",
+  "nameEn": "PNG to ICO Converter",
+  "description": "將 PNG 圖片轉換為 ICO 圖標格式，支援多尺寸生成",
+  "descriptionEn": "Convert PNG images to ICO icon format with multi-size generation support",
+  "category": "圖片處理",
+  "categoryEn": "Image Processing",
+  "icon": "🎨",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "estimatedSize": "28KB",
+  "keywords": ["png", "ico", "icon", "converter", "image"],
+  "preload": false
+}

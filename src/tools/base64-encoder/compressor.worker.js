@@ -1,9 +1,38 @@
-// Image Compressor Worker with jSquash loading and progress tracking
+// Image Compressor Worker with selective jSquash library loading
+import { encode as encodePNG } from "@jsquash/png";
+import { encode as encodeWebP } from "@jsquash/webp";
+
 let jSquash = null;
 let jSquashLoading = false;
 let jSquashLoadError = null;
 
-// Load jSquash libraries with progress tracking
+// Load AVIF encoder via importScripts (classic script) to avoid ESM output complications
+async function loadAVIFEncoder() {
+  try {
+    if (self.AvifLib && self.AvifLib.encode) return self.AvifLib.encode;
+    // Resolve avif-lib.js relative to the worker bundle path (same folder assumption)
+    // When emitted, compressor-worker.*.bundle.js and avif-lib.js are both under docs/tools/base64-encoder/
+    // So we go one directory up from the worker (current) into same tools/base64-encoder path.
+    const avifLibUrl = new URL(
+      "./avif-lib.js",
+      import.meta.url.replace(/compressor-worker[^/]*$/, "")
+    );
+    importScripts(avifLibUrl.href);
+    if (self.AvifLib && self.AvifLib.encode) {
+      console.log(
+        "[Worker] AVIF library loaded successfully via importScripts"
+      );
+      return self.AvifLib.encode;
+    }
+    console.warn("[Worker] AVIF library script loaded but encoder missing");
+    return null;
+  } catch (error) {
+    console.warn("⚠️ AVIF encoder not available:", error.message);
+    return null;
+  }
+}
+
+// Initialize jSquash with bundled libraries and dynamic AVIF loading
 async function loadJSquashWithProgress() {
   if (jSquash || jSquashLoadError) return jSquash;
   if (jSquashLoading) {
@@ -17,20 +46,20 @@ async function loadJSquashWithProgress() {
   jSquashLoading = true;
 
   try {
-    importScripts("https://cdn.skypack.dev/@jsquash/png");
-    importScripts("https://cdn.skypack.dev/@jsquash/webp");
-    importScripts("https://cdn.skypack.dev/@jsquash/avif");
+    // Load AVIF encoder dynamically to avoid webpack issues
+    const encodeAVIF = await loadAVIFEncoder();
 
+    // Use bundled libraries with optional AVIF
     jSquash = {
-      png: self.png || self,
-      webp: self.webp || self,
-      avif: self.avif || self,
+      png: { encode: encodePNG },
+      webp: { encode: encodeWebP },
+      avif: encodeAVIF ? { encode: encodeAVIF } : null,
     };
 
     jSquashLoading = false;
     return jSquash;
   } catch (importError) {
-    console.error("❌ Failed to load jSquash libraries:", importError);
+    console.error("❌ Failed to initialize jSquash libraries:", importError);
     jSquashLoadError = importError;
     jSquashLoading = false;
     return null;
@@ -57,7 +86,6 @@ function simulateCompression(originalSize, format, quality) {
     success: true,
   };
 }
-
 
 self.onmessage = async function (e) {
   const { type, data, id } = e.data;
@@ -172,6 +200,9 @@ async function compressImage(imageData, id) {
             });
             break;
           case "avif":
+            if (!jSquash.avif) {
+              throw new Error("AVIF encoder not available");
+            }
             compressedBuffer = await jSquash.avif.encode(imageDataObj, {
               quality,
             });
@@ -202,7 +233,10 @@ async function compressImage(imageData, id) {
           },
         });
       } catch (formatError) {
-        console.error(`❌ Failed to compress as ${format}:`, formatError.message);
+        console.error(
+          `❌ Failed to compress as ${format}:`,
+          formatError.message
+        );
         results.push({
           format,
           error: formatError.message,
