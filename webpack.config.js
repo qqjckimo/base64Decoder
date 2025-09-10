@@ -64,7 +64,7 @@ class BundleSizePlugin {
           }
           if (
             filename.includes("encoder-worker") &&
-            size > 20 * 1024  // Increased limit to account for fflate
+            size > 20 * 1024 // Increased limit to account for fflate
           ) {
             warnings.push(
               `Encoder worker (${filename}) exceeds limit: ${(
@@ -177,6 +177,16 @@ const webpackConfig = {
               ],
             ],
           },
+        },
+      },
+      {
+        test: /\.txt$/,
+        resourceQuery: /raw/,
+        type: "asset/resource",
+        generator: {
+          filename: isProduction
+            ? "assets/[name].[contenthash:8][ext]"
+            : "assets/[name][ext]",
         },
       },
       {
@@ -300,7 +310,7 @@ const webpackConfig = {
     splitChunks: {
       chunks: (chunk) => {
         // Don't split worker chunks
-        return !chunk.name?.includes('-worker');
+        return !chunk.name?.includes("-worker");
       },
       cacheGroups: {
         core: {
