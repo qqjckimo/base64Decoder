@@ -14,9 +14,11 @@ export class Sidebar {
                 pngToIcoName: 'PNG 轉 ICO 轉換器',
                 featureFastLoad: '快速載入',
                 featurePrivacyFirst: '隱私優先',
+                featureModernTech: '最新技術',
                 languageToggle: '🌐 EN',
                 featureFastLoadTooltip: '動態載入模組，減少初始載入時間',
-                featurePrivacyFirstTooltip: '所有處理都在瀏覽器端進行，不上傳任何資料'
+                featurePrivacyFirstTooltip: '所有處理都在瀏覽器端進行，不上傳任何資料',
+                featureModernTechTooltip: '使用 ES6+、Web Workers、動態載入等現代 Web 技術'
             },
             'en': {
                 sidebarTitle: 'Developer Tools',
@@ -26,9 +28,11 @@ export class Sidebar {
                 pngToIcoName: 'PNG to ICO Converter',
                 featureFastLoad: 'Fast Loading',
                 featurePrivacyFirst: 'Privacy First',
+                featureModernTech: 'Modern Tech',
                 languageToggle: '🌐 中文',
                 featureFastLoadTooltip: 'Dynamic module loading reduces initial load time',
-                featurePrivacyFirstTooltip: 'All processing happens in your browser, no data uploaded'
+                featurePrivacyFirstTooltip: 'All processing happens in your browser, no data uploaded',
+                featureModernTechTooltip: 'Built with ES6+, Web Workers, dynamic imports and modern web technologies'
             }
         };
         this.init();
@@ -113,6 +117,14 @@ export class Sidebar {
                         </div>
                         ${createIcon('info', 10, 'info-icon')}
                         <div class="tooltip">${t.featurePrivacyFirstTooltip}</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-left">
+                            ${createIcon('cpu', 12, 'feature-icon')}
+                            <span class="feature-text">${t.featureModernTech}</span>
+                        </div>
+                        ${createIcon('info', 10, 'info-icon')}
+                        <div class="tooltip">${t.featureModernTechTooltip}</div>
                     </div>
                 </div>
             </div>
