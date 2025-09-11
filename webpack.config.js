@@ -74,12 +74,12 @@ class BundleSizePlugin {
           }
           if (
             filename.includes("compressor-worker") &&
-            size > 80 * 1024 // Increased limit for bundled jSquash libraries
+            size > 10 * 1024 // Reduced limit after codec extraction
           ) {
             warnings.push(
               `Compressor worker (${filename}) exceeds limit: ${(
                 size / 1024
-              ).toFixed(2)}KB > 80KB`
+              ).toFixed(2)}KB > 10KB`
             );
           }
           if (
@@ -146,15 +146,10 @@ const webpackConfig = {
     core: "./src/core/app.js",
     "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
     "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
-    "avif-lib": "./src/avif-entry.js",
   },
   output: {
     path: path.resolve(__dirname, "docs"),
     filename: (pathData) => {
-      // AVIF 模組使用特定路徑和格式
-      if (pathData.chunk.name === "avif-lib") {
-        return "tools/base64-encoder/avif-lib.js";
-      }
       return isProduction
         ? "[name].[contenthash:8].bundle.js"
         : "[name].bundle.js";
@@ -163,13 +158,13 @@ const webpackConfig = {
       ? "chunks/[name].[contenthash:8].chunk.js"
       : "chunks/[name].chunk.js",
     publicPath: "/",
+    workerPublicPath: "./", // Fix for Web Workers to use self.location instead of document.baseURI
     clean: false,
     assetModuleFilename: isProduction
       ? "[name].[contenthash:8][ext]"
       : "[name][ext]",
-    // Classic script output. We don't expose a library interface; avif-lib attaches to global itself.
+    // Standard JS module output for dynamic codec loading.
   },
-  // No experiments.outputModule needed since avif-lib is classic script.
   module: {
     rules: [
       {
@@ -352,8 +347,8 @@ const webpackConfig = {
     ],
     splitChunks: {
       chunks: (chunk) => {
-        // Don't split worker chunks to avoid circular dependencies
-        return !chunk.name?.includes("-worker");
+        // Don't split worker chunks and codec chunks
+        return !chunk.name?.includes("-worker") && !chunk.name?.includes("codecs/");
       },
       maxAsyncRequests: 30,
       maxInitialRequests: 30,
@@ -444,6 +439,46 @@ const webpackConfig = {
   },
 };
 
+// Worker-specific configuration
+const workerConfig = {
+  ...webpackConfig,
+  target: 'webworker',
+  entry: {
+    "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
+    "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
+  },
+  output: {
+    ...webpackConfig.output,
+    environment: {
+      ...webpackConfig.output.environment,
+      document: false, // Disable document references for workers
+    },
+  },
+  devServer: undefined, // Workers don't need dev server
+  optimization: {
+    ...webpackConfig.optimization,
+    splitChunks: {
+      chunks: (chunk) => {
+        // Allow splitting for worker chunks
+        return !chunk.name?.includes("codecs/");
+      },
+      cacheGroups: {
+        // Only keep essential cache groups for workers
+        default: false,
+        defaultVendors: false,
+      },
+    },
+  },
+};
+
+// Main app configuration (without workers)
+const mainConfig = {
+  ...webpackConfig,
+  entry: {
+    core: "./src/core/app.js",
+  },
+};
+
 // Export configuration with port finding for dev server
 module.exports = (env, argv) => {
   const mode = argv.mode || "development";
@@ -461,14 +496,14 @@ module.exports = (env, argv) => {
           );
         }
 
-        webpackConfig.devServer.port = port;
-        return webpackConfig;
+        mainConfig.devServer.port = port;
+        return [mainConfig, workerConfig];
       })
       .catch((err) => {
         console.error("Could not find an available port:", err);
-        return webpackConfig;
+        return [mainConfig, workerConfig];
       });
   }
 
-  return webpackConfig;
+  return [mainConfig, workerConfig];
 };

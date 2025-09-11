@@ -1,90 +1,43 @@
-// Image Compressor Worker with selective jSquash library loading
-import { encode as encodePNG } from "@jsquash/png";
-import { encode as encodeWebP } from "@jsquash/webp";
+// Image Compressor Worker with dynamic loading for all codecs
 
-let jSquash = null;
-let jSquashLoading = false;
-let jSquashLoadError = null;
+// Dynamic encoder loading
+const encoders = new Map();
 
-// Load AVIF encoder via importScripts (classic script) to avoid ESM output complications
-async function loadAVIFEncoder() {
+async function loadEncoder(format) {
+  if (encoders.has(format)) {
+    return encoders.get(format);
+  }
+
   try {
-    if (self.AvifLib && self.AvifLib.encode) return self.AvifLib.encode;
-    // Resolve avif-lib.js relative to the worker bundle path (same folder assumption)
-    // When emitted, compressor-worker.*.bundle.js and avif-lib.js are both under docs/tools/base64-encoder/
-    // So we go one directory up from the worker (current) into same tools/base64-encoder path.
-    const avifLibUrl = new URL(
-      "./avif-lib.js",
-      import.meta.url.replace(/compressor-worker[^/]*$/, "")
-    );
-    importScripts(avifLibUrl.href);
-    if (self.AvifLib && self.AvifLib.encode) {
-      console.log(
-        "[Worker] AVIF library loaded successfully via importScripts"
-      );
-      return self.AvifLib.encode;
+    let module;
+
+    switch (format) {
+      case "png":
+        module = await import(
+          /* webpackChunkName: "png-encoder" */ "../../codecs/png-encoder.js"
+        );
+        break;
+      case "webp":
+        module = await import(
+          /* webpackChunkName: "webp-encoder" */ "../../codecs/webp-encoder.js"
+        );
+        break;
+      case "avif":
+        module = await import(
+          /* webpackChunkName: "avif-encoder" */ "../../codecs/avif-encoder.js"
+        );
+        break;
+      default:
+        throw new Error(`Unsupported format: ${format}`);
     }
-    console.warn("[Worker] AVIF library script loaded but encoder missing");
-    return null;
+
+    encoders.set(format, module.encode);
+    console.log(`✅ ${format.toUpperCase()} encoder loaded successfully`);
+    return module.encode;
   } catch (error) {
-    console.warn("⚠️ AVIF encoder not available:", error.message);
+    console.error(`❌ Failed to load ${format} encoder:`, error);
     return null;
   }
-}
-
-// Initialize jSquash with bundled libraries and dynamic AVIF loading
-async function loadJSquashWithProgress() {
-  if (jSquash || jSquashLoadError) return jSquash;
-  if (jSquashLoading) {
-    // Wait for current loading to complete
-    while (jSquashLoading && !jSquash && !jSquashLoadError) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    return jSquash;
-  }
-
-  jSquashLoading = true;
-
-  try {
-    // Load AVIF encoder dynamically to avoid webpack issues
-    const encodeAVIF = await loadAVIFEncoder();
-
-    // Use bundled libraries with optional AVIF
-    jSquash = {
-      png: { encode: encodePNG },
-      webp: { encode: encodeWebP },
-      avif: encodeAVIF ? { encode: encodeAVIF } : null,
-    };
-
-    jSquashLoading = false;
-    return jSquash;
-  } catch (importError) {
-    console.error("❌ Failed to initialize jSquash libraries:", importError);
-    jSquashLoadError = importError;
-    jSquashLoading = false;
-    return null;
-  }
-}
-
-// Fallback compression simulation
-function simulateCompression(originalSize, format, quality) {
-  const ratios = {
-    png: 0.8 + (quality / 100) * 0.2, // PNG: 80-100%
-    webp: 0.3 + (quality / 100) * 0.4, // WebP: 30-70%
-    avif: 0.2 + (quality / 100) * 0.3, // AVIF: 20-50%
-  };
-
-  const ratio = ratios[format] || 0.7;
-  const compressedSize = Math.round(originalSize * ratio);
-  const processingTime = 50 + Math.random() * 150;
-
-  return {
-    format,
-    size: compressedSize,
-    compressionTime: Math.round(processingTime),
-    quality,
-    success: true,
-  };
 }
 
 self.onmessage = async function (e) {
@@ -129,8 +82,7 @@ async function compressImage(imageData, id) {
       progress: 5,
     });
 
-    // Try to load jSquash libraries
-    const jSquashLib = await loadJSquashWithProgress();
+    // No need to load jSquash libraries upfront - we'll load encoders on demand
 
     postMessage({
       type: "progress",
@@ -138,10 +90,6 @@ async function compressImage(imageData, id) {
       step: "preparing",
       progress: 15,
     });
-
-    if (!jSquashLib) {
-      console.error("❌ jSquash libraries failed to load, using fallback");
-    }
 
     // 讀取原始圖片為 ImageData
     const imageBuffer = await file.arrayBuffer();
@@ -186,24 +134,25 @@ async function compressImage(imageData, id) {
       });
 
       try {
-        let compressedBuffer;
+        const encoder = await loadEncoder(format);
+        if (!encoder) {
+          throw new Error(`Failed to load ${format} encoder`);
+        }
 
+        let compressedBuffer;
         switch (format) {
           case "png":
-            compressedBuffer = await jSquash.png.encode(imageDataObj, {
+            compressedBuffer = await encoder(imageDataObj, {
               quality: quality / 100,
             });
             break;
           case "webp":
-            compressedBuffer = await jSquash.webp.encode(imageDataObj, {
+            compressedBuffer = await encoder(imageDataObj, {
               quality,
             });
             break;
           case "avif":
-            if (!jSquash.avif) {
-              throw new Error("AVIF encoder not available");
-            }
-            compressedBuffer = await jSquash.avif.encode(imageDataObj, {
+            compressedBuffer = await encoder(imageDataObj, {
               quality,
             });
             break;
@@ -237,9 +186,19 @@ async function compressImage(imageData, id) {
           `❌ Failed to compress as ${format}:`,
           formatError.message
         );
+
+        let errorMessage;
+        if (formatError.message.includes("Failed to load")) {
+          errorMessage = `${format.toUpperCase()} encoder is not available. This format cannot be processed.`;
+        } else {
+          errorMessage = `Compression failed for ${format.toUpperCase()}: ${
+            formatError.message
+          }`;
+        }
+
         results.push({
           format,
-          error: formatError.message,
+          error: errorMessage,
           success: false,
         });
 
@@ -249,7 +208,7 @@ async function compressImage(imageData, id) {
           format,
           result: {
             format,
-            error: formatError.message,
+            error: errorMessage,
             success: false,
           },
         });
