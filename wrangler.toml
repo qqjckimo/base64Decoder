@@ -1,0 +1,32 @@
+# Cloudflare Workers Configuration for Developer Tools Collection
+# See: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "tools"
+compatibility_date = "2024-09-11"
+
+# Static assets configuration
+[assets]
+directory = "./docs"
+# Serve all files from docs/ directory as static assets
+
+# Build configuration for automatic deployment
+[build]
+command = "npm run build"
+# Cloudflare Workers Builds will run this command automatically
+
+# Environment variables (if needed)
+# [vars]
+# API_URL = "https://api.example.com"
+
+# Custom routing rules (optional)
+# [[routes]]
+# pattern = "example.com/*"
+# zone_name = "example.com"
+
+# Preview settings
+[env.preview]
+name = "developer-tools-collection-preview"
+
+# Development settings
+[env.development]
+name = "developer-tools-collection-dev"

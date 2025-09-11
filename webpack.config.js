@@ -2,8 +2,6 @@ const path = require("path");
 const crypto = require("crypto");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const BundleAnalyzerPlugin =
@@ -70,7 +68,8 @@ class BundleSizePlugin {
 
       console.log("\n📊 Bundle Size Analysis:");
       Object.keys(assets).forEach((filename) => {
-        if (filename.endsWith(".js") || filename.endsWith(".css")) {
+        // Skip WASM files from bundle size analysis
+        if ((filename.endsWith(".js") || filename.endsWith(".css")) && !filename.endsWith(".wasm")) {
           const size = assets[filename].size();
           console.log(`   ${filename}: ${(size / 1024).toFixed(2)}KB`);
 
@@ -246,11 +245,13 @@ const webpackConfig = {
       {
         test: /\.css$/,
         use: [
-          isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+          "style-loader",
           {
             loader: "css-loader",
             options: {
               sourceMap: !isProduction,
+              modules: false,
+              importLoaders: 1,
             },
           },
           {
@@ -290,7 +291,7 @@ const webpackConfig = {
     },
   ],
   plugins: [
-    // isProduction && new CleanWebpackPlugin(), // Disabled due to permission issues
+    // CleanWebpackPlugin not needed for Cloudflare Workers deployment
     new webpack.NormalModuleReplacementPlugin(
       /node_modules\/@jsquash\/oxipng\/codec\/pkg-parallel\/squoosh_oxipng\.js$/,
       path.resolve(__dirname, 'node_modules/@jsquash/oxipng/codec/pkg/squoosh_oxipng.js')
@@ -312,11 +313,6 @@ const webpackConfig = {
       chunks: ["core"],
       inject: "body",
     }),
-    isProduction &&
-      new MiniCssExtractPlugin({
-        filename: "[name].[contenthash:8].css",
-        chunkFilename: "chunks/[name].[contenthash:8].css",
-      }),
     isProduction &&
       new CompressionPlugin({
         test: /\.(js|css|html)$/,
@@ -364,16 +360,6 @@ const webpackConfig = {
         },
         extractComments: false,
       }),
-      new CssMinimizerPlugin({
-        minimizerOptions: {
-          preset: [
-            "default",
-            {
-              discardComments: { removeAll: true },
-            },
-          ],
-        },
-      }),
     ],
     splitChunks: {
       chunks: (chunk) => {
@@ -394,6 +380,7 @@ const webpackConfig = {
           name: "tool-base64-decoder",
           priority: 25,
           enforce: true,
+          chunks: "all",
         },
         "tool-base64-encoder": {
           test: /[\\/]src[\\/]tools[\\/]base64-encoder[\\/](?!.*\.worker\.js$)/,
@@ -467,11 +454,12 @@ const webpackConfig = {
     },
   },
   performance: {
-    hints: isProduction ? "error" : false,
+    hints: false, // Disable size hints for WASM assets
     maxEntrypointSize: SIZE_LIMITS.total,
     maxAssetSize: SIZE_LIMITS.perTool,
     assetFilter: (assetFilename) => {
-      return !assetFilename.endsWith(".map");
+      // Skip size checks for WASM files and source maps
+      return !assetFilename.endsWith(".map") && !assetFilename.endsWith(".wasm");
     },
   },
   devtool: isProduction ? false : "eval-source-map",

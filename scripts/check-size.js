@@ -31,7 +31,8 @@ function checkBundleSizes() {
     const files = fs.readdirSync(docsDir);
 
     files.forEach(file => {
-        if (file.endsWith('.js') || file.endsWith('.css')) {
+        // Skip WASM files from size checks
+        if ((file.endsWith('.js') || file.endsWith('.css')) && !file.endsWith('.wasm')) {
             const filePath = path.join(docsDir, file);
             const content = fs.readFileSync(filePath);
             const size = content.length;

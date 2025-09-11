@@ -30,17 +30,14 @@ export class ToolLoader {
 
     async performLoad(toolName) {
         try {
-            const [module, styles] = await Promise.all([
-                import(`../tools/${toolName}/tool.js`),
-                this.loadStyles(toolName)
-            ]);
+            const module = await import(`../tools/${toolName}/tool.js`);
 
             const ToolClass = module.default;
             const instance = new ToolClass();
             
             return {
                 instance,
-                styles,
+                styles: `tool-styles-${toolName}`,
                 name: toolName
             };
         } catch (error) {
@@ -49,16 +46,6 @@ export class ToolLoader {
         }
     }
 
-    async loadStyles(toolName) {
-        try {
-            // Import CSS using webpack's import system
-            await import(`../tools/${toolName}/styles.css`);
-            return `tool-styles-${toolName}`;
-        } catch (error) {
-            console.warn(`No styles found for tool: ${toolName}`, error);
-            return '';
-        }
-    }
 
     unloadTool(toolName) {
         const tool = this.loadedTools.get(toolName);

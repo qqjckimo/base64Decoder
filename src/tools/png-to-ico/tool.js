@@ -1,3 +1,5 @@
+import "./styles.css";
+
 export default class PngToIcoTool {
   constructor() {
     this.currentFiles = [];

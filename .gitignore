@@ -6,11 +6,12 @@ yarn-error.log*
 .npm
 *.log
 
-# Build outputs (docs is committed for GitHub Pages)
+# Build outputs
 bundle-report.html
 *.map
 .cache/
 .parcel-cache/
+docs/
 
 # IDE files
 .vscode/
@@ -42,6 +43,6 @@ temp/
 *.tmp
 *.temp
 
-# Build artifacts (keep docs for GitHub Pages)
+# Build artifacts (Cloudflare Workers Builds will handle this)
 dist/
 build/

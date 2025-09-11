@@ -1,4 +1,5 @@
 import { MonacoLoader } from "../../utils/monacoLoader.js";
+import "./styles.css";
 
 export default class Base64EncoderTool {
   constructor() {

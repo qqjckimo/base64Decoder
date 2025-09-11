@@ -12,7 +12,10 @@
     "create-tool": "node scripts/create-tool.js",
     "test:size": "node scripts/check-size.js",
     "serve:prod": "npx serve docs -p 8080",
-    "build:legacy": "node build.js"
+    "build:legacy": "node build.js",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev",
+    "build:deploy": "npm run build && wrangler deploy"
   },
   "keywords": [
     "developer-tools",
@@ -50,7 +53,8 @@
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.9.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "wrangler": "^4.35.0"
   },
   "browserslist": [
     "Chrome >= 90",
