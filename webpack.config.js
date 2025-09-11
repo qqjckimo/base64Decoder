@@ -1,4 +1,6 @@
 const path = require("path");
+const crypto = require("crypto");
+const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
@@ -11,6 +13,40 @@ const portfinder = require("portfinder");
 
 const isProduction = process.env.NODE_ENV === "production";
 const shouldAnalyze = process.env.ANALYZE === "true";
+
+// Unified asset filename generator to avoid conflicts
+const generateAssetFilename = (pathData) => {
+  // Get relative path for uniqueness
+  const relativePath = path.relative(process.cwd(), pathData.filename);
+  
+  // Get file basename and extension
+  const ext = path.extname(pathData.filename);
+  const basename = path.basename(pathData.filename, ext);
+  
+  // Generate path hash (8 chars is enough to avoid conflicts)
+  const pathHash = crypto
+    .createHash('md5')
+    .update(relativePath)
+    .digest('hex')
+    .substring(0, 8);
+  
+  // Determine subdirectory based on file type
+  let subdir = '';
+  if (ext === '.wasm') {
+    subdir = 'wasm/';
+  } else if (ext === '.mjs' || basename.includes('.worker')) {
+    subdir = 'workers/';
+  } else if (ext === '.txt') {
+    subdir = 'assets/';
+  } else {
+    subdir = 'assets/';
+  }
+  
+  // Return unified format: [subdir][name]-[pathHash].[contenthash:8][ext]
+  return isProduction
+    ? `${subdir}${basename}-${pathHash}.[contenthash:8]${ext}`
+    : `${subdir}${basename}-${pathHash}${ext}`;
+};
 
 // Size limit configuration
 const SIZE_LIMITS = {
@@ -160,9 +196,7 @@ const webpackConfig = {
     publicPath: "/",
     workerPublicPath: "./", // Fix for Web Workers to use self.location instead of document.baseURI
     clean: false,
-    assetModuleFilename: isProduction
-      ? "[name].[contenthash:8][ext]"
-      : "[name][ext]",
+    assetModuleFilename: generateAssetFilename,
     // Standard JS module output for dynamic codec loading.
   },
   module: {
@@ -194,20 +228,12 @@ const webpackConfig = {
       {
         test: /\.wasm$/,
         type: "asset/resource",
-        generator: {
-          filename: isProduction
-            ? "[name].[contenthash:8][ext]"
-            : "[name][ext]",
-        },
+        // Using global assetModuleFilename with generateAssetFilename
       },
       {
         test: /avif_enc_mt\.worker\.mjs$/,
         type: "asset/resource",
-        generator: {
-          filename: isProduction
-            ? "[name].[contenthash:8][ext]"
-            : "[name][ext]",
-        },
+        // Using global assetModuleFilename with generateAssetFilename
         // Prevent webpack from parsing and injecting runtime deps
         parser: { javascript: { commonjsMagicComments: false } },
       },
@@ -215,11 +241,7 @@ const webpackConfig = {
         test: /\.txt$/,
         resourceQuery: /raw/,
         type: "asset/resource",
-        generator: {
-          filename: isProduction
-            ? "assets/[name].[contenthash:8][ext]"
-            : "assets/[name][ext]",
-        },
+        // Using global assetModuleFilename with generateAssetFilename
       },
       {
         test: /\.css$/,
@@ -262,9 +284,17 @@ const webpackConfig = {
       module: /\.worker\.mjs$/,
       message: /the request of a dependency is an expression/,
     },
+    {
+      module: /workerHelpers\.worker\.js$/,
+      message: /Can't resolve/,
+    },
   ],
   plugins: [
     // isProduction && new CleanWebpackPlugin(), // Disabled due to permission issues
+    new webpack.NormalModuleReplacementPlugin(
+      /node_modules\/@jsquash\/oxipng\/codec\/pkg-parallel\/squoosh_oxipng\.js$/,
+      path.resolve(__dirname, 'node_modules/@jsquash/oxipng/codec/pkg/squoosh_oxipng.js')
+    ),
     new HtmlWebpackPlugin({
       template: "./index.html",
       minify: isProduction
@@ -401,6 +431,25 @@ const webpackConfig = {
       "@components": path.resolve(__dirname, "src/components"),
       "@utils": path.resolve(__dirname, "src/utils"),
     },
+    // Fix ESM module resolution for packages like @jsquash/oxipng
+    byDependency: {
+      esm: {
+        fullySpecified: false, // Allow imports without file extensions
+      },
+      commonjs: {
+        fullySpecified: false,
+      },
+      amd: {
+        fullySpecified: false,
+      },
+      url: {
+        fullySpecified: false,
+      },
+    },
+    // Additional configuration to handle strict ESM resolution
+    extensionAlias: {
+      ".js": [".js", ".ts", ".mjs"],
+    },
   },
   devServer: {
     static: false,
@@ -453,6 +502,9 @@ const workerConfig = {
       ...webpackConfig.output.environment,
       document: false, // Disable document references for workers
     },
+  },
+  resolve: {
+    ...webpackConfig.resolve, // Inherit resolve config including ESM fix
   },
   devServer: undefined, // Workers don't need dev server
   optimization: {
