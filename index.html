@@ -3,33 +3,168 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>開發者工具集 - Developer Tools Collection</title>
+    
+    <!-- Basic SEO -->
+    <title>開發者工具集 - Base64 解碼器、圖片編碼器 | Developer Tools Collection</title>
     <meta
       name="description"
-      content="一個輕量級的開發者工具集合，包含 Base64 解碼器等實用工具"
+      content="免費線上開發者工具集合：Base64 圖片解碼器與像素分析、Base64 圖片編碼器、ICO 分析器等。純前端處理，保護隱私，支援多種圖片格式，響應式設計。"
     />
     <meta
       name="keywords"
-      content="developer tools, base64, decoder, web tools"
+      content="Base64 解碼器,Base64 編碼器,圖片解碼,像素分析,開發者工具,前端工具,web tools,developer tools,base64 decoder,base64 encoder,image decoder,pixel analysis,ico analyzer,png to ico,免費工具,線上工具"
     />
+    <meta name="author" content="Jason Chen" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="language" content="zh-TW" />
+    <meta name="geo.region" content="TW" />
+    <meta name="geo.position" content="23.8;121.0" />
+    <meta name="ICBM" content="23.8, 121.0" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://jzsobiz.cc/" />
+    
+    <!-- Alternate languages -->
+    <link rel="alternate" hreflang="zh-TW" href="https://jzsobiz.cc/" />
+    <link rel="alternate" hreflang="en" href="https://jzsobiz.cc/" />
+    <link rel="alternate" hreflang="x-default" href="https://jzsobiz.cc/" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="開發者工具集 - Base64 解碼器、圖片編碼器 | Developer Tools Collection" />
+    <meta property="og:description" content="免費線上開發者工具集合：Base64 圖片解碼器與像素分析、Base64 圖片編碼器、ICO 分析器等。純前端處理，保護隱私，支援多種圖片格式。" />
+    <meta property="og:url" content="https://jzsobiz.cc/" />
+    <meta property="og:site_name" content="開發者工具集 - Developer Tools Collection" />
+    <meta property="og:image" content="https://jzsobiz.cc/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Base64 解碼器和開發者工具集合介面截圖" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:locale:alternate" content="en_US" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="開發者工具集 - Base64 解碼器、圖片編碼器" />
+    <meta name="twitter:description" content="免費線上開發者工具集合：Base64 解碼器、圖片編碼器、ICO 分析器等。純前端處理，保護隱私。" />
+    <meta name="twitter:image" content="https://jzsobiz.cc/twitter-card.png" />
+    <meta name="twitter:image:alt" content="Base64 解碼器工具介面" />
+    <meta name="twitter:site" content="@jzsobiz" />
+    <meta name="twitter:creator" content="@jzsobiz" />
+    
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="48x48" href="/icon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="72x72" href="/icon-72x72.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/icon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="144x144" href="/icon-144x144.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192x192.png" />
+    <meta name="msapplication-TileImage" content="/icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#2563eb" />
+    
+    <!-- Theme and App Manifest -->
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="color-scheme" content="light" />
+    <meta name="application-name" content="開發者工具集" />
+    <meta name="apple-mobile-web-app-title" content="開發者工具集" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- DNS Prefetch and Preconnect -->
+    <link rel="dns-prefetch" href="//unpkg.com" />
+    <link rel="dns-prefetch" href="//storage.ko-fi.com" />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link rel="preconnect" href="https://storage.ko-fi.com" crossorigin />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "開發者工具集 - Developer Tools Collection",
+      "alternateName": "Base64 Decoder Tools",
+      "description": "免費線上開發者工具集合，包含 Base64 圖片解碼器與像素分析、Base64 圖片編碼器、ICO 分析器等實用工具。純前端處理，保護隱私安全。",
+      "url": "https://jzsobiz.cc/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Chrome 90+, Firefox 88+, Safari 14+, Edge 90+",
+      "inLanguage": ["zh-TW", "en"],
+      "author": {
+        "@type": "Person",
+        "name": "Jason Chen",
+        "url": "https://jzsobiz.cc"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Jason Chen",
+        "url": "https://jzsobiz.cc"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Base64 圖片解碼與像素分析",
+        "Base64 圖片編碼與格式轉換",
+        "ICO 檔案結構分析",
+        "PNG 轉 ICO 工具",
+        "拖放檔案支援",
+        "剪貼簿圖片支援",
+        "響應式設計",
+        "隱私保護 - 純前端處理"
+      ],
+      "screenshot": "https://jzsobiz.cc/screenshots/desktop.png",
+      "softwareVersion": "2.0.0",
+      "dateModified": "2024-12-21",
+      "license": "https://opensource.org/licenses/MIT"
+    }
+    </script>
 
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Lucide Icons CDN with integrity -->
+    <script 
+      src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"
+      crossorigin="anonymous"
+      defer>
+    </script>
   </head>
   <body>
-    <div id="app-container">
-      <div class="loading">載入中...</div>
-    </div>
+    <!-- Structured content for SEO -->
+    <header style="display: none;">
+      <h1>開發者工具集 - Base64 解碼器、圖片編碼器 | Developer Tools Collection</h1>
+      <nav>
+        <ul>
+          <li><a href="#tool/base64-decoder">Base64 解碼器</a></li>
+          <li><a href="#tool/base64-encoder">Base64 編碼器</a></li>
+          <li><a href="#tool/ico-analyzer">ICO 分析器</a></li>
+          <li><a href="#tool/png-to-ico">PNG 轉 ICO</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <main>
+      <div id="app-container">
+        <div class="loading">載入中...</div>
+      </div>
+    </main>
 
-    <!-- Webpack will inject the script here -->
-    <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+    <!-- Ko-fi Support Widget -->
+    <script 
+      src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"
+      crossorigin="anonymous"
+      defer>
+    </script>
     <script>
-      kofiWidgetOverlay.draw("qqjckimo", {
-        type: "floating-chat",
-        "floating-chat.donateButton.text": "Support me",
-        "floating-chat.donateButton.background-color": "#00b9fe",
-        "floating-chat.donateButton.text-color": "#fff",
-      });
+      // Ko-fi widget initialization
+      if (typeof kofiWidgetOverlay !== 'undefined') {
+        kofiWidgetOverlay.draw("jzso_biz", {
+          type: "floating-chat",
+          "floating-chat.donateButton.text": "Support me",
+          "floating-chat.donateButton.background-color": "#00b9fe",
+          "floating-chat.donateButton.text-color": "#fff",
+        });
+      }
     </script>
   </body>
 </html>

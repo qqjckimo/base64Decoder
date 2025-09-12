@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://qqjckimo.github.io/base64Decoder/sitemap.xml
+
+# Disallow specific paths if needed
+# Disallow: /private/
