@@ -302,12 +302,21 @@ const webpackConfig = {
         ? {
             collapseWhitespace: true,
             removeComments: true,
-            removeRedundantAttributes: true,
+            removeRedundantAttributes: false, // Keep SEO attributes
             removeScriptTypeAttributes: true,
             removeStyleLinkTypeAttributes: true,
             useShortDoctype: true,
             minifyCSS: true,
             minifyJS: true,
+            // Preserve important SEO attributes
+            ignoreCustomComments: [/^\s*JSON-LD/],
+            // Keep attributes that are important for SEO
+            removeAttributeQuotes: false,
+            caseSensitive: false,
+            preventAttributesEscaping: true,
+            // Preserve meta tags and structured data
+            removeEmptyAttributes: false,
+            removeOptionalTags: false
           }
         : false,
       chunks: ["core"],
