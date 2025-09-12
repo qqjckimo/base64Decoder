@@ -16,30 +16,30 @@ const shouldAnalyze = process.env.ANALYZE === "true";
 const generateAssetFilename = (pathData) => {
   // Get relative path for uniqueness
   const relativePath = path.relative(process.cwd(), pathData.filename);
-  
+
   // Get file basename and extension
   const ext = path.extname(pathData.filename);
   const basename = path.basename(pathData.filename, ext);
-  
+
   // Generate path hash (8 chars is enough to avoid conflicts)
   const pathHash = crypto
-    .createHash('md5')
+    .createHash("md5")
     .update(relativePath)
-    .digest('hex')
+    .digest("hex")
     .substring(0, 8);
-  
+
   // Determine subdirectory based on file type
-  let subdir = '';
-  if (ext === '.wasm') {
-    subdir = 'wasm/';
-  } else if (ext === '.mjs' || basename.includes('.worker')) {
-    subdir = 'workers/';
-  } else if (ext === '.txt') {
-    subdir = 'assets/';
+  let subdir = "";
+  if (ext === ".wasm") {
+    subdir = "wasm/";
+  } else if (ext === ".mjs" || basename.includes(".worker")) {
+    subdir = "workers/";
+  } else if (ext === ".txt") {
+    subdir = "assets/";
   } else {
-    subdir = 'assets/';
+    subdir = "assets/";
   }
-  
+
   // Return unified format: [subdir][name]-[pathHash].[contenthash:8][ext]
   return isProduction
     ? `${subdir}${basename}-${pathHash}.[contenthash:8]${ext}`
@@ -69,7 +69,10 @@ class BundleSizePlugin {
       console.log("\n📊 Bundle Size Analysis:");
       Object.keys(assets).forEach((filename) => {
         // Skip WASM files from bundle size analysis
-        if ((filename.endsWith(".js") || filename.endsWith(".css")) && !filename.endsWith(".wasm")) {
+        if (
+          (filename.endsWith(".js") || filename.endsWith(".css")) &&
+          !filename.endsWith(".wasm")
+        ) {
           const size = assets[filename].size();
           console.log(`   ${filename}: ${(size / 1024).toFixed(2)}KB`);
 
@@ -293,8 +296,18 @@ const webpackConfig = {
   plugins: [
     // CleanWebpackPlugin not needed for Cloudflare Workers deployment
     new webpack.NormalModuleReplacementPlugin(
-      /node_modules\/@jsquash\/oxipng\/codec\/pkg-parallel\/squoosh_oxipng\.js$/,
-      path.resolve(__dirname, 'node_modules/@jsquash/oxipng/codec/pkg/squoosh_oxipng.js')
+      /@jsquash\/oxipng.*pkg-parallel/,
+      (resource) => {
+        if (resource.createData) {
+          resource.createData.resource = resource.createData.resource.replace(
+            /pkg-parallel/g,
+            "pkg"
+          );
+          resource.createData.context = path.dirname(
+            resource.createData.resource
+          );
+        }
+      }
     ),
     new HtmlWebpackPlugin({
       template: "./index.html",
@@ -316,7 +329,7 @@ const webpackConfig = {
             preventAttributesEscaping: true,
             // Preserve meta tags and structured data
             removeEmptyAttributes: false,
-            removeOptionalTags: false
+            removeOptionalTags: false,
           }
         : false,
       chunks: ["core"],
@@ -373,7 +386,9 @@ const webpackConfig = {
     splitChunks: {
       chunks: (chunk) => {
         // Don't split worker chunks and codec chunks
-        return !chunk.name?.includes("-worker") && !chunk.name?.includes("codecs/");
+        return (
+          !chunk.name?.includes("-worker") && !chunk.name?.includes("codecs/")
+        );
       },
       maxAsyncRequests: 30,
       maxInitialRequests: 30,
@@ -426,6 +441,11 @@ const webpackConfig = {
       "@tools": path.resolve(__dirname, "src/tools"),
       "@components": path.resolve(__dirname, "src/components"),
       "@utils": path.resolve(__dirname, "src/utils"),
+      // 修正：使用 path.resolve 確保路徑正確
+      "@jsquash/oxipng/codec/pkg-parallel": path.resolve(
+        __dirname,
+        "node_modules/@jsquash/oxipng/codec/pkg"
+      ),
     },
     // Fix ESM module resolution for packages like @jsquash/oxipng
     byDependency: {
@@ -441,10 +461,29 @@ const webpackConfig = {
       url: {
         fullySpecified: false,
       },
+      import: { fullySpecified: false },
+      require: { fullySpecified: false },
+      // 新增：針對 @jsquash 套件的特殊處理
+      "@jsquash": {
+        fullySpecified: false,
+      },
     },
     // Additional configuration to handle strict ESM resolution
     extensionAlias: {
       ".js": [".js", ".ts", ".mjs"],
+    },
+    modules: [
+      "node_modules",
+      // 添加 @jsquash 套件的特定解析路徑
+      path.resolve(__dirname, "node_modules/@jsquash/oxipng/codec/pkg"),
+    ],
+    fallback: {
+      // 處理 @jsquash/oxipng 中的相對路徑問題
+      "pkg-parallel": path.resolve(
+        __dirname,
+        "node_modules/@jsquash/oxipng/codec/pkg"
+      ),
+      workerHelpers: false, // 禁用有問題的worker helper
     },
   },
   devServer: {
@@ -468,7 +507,9 @@ const webpackConfig = {
     maxAssetSize: SIZE_LIMITS.perTool,
     assetFilter: (assetFilename) => {
       // Skip size checks for WASM files and source maps
-      return !assetFilename.endsWith(".map") && !assetFilename.endsWith(".wasm");
+      return (
+        !assetFilename.endsWith(".map") && !assetFilename.endsWith(".wasm")
+      );
     },
   },
   devtool: isProduction ? false : "eval-source-map",
@@ -488,7 +529,7 @@ const webpackConfig = {
 // Worker-specific configuration
 const workerConfig = {
   ...webpackConfig,
-  target: 'webworker',
+  target: "webworker",
   entry: {
     "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
     "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
@@ -518,6 +559,24 @@ const workerConfig = {
       },
     },
   },
+  // 關鍵：添加plugins配置
+  plugins: [
+    // 複製NormalModuleReplacementPlugin到worker配置
+    new webpack.NormalModuleReplacementPlugin(
+      /@jsquash\/oxipng.*pkg-parallel/,
+      (resource) => {
+        if (resource.createData) {
+          resource.createData.resource = resource.createData.resource.replace(
+            /pkg-parallel/g,
+            "pkg"
+          );
+          resource.createData.context = path.dirname(
+            resource.createData.resource
+          );
+        }
+      }
+    ),
+  ],
 };
 
 // Main app configuration (without workers)
