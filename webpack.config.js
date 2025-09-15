@@ -4,6 +4,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -317,6 +318,28 @@ const webpackConfig = {
       chunks: ["core"],
       inject: "body",
     }),
+    // Copy static assets in production only
+    isProduction &&
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: "manifest.json",
+            to: "manifest.json",
+          },
+          {
+            from: "og-image.png",
+            to: "og-image.png",
+          },
+          {
+            from: "twitter-card.png",
+            to: "twitter-card.png",
+          },
+          {
+            from: "icon-*.png",
+            to: "[name][ext]",
+          },
+        ],
+      }),
     isProduction &&
       new CompressionPlugin({
         test: /\.(js|css|html)$/,
