@@ -7,7 +7,7 @@ export default class Base64DecoderTool {
     this.currentContext = null;
     this.editor = null;
     this.editorContainer = null;
-    this.currentLanguage = localStorage.getItem("preferredLanguage") || "zh-TW";
+    this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
         title: "Base64 圖片解碼",

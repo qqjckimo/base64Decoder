@@ -1,6 +1,7 @@
 import router from './router.js';
 import loader from './loader.js';
 import { Sidebar } from '../components/sidebar/sidebar.js';
+import languageDetector from '../utils/languageDetector.js';
 import './styles.css';
 
 class App {
@@ -11,6 +12,9 @@ class App {
     }
 
     async init() {
+        // Initialize language system first (creates window.appLanguage)
+        console.log('Language initialized:', languageDetector.get());
+        
         await this.setupDOM();
         this.sidebar = new Sidebar();
         await this.registerRoutes();

@@ -4,7 +4,7 @@ export default class PngToIcoTool {
   constructor() {
     this.currentFiles = [];
     this.converter = null;
-    this.currentLanguage = localStorage.getItem("preferredLanguage") || "zh-TW";
+    this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
         title: "PNG 轉 ICO 轉換器",

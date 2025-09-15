@@ -12,7 +12,7 @@ export default class Base64EncoderTool {
     this.compressorWorker = null;
     this.chart = null;
 
-    this.currentLanguage = localStorage.getItem("preferredLanguage") || "zh-TW";
+    this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
         title: "Base64 圖片編碼器",
