@@ -15,7 +15,7 @@ export default class Base64EncoderTool {
     this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
-        title: "Base64 圖片編碼器",
+        title: "圖片轉 Base64 工具",
         uploadText: "拖放圖片到此處，或點擊選擇檔案",
         supportedFormats: "支援格式：PNG, JPEG, GIF, WebP, AVIF, SVG",
         selectFile: "選擇檔案",
@@ -43,7 +43,7 @@ export default class Base64EncoderTool {
         processingFailed: "處理失敗",
       },
       en: {
-        title: "Base64 Image Encoder",
+        title: "Image to Base64 Tool",
         uploadText: "Drop images here, or click to select files",
         supportedFormats: "Supported: PNG, JPEG, GIF, WebP, AVIF, SVG",
         selectFile: "Select File",

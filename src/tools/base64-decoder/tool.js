@@ -10,7 +10,7 @@ export default class Base64DecoderTool {
     this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
-        title: "Base64 圖片解碼",
+        title: "Base64 轉圖片工具",
         inputPlaceholder: "在此貼上 Base64 編碼的圖片字串...",
         loadingEditor: "正在載入編輯器...",
         enhancedEditor: "✨ 增強編輯器",
@@ -39,7 +39,7 @@ export default class Base64DecoderTool {
         aboutSize: "約",
       },
       en: {
-        title: "Base64 Image Decoder",
+        title: "Base64 to Image Tool",
         inputPlaceholder: "Paste Base64 encoded image string here...",
         loadingEditor: "Loading editor...",
         enhancedEditor: "✨ Enhanced Editor",

@@ -7,7 +7,7 @@ export default class PngToIcoTool {
     this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
-        title: "PNG 轉 ICO 轉換器",
+        title: "PNG 製作 ICO 圖示",
         uploadText: "點擊或拖放 PNG 檔案到此處",
         uploadHint: "支援單個或多個 PNG 檔案（生成多尺寸 ICO）",
         selectAgain: "重新選擇",
@@ -28,7 +28,7 @@ export default class PngToIcoTool {
         imageSizeExceeds: "圖片尺寸 {width}x{height} 超過 256x256。勾選「忽略限制」以繼續。",
       },
       en: {
-        title: "PNG to ICO Converter",
+        title: "PNG to ICO Creator",
         uploadText: "Click or drag and drop PNG files here",
         uploadHint: "Support single or multiple PNG files (generate multi-size ICO)",
         selectAgain: "Select Again",

@@ -9,11 +9,11 @@ export class Sidebar {
     this.appVersion = process.env.APP_VERSION;
     this.translations = {
       "zh-TW": {
-        sidebarTitle: "開發工具",
+        sidebarTitle: "圖片工具",
         categoryImageProcessing: "圖片處理",
-        base64DecoderName: "Base64 圖片解碼器",
-        base64EncoderName: "Base64 圖片編碼器",
-        pngToIcoName: "PNG 轉 ICO 轉換器",
+        base64DecoderName: "Base64 轉圖片工具",
+        base64EncoderName: "圖片轉 Base64 工具",
+        pngToIcoName: "PNG 製作 ICO 圖示",
         featureFastLoad: "快速載入",
         featurePrivacyFirst: "隱私優先",
         featureModernTech: "最新技術",
@@ -24,11 +24,11 @@ export class Sidebar {
           "使用 ES6+、Web Workers、動態載入等現代 Web 技術",
       },
       en: {
-        sidebarTitle: "Developer Tools",
+        sidebarTitle: "Image Tools",
         categoryImageProcessing: "Image Processing",
-        base64DecoderName: "Base64 Image Decoder",
-        base64EncoderName: "Base64 Image Encoder",
-        pngToIcoName: "PNG to ICO Converter",
+        base64DecoderName: "Base64 to Image Tool",
+        base64EncoderName: "Image to Base64 Tool",
+        pngToIcoName: "PNG to ICO Creator",
         featureFastLoad: "Fast Loading",
         featurePrivacyFirst: "Privacy First",
         featureModernTech: "Modern Tech",

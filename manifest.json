@@ -1,7 +1,7 @@
 {
-  "name": "開發者工具集 - Developer Tools Collection",
-  "short_name": "DevTools",
-  "description": "一個輕量級的開發者工具集合，包含 Base64 解碼器、編碼器、ICO 分析工具等實用功能。100% 客戶端處理，隱私安全，免費無廣告。",
+  "name": "線上圖片工具集 - Image Tools Collection",
+  "short_name": "ImageTools",
+  "description": "一個輕量級的圖片處理工具集合，包含 Base64 圖片互轉、PNG 製作 ICO 圖示、圖片格式轉換等實用功能。100% 客戶端處理，隱私安全，免費無廣告。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8f9fa",
@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "zh-TW",
-  "categories": ["developer", "utilities", "productivity"],
+  "categories": ["graphics", "utilities", "productivity"],
   "icons": [
     {
       "src": "icon-48x48.png",
@@ -54,7 +54,7 @@
       "sizes": "1200x630",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "開發者工具集 - 主畫面"
+      "label": "線上圖片工具集 - 主畫面"
     }
   ],
   "prefer_related_applications": false,
@@ -63,9 +63,9 @@
   },
   "shortcuts": [
     {
-      "name": "Base64 解碼器",
-      "short_name": "解碼器",
-      "description": "快速解碼 Base64 圖片",
+      "name": "Base64 轉圖片工具",
+      "short_name": "轉圖片",
+      "description": "快速轉換 Base64 為圖片",
       "url": "/#base64-decoder",
       "icons": [
         {
@@ -76,9 +76,9 @@
       ]
     },
     {
-      "name": "Base64 編碼器",
-      "short_name": "編碼器",
-      "description": "圖片轉 Base64 編碼",
+      "name": "圖片轉 Base64 工具",
+      "short_name": "轉編碼",
+      "description": "快速將圖片轉為 Base64 編碼",
       "url": "/#base64-encoder",
       "icons": [
         {
