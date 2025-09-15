@@ -1,4 +1,5 @@
 import { MonacoLoader } from "../../utils/monacoLoader.js";
+import { createIcon, initializeLucideIcons } from "../../components/shared/Icon.js";
 import "./styles.css";
 
 export default class Base64EncoderTool {
@@ -23,8 +24,8 @@ export default class Base64EncoderTool {
         base64Size: "Base64 大小",
         gzipSize: "Base64 (gzip)",
         compressionResults: "壓縮結果",
-        copyBase64: "複製 Base64",
-        downloadBase64: "下載 Base64",
+        copyBase64: "複製",
+        downloadBase64: "下載",
         processing: "處理中...",
         compressing: "壓縮中...",
         fileInfo: "檔案資訊",
@@ -51,8 +52,8 @@ export default class Base64EncoderTool {
         base64Size: "Base64 Size",
         gzipSize: "Base64 (gzip)",
         compressionResults: "Compression Results",
-        copyBase64: "Copy Base64",
-        downloadBase64: "Download Base64",
+        copyBase64: "Copy",
+        downloadBase64: "Download",
         processing: "Processing...",
         compressing: "Compressing...",
         fileInfo: "File Info",
@@ -250,12 +251,12 @@ export default class Base64EncoderTool {
           <div class="editor-header">
             <h3 class="editor-title">Base64 ${t.result || "結果"}</h3>
             <div class="editor-actions">
-              <button class="btn btn-small btn-secondary" id="copyBtn">${
-                t.copyBase64
-              }</button>
-              <button class="btn btn-small btn-secondary" id="downloadBtn">${
-                t.downloadBase64
-              }</button>
+              <button class="btn btn-small btn-secondary" id="copyBtn">
+                ${createIcon('copy', 16, 'btn-icon')} ${t.copyBase64}
+              </button>
+              <button class="btn btn-small btn-secondary" id="downloadBtn">
+                ${createIcon('download', 16, 'btn-icon')} ${t.downloadBase64}
+              </button>
             </div>
           </div>
           <div class="monaco-container" id="monacoContainer"></div>
@@ -279,6 +280,9 @@ export default class Base64EncoderTool {
         <div id="messageContainer"></div>
       </div>
     `;
+
+    // Initialize Lucide icons after rendering
+    initializeLucideIcons();
   }
 
   attachEvents() {
