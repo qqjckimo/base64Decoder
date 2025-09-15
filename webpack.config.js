@@ -294,7 +294,18 @@ const webpackConfig = {
   plugins: [
     // CleanWebpackPlugin not needed for Cloudflare Workers deployment
     new webpack.DefinePlugin({
-      'process.env.APP_VERSION': JSON.stringify(packageJson.version),
+      __APP_VERSION__: JSON.stringify(packageJson.version),
+      __PRODUCTION__: JSON.stringify(isProduction),
+    }),
+    new webpack.BannerPlugin({
+      banner: `/*!
+ * Developer Tools Collection v${packageJson.version}
+ * Copyright (c) ${new Date().getFullYear()} Jason Chen. All Rights Reserved.
+ * Proprietary and Confidential - Unauthorized use prohibited
+ */`,
+      raw: true,
+      entryOnly: false,
+      stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
     }),
     new HtmlWebpackPlugin({
       template: "./index.html",
@@ -379,17 +390,30 @@ const webpackConfig = {
           compress: {
             ecma: 2020,
             drop_console: isProduction,
-            drop_debugger: true,
-            pure_funcs: ["console.log"],
+            drop_debugger: false,
+            pure_funcs: ["console.log", "console.info", "console.debug"],
             passes: 2,
+            // Enhanced compression
+            dead_code: true,
+            evaluate: true,
+            sequences: true,
+            properties: true,
           },
           mangle: {
             safari10: true,
+            // Enhanced property mangling
+            properties: {
+              regex: /^_/, // Mangle properties starting with _
+              keep_quoted: true, // Keep quoted property names
+            },
           },
           format: {
             ecma: 2020,
             comments: false,
             ascii_only: true,
+            // Additional formatting options
+            beautify: false,
+            semicolons: false,
           },
         },
         extractComments: false,

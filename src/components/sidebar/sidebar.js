@@ -6,7 +6,7 @@ export class Sidebar {
     this.isExpanded = true;
     this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.floatingUI = null;
-    this.appVersion = process.env.APP_VERSION;
+    this.appVersion = __APP_VERSION__;
     this.translations = {
       "zh-TW": {
         sidebarTitle: "圖片工具",
@@ -353,7 +353,7 @@ export class Sidebar {
       // Fallback for cases where global system isn't available
       this.currentLanguage = this.currentLanguage === "zh-TW" ? "en" : "zh-TW";
       localStorage.setItem("preferredLanguage", this.currentLanguage);
-      
+
       // Trigger global language change event
       window.dispatchEvent(
         new CustomEvent("languageChanged", {
@@ -1118,7 +1118,7 @@ export class Sidebar {
             /* 768px斷點響應式定位 */
             @media (max-width: 768px) and (min-width: 481px) {
                 .floating-sidebar-toggle.attached {
-                    left: calc(100% - 51px);
+                    left: calc(var(--sidebar-width) - 2px);
                 }
             }
 
