@@ -288,27 +288,9 @@ const webpackConfig = {
       module: /\.worker\.mjs$/,
       message: /the request of a dependency is an expression/,
     },
-    {
-      module: /workerHelpers\.worker\.js$/,
-      message: /Can't resolve/,
-    },
   ],
   plugins: [
     // CleanWebpackPlugin not needed for Cloudflare Workers deployment
-    new webpack.NormalModuleReplacementPlugin(
-      /@jsquash\/oxipng.*pkg-parallel/,
-      (resource) => {
-        if (resource.createData) {
-          resource.createData.resource = resource.createData.resource.replace(
-            /pkg-parallel/g,
-            "pkg"
-          );
-          resource.createData.context = path.dirname(
-            resource.createData.resource
-          );
-        }
-      }
-    ),
     new HtmlWebpackPlugin({
       template: "./index.html",
       minify: isProduction
@@ -441,11 +423,6 @@ const webpackConfig = {
       "@tools": path.resolve(__dirname, "src/tools"),
       "@components": path.resolve(__dirname, "src/components"),
       "@utils": path.resolve(__dirname, "src/utils"),
-      // 修正：使用 path.resolve 確保路徑正確
-      "@jsquash/oxipng/codec/pkg-parallel": path.resolve(
-        __dirname,
-        "node_modules/@jsquash/oxipng/codec/pkg"
-      ),
     },
     // Fix ESM module resolution for packages like @jsquash/oxipng
     byDependency: {
@@ -463,28 +440,12 @@ const webpackConfig = {
       },
       import: { fullySpecified: false },
       require: { fullySpecified: false },
-      // 新增：針對 @jsquash 套件的特殊處理
-      "@jsquash": {
-        fullySpecified: false,
-      },
     },
     // Additional configuration to handle strict ESM resolution
     extensionAlias: {
       ".js": [".js", ".ts", ".mjs"],
     },
-    modules: [
-      "node_modules",
-      // 添加 @jsquash 套件的特定解析路徑
-      path.resolve(__dirname, "node_modules/@jsquash/oxipng/codec/pkg"),
-    ],
-    fallback: {
-      // 處理 @jsquash/oxipng 中的相對路徑問題
-      "pkg-parallel": path.resolve(
-        __dirname,
-        "node_modules/@jsquash/oxipng/codec/pkg"
-      ),
-      workerHelpers: false, // 禁用有問題的worker helper
-    },
+    modules: ["node_modules"],
   },
   devServer: {
     static: false,
@@ -559,24 +520,6 @@ const workerConfig = {
       },
     },
   },
-  // 關鍵：添加plugins配置
-  plugins: [
-    // 複製NormalModuleReplacementPlugin到worker配置
-    new webpack.NormalModuleReplacementPlugin(
-      /@jsquash\/oxipng.*pkg-parallel/,
-      (resource) => {
-        if (resource.createData) {
-          resource.createData.resource = resource.createData.resource.replace(
-            /pkg-parallel/g,
-            "pkg"
-          );
-          resource.createData.context = path.dirname(
-            resource.createData.resource
-          );
-        }
-      }
-    ),
-  ],
 };
 
 // Main app configuration (without workers)
