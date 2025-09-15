@@ -6,6 +6,7 @@ export class Sidebar {
         this.isExpanded = true;
         this.currentLanguage = localStorage.getItem('preferredLanguage') || 'zh-TW';
         this.floatingUI = null;
+        this.appVersion = process.env.APP_VERSION;
         this.translations = {
             'zh-TW': {
                 sidebarTitle: '開發工具',
@@ -98,7 +99,10 @@ export class Sidebar {
         
         sidebar.innerHTML = `
             <div class="sidebar-header">
-                <h2 class="sidebar-title">${t.sidebarTitle}</h2>
+                <h2 class="sidebar-title">
+                    ${t.sidebarTitle}
+                    ${this.appVersion ? `<span class="version-badge">v${this.appVersion}</span>` : ''}
+                </h2>
                 <div class="header-controls">
                     <button class="language-toggle" data-action="toggleLanguage" title="Switch Language">
                         ${createIcon('globe', 12, 'language-icon')} ${this.currentLanguage === 'zh-TW' ? 'EN' : '中文'}
@@ -652,6 +656,22 @@ export class Sidebar {
                 flex: 1;
                 margin-right: 0.5rem;
                 min-width: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .version-badge {
+                font-size: 0.6rem;
+                font-weight: 400;
+                color: var(--text-secondary);
+                background: var(--bg-secondary);
+                padding: 0.1rem 0.3rem;
+                border-radius: 0.25rem;
+                border: 1px solid var(--border-color);
+                line-height: 1;
+                flex-shrink: 0;
+                white-space: nowrap;
             }
 
             .sidebar-toggle {
@@ -853,7 +873,8 @@ export class Sidebar {
                 .sidebar.collapsed .sidebar-title,
                 .sidebar.collapsed .nav-text,
                 .sidebar.collapsed .category-header,
-                .sidebar.collapsed .feature-text {
+                .sidebar.collapsed .feature-text,
+                .sidebar.collapsed .version-badge {
                     display: none;
                 }
 

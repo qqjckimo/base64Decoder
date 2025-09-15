@@ -1,6 +1,6 @@
 {
   "name": "developer-tools-collection",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A lightweight collection of developer tools with dynamic module loading",
   "main": "index.html",
   "scripts": {
@@ -15,7 +15,10 @@
     "build:legacy": "node build.js",
     "deploy": "wrangler deploy",
     "preview": "wrangler dev",
-    "build:deploy": "npm run build && wrangler deploy"
+    "build:deploy": "npm run build && wrangler deploy",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version"
   },
   "keywords": [
     "developer-tools",

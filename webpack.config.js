@@ -1,6 +1,7 @@
 const path = require("path");
 const crypto = require("crypto");
 const webpack = require("webpack");
+const packageJson = require("./package.json");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
@@ -292,8 +293,14 @@ const webpackConfig = {
   ],
   plugins: [
     // CleanWebpackPlugin not needed for Cloudflare Workers deployment
+    new webpack.DefinePlugin({
+      'process.env.APP_VERSION': JSON.stringify(packageJson.version),
+    }),
     new HtmlWebpackPlugin({
       template: "./index.html",
+      templateParameters: {
+        VERSION: packageJson.version,
+      },
       minify: isProduction
         ? {
             collapseWhitespace: true,
