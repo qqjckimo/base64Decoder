@@ -1,4 +1,6 @@
-import init, { optimise } from "@jsquash/oxipng/codec/pkg/squoosh_oxipng.js";
+import init, {
+  optimise_raw,
+} from "@jsquash/oxipng/codec/pkg/squoosh_oxipng.js";
 
 let wasmInitialized = false;
 
@@ -15,8 +17,10 @@ export async function encode(data, options = {}) {
   //   throw new Error("ImageData input not supported in single-threaded mode");
   // }
 
-  return optimise(
-    new Uint8Array(data),
+  return optimise_raw(
+    data.data,
+    data.width,
+    data.height,
     _options.level,
     _options.interlace,
     _options.optimizeAlpha
