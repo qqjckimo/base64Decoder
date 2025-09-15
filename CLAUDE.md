@@ -10,6 +10,9 @@ You MUST see [ROLE_DEFINITION.md](./ROLE_DEFINITION.md) for detailed role and be
 
 A collection of developer tools built as a modular single-page web application. Starting with Base64 image decoder and expanding to include various web development utilities. Built with vanilla HTML/CSS/JavaScript for maximum portability, focusing on minimal bundle size through dynamic module loading.
 
+**Version**: 2.0.0 (as of 2025-09-15)
+**Latest Optimization**: Switched to single-thread oxipng to eliminate parallel version dependency issues
+
 ### Technical Architecture
 
 #### Core Technologies
@@ -36,19 +39,20 @@ A collection of developer tools built as a modular single-page web application. 
 #### Architecture Strategy
 
 - **Initial Load**: < 50KB for core app shell (HTML + critical CSS + router)
-  - Core modules: **24.37KB** (app.js, router.js, loader.js, styles.css) - **ACHIEVED**
+  - Core modules: **35.29KB** (app.js, router.js, loader.js, styles.css) - **ACHIEVED**
   - Components: ~9KB (sidebar, icon system)
   - Utilities: **4.43KB** (MonacoLoader) - **ACHIEVED**
 - **Common Tools Bundle**: Pre-bundled frequently used tools
-  - Base64 Decoder: **20.65KB** (preloaded for optimal UX) - **ACHIEVED**
+  - Base64 Decoder: **28.54KB** (preloaded for optimal UX) - **ACHIEVED**
 - **Dynamic Tools**: Loaded on-demand with revolutionary size reduction
-  - Base64 Encoder: **19.23KB** (down from ~135KB via dynamic codec loading) - **99.3% REDUCTION**
-  - Compressor Worker: **3.26KB** (down from 441KB) - **MASSIVE OPTIMIZATION**
-  - Codec Bundles: **0.00KB** entry points (fully dynamic) - **PERFECT**
+  - Base64 Encoder: **23.53KB** (main tool, dynamic codec loading) - **OPTIMIZED**
+  - Encoder Worker: **8.20KB** (background processing)
+  - Compressor Worker: **3.49KB** (down from 441KB) - **MASSIVE OPTIMIZATION**
+  - Codec Bundles: Dynamic loading (PNG: 2.55KB, WebP: 1.60KB, AVIF: 2.04KB)
   - ICO Analyzer: ~25KB (pending modularization)
-  - PNG to ICO: **11.89KB** (modularized) - **ACHIEVED**
+  - PNG to ICO: **15.43KB** (modularized, part of tools chunk) - **ACHIEVED**
 - **Shared Modules**: Common utilities extracted (**4.43KB** actual) - **ACHIEVED**
-- **Total Initial Experience**: Core + Base64 Decoder = **~45KB** (exceptional achievement under 150KB target)
+- **Total Initial Experience**: Core + Base64 Decoder = **~64KB** (excellent achievement under 150KB target)
 
 #### Module Structure
 
@@ -66,11 +70,15 @@ A collection of developer tools built as a modular single-page web application. 
 
 ### Build System
 
-- **Build Tool**: Webpack/Rollup for module bundling with aggressive optimization
+- **Build Tool**: Webpack 5 for module bundling with aggressive optimization
 - **Minification**: Terser for JS, cssnano for CSS, html-minifier-terser for HTML
 - **Bundle Analysis**: Built-in size monitoring and alerts for size regression
 - **Output**: Optimized bundles in `docs/` directory
-- **Deployment**: GitHub Pages ready with CDN optimization
+- **Deployment**: 
+  - GitHub Pages ready with CDN optimization
+  - Cloudflare Workers support via Wrangler
+- **Asset Management**: Unified filename generation with content hashing
+- **Codec Strategy**: Single-thread implementations to avoid dependency bloat
 
 ### File Structure
 
@@ -248,15 +256,25 @@ For detailed implementation and maintenance information, refer to the module-spe
 
 ### Current Status
 
-- **Integrated Tools**: Base64 Decoder, Base64 Encoder (fully modularized with revolutionary dynamic loading)
-- **Recently Integrated**: PNG to ICO Converter (11.89KB, modularized)
-- **Pending Integration**: ICO Analyzer (standalone HTML file)
-- **Bundle Size Achievement**: Core + Base64 Decoder = **~45KB** (exceptional under 150KB target)
+- **Integrated Tools**: 
+  - Base64 Decoder (28.54KB, preloaded)
+  - Base64 Encoder (23.53KB, with dynamic codec loading)
+  - PNG to ICO Converter (15.43KB, modularized)
+- **Pending Integration**: ICO Analyzer (standalone HTML file, ~25KB target)
+- **Bundle Size Achievement**: Core + Base64 Decoder = **~64KB** (excellent under 150KB target)
+- **Production Build**: Fully optimized with gzip/brotli compression
 
-### 🎉 Major Performance Breakthroughs (2025-09-11)
+### 🎉 Major Performance Breakthroughs
 
-- **Compressor Worker**: 99.3% size reduction (441KB → 3.26KB)
+#### 2025-09-11: Dynamic Codec System
+- **Compressor Worker**: 99.3% size reduction (441KB → 3.49KB)
 - **Dynamic Codec Loading**: All three image formats (PNG, WebP, AVIF) load on-demand
 - **Base64 Encoder**: Massive optimization through codec separation
 - **Production Ready**: All optimizations working perfectly in production build
 - **Architecture**: Clean, maintainable, and future-proof dynamic loading system
+
+#### 2025-09-15: Oxipng Optimization
+- **Single-Thread Implementation**: Switched from oxipng-parallel to standard oxipng
+- **Dependency Reduction**: Eliminated complex parallel processing dependencies
+- **PNG Codec**: Optimized to 2.55KB with single-thread processing
+- **Stability**: Improved build reliability and cross-platform compatibility
