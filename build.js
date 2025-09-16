@@ -17,8 +17,19 @@ async function buildMinified() {
     try {
         // Read the source HTML file
         const sourceFile = path.join(__dirname, 'index.html');
-        const htmlContent = fs.readFileSync(sourceFile, 'utf8');
-        
+        let htmlContent = fs.readFileSync(sourceFile, 'utf8');
+
+        // Replace template parameters
+        const packageJson = require('./package.json');
+        const buildDate = new Date().toISOString().split('T')[0];
+
+        htmlContent = htmlContent
+            .replace(/<%= _APP_VERSION_ %>/g, packageJson.version)
+            .replace(/<%= _BUILD_DATE_ %>/g, buildDate);
+
+        console.log('Replacing template parameters...');
+        console.log(`  _APP_VERSION_: ${packageJson.version}`);
+        console.log(`  _BUILD_DATE_: ${buildDate}`);
         console.log('Starting minification process...');
         
         // Create docs directory if it doesn't exist

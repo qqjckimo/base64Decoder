@@ -294,12 +294,13 @@ const webpackConfig = {
   plugins: [
     // CleanWebpackPlugin not needed for Cloudflare Workers deployment
     new webpack.DefinePlugin({
-      'process.env.APP_VERSION': JSON.stringify(packageJson.version),
+      _APP_VERSION_: JSON.stringify(packageJson.version),
     }),
     new HtmlWebpackPlugin({
       template: "./index.html",
       templateParameters: {
-        VERSION: packageJson.version,
+        _APP_VERSION_: packageJson.version,
+        _BUILD_DATE_: new Date().toISOString().split('T')[0],
       },
       minify: isProduction
         ? {
