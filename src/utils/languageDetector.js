@@ -96,7 +96,12 @@ window.appLanguage = {
     set: (lang) => languageDetector.set(lang),
     toggle: () => languageDetector.toggle(),
     isSupported: (lang) => languageDetector.isSupported(lang),
-    getSupportedLanguages: () => languageDetector.getSupportedLanguages()
+    getSupportedLanguages: () => languageDetector.getSupportedLanguages(),
+    subscribe: (callback) => {
+        window.addEventListener('languageChanged', (event) => {
+            callback(event.detail.language);
+        });
+    }
 };
 
 // Export for module usage

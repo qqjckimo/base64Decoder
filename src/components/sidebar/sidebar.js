@@ -9,11 +9,13 @@ export class Sidebar {
     this.appVersion = _APP_VERSION_ || null; // Defined in webpack.config.js
     this.translations = {
       "zh-TW": {
-        sidebarTitle: "圖片工具",
+        sidebarTitle: "開發工具",
         categoryImageProcessing: "圖片處理",
+        categoryTextProcessing: "Formatter",
         base64DecoderName: "Base64 轉圖片工具",
         base64EncoderName: "圖片轉 Base64 工具",
         pngToIcoName: "PNG 製作 ICO 圖示",
+        jsonFormatterName: "JSON 格式化工具",
         featureFastLoad: "快速載入",
         featurePrivacyFirst: "隱私優先",
         featureModernTech: "最新技術",
@@ -24,11 +26,13 @@ export class Sidebar {
           "使用 ES6+、Web Workers、動態載入等現代 Web 技術",
       },
       en: {
-        sidebarTitle: "Image Tools",
+        sidebarTitle: "Developer Tools",
         categoryImageProcessing: "Image Processing",
+        categoryTextProcessing: "Formatter",
         base64DecoderName: "Base64 to Image Tool",
         base64EncoderName: "Image to Base64 Tool",
         pngToIcoName: "PNG to ICO Creator",
+        jsonFormatterName: "JSON Formatter",
         featureFastLoad: "Fast Loading",
         featurePrivacyFirst: "Privacy First",
         featureModernTech: "Modern Tech",
@@ -95,6 +99,12 @@ export class Sidebar {
         name: t.pngToIcoName,
         icon: createIcon("palette", 20, "tool-icon"),
         category: t.categoryImageProcessing,
+      },
+      {
+        id: "json-formatter",
+        name: t.jsonFormatterName,
+        icon: createIcon("file-text", 20, "tool-icon"),
+        category: t.categoryTextProcessing,
       },
     ];
   }
