@@ -26,9 +26,9 @@ export default class JSONFormatterTool {
         syntaxError: "語法錯誤",
         placeholder: "請在此輸入或貼上 JSON 內容...",
         loadingEditor: "正在載入編輯器...",
-        fallbackMode: "使用基本編輯器模式"
+        fallbackMode: "使用基本編輯器模式",
       },
-      "en": {
+      en: {
         title: "JSON Formatter",
         format: "Format",
         compact: "Compact",
@@ -48,8 +48,8 @@ export default class JSONFormatterTool {
         syntaxError: "Syntax error",
         placeholder: "Enter or paste JSON content here...",
         loadingEditor: "Loading editor...",
-        fallbackMode: "Using basic editor mode"
-      }
+        fallbackMode: "Using basic editor mode",
+      },
     };
 
     // State management
@@ -58,7 +58,7 @@ export default class JSONFormatterTool {
       currentContent: "",
       isValid: true,
       characterCount: 0,
-      lineCount: 1
+      lineCount: 1,
     };
 
     // DOM references
@@ -109,7 +109,9 @@ export default class JSONFormatterTool {
     this.container.innerHTML = `
       <div class="json-formatter-container">
         <div class="json-formatter-toolbar">
-          <span class="json-formatter-title" data-i18n="title">${t("title")}</span>
+          <span class="json-formatter-title" data-i18n="title">${t(
+            "title"
+          )}</span>
 
           <button class="json-formatter-btn json-formatter-btn-primary" data-action="format">
             <svg class="json-formatter-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -117,14 +119,18 @@ export default class JSONFormatterTool {
               <line x1="15" x2="3" y1="12" y2="12" />
               <line x1="17" x2="3" y1="18" y2="18" />
             </svg>
-            <span class="json-formatter-btn-text" data-i18n="format">${t("format")}</span>
+            <span class="json-formatter-btn-text" data-i18n="format">${t(
+              "format"
+            )}</span>
           </button>
 
           <button class="json-formatter-btn" data-action="compact">
             <svg class="json-formatter-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m9 18 6-6-6-6" />
             </svg>
-            <span class="json-formatter-btn-text" data-i18n="compact">${t("compact")}</span>
+            <span class="json-formatter-btn-text" data-i18n="compact">${t(
+              "compact"
+            )}</span>
           </button>
 
           <button class="json-formatter-btn" data-action="copy">
@@ -132,7 +138,9 @@ export default class JSONFormatterTool {
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
-            <span class="json-formatter-btn-text" data-i18n="copy">${t("copy")}</span>
+            <span class="json-formatter-btn-text" data-i18n="copy">${t(
+              "copy"
+            )}</span>
           </button>
 
           <button class="json-formatter-btn" data-action="clear">
@@ -141,7 +149,9 @@ export default class JSONFormatterTool {
               <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
               <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
             </svg>
-            <span class="json-formatter-btn-text" data-i18n="clear">${t("clear")}</span>
+            <span class="json-formatter-btn-text" data-i18n="clear">${t(
+              "clear"
+            )}</span>
           </button>
         </div>
 
@@ -150,8 +160,12 @@ export default class JSONFormatterTool {
         </div>
 
         <div class="json-formatter-status-bar">
-          <span class="json-formatter-status" id="status-text">${t("ready")}</span>
-          <span class="json-formatter-char-count" id="char-count">0 ${t("characters")}</span>
+          <span class="json-formatter-status" id="status-text">${t(
+            "ready"
+          )}</span>
+          <span class="json-formatter-char-count" id="char-count">0 ${t(
+            "characters"
+          )}</span>
         </div>
       </div>
     `;
@@ -159,24 +173,26 @@ export default class JSONFormatterTool {
 
   cacheElements() {
     this.elements = {
-      toolbar: this.container.querySelector('.json-formatter-toolbar'),
+      toolbar: this.container.querySelector(".json-formatter-toolbar"),
       formatBtn: this.container.querySelector('[data-action="format"]'),
       compactBtn: this.container.querySelector('[data-action="compact"]'),
       copyBtn: this.container.querySelector('[data-action="copy"]'),
       clearBtn: this.container.querySelector('[data-action="clear"]'),
-      editorContainer: this.container.querySelector('.json-formatter-editor-container'),
-      editor: this.container.querySelector('.json-formatter-editor'),
-      statusText: this.container.querySelector('#status-text'),
-      charCount: this.container.querySelector('#char-count'),
-      title: this.container.querySelector('.json-formatter-title')
+      editorContainer: this.container.querySelector(
+        ".json-formatter-editor-container"
+      ),
+      editor: this.container.querySelector(".json-formatter-editor"),
+      statusText: this.container.querySelector("#status-text"),
+      charCount: this.container.querySelector("#char-count"),
+      title: this.container.querySelector(".json-formatter-title"),
     };
   }
 
   bindEvents() {
     // Use event delegation for toolbar clicks
     const toolbarClickHandler = (e) => this.handleToolbarClick(e);
-    this.elements.toolbar.addEventListener('click', toolbarClickHandler);
-    this.eventHandlers.set('toolbar-click', toolbarClickHandler);
+    this.elements.toolbar.addEventListener("click", toolbarClickHandler);
+    this.eventHandlers.set("toolbar-click", toolbarClickHandler);
   }
 
   async loadMonacoEditor() {
@@ -198,7 +214,7 @@ export default class JSONFormatterTool {
         scrollBeyondLastLine: false,
         placeholder: this.t("placeholder"),
         formatOnPaste: true,
-        formatOnType: true
+        formatOnType: true,
       });
 
       // Listen for content changes
@@ -207,7 +223,6 @@ export default class JSONFormatterTool {
       });
 
       this.updateStatus(this.t("ready"));
-
     } catch (error) {
       console.warn("Monaco Editor loading failed, using fallback:", error);
       this.setupFallbackEditor();
@@ -225,12 +240,12 @@ export default class JSONFormatterTool {
       ></textarea>
     `;
 
-    const textarea = this.elements.editor.querySelector('textarea');
+    const textarea = this.elements.editor.querySelector("textarea");
 
     // Listen for content changes
     const inputHandler = () => this.onContentChange();
-    textarea.addEventListener('input', inputHandler);
-    this.eventHandlers.set('textarea-input', inputHandler);
+    textarea.addEventListener("input", inputHandler);
+    this.eventHandlers.set("textarea-input", inputHandler);
 
     this.updateStatus(this.t("ready"));
   }
@@ -239,22 +254,22 @@ export default class JSONFormatterTool {
     e.preventDefault();
     e.stopPropagation();
 
-    const button = e.target.closest('[data-action]');
+    const button = e.target.closest("[data-action]");
     if (!button) return;
 
     const action = button.dataset.action;
 
     switch (action) {
-      case 'format':
+      case "format":
         this.formatJSON();
         break;
-      case 'compact':
+      case "compact":
         this.compactJSON();
         break;
-      case 'copy':
+      case "copy":
         this.copyContent();
         break;
-      case 'clear':
+      case "clear":
         this.clearContent();
         break;
     }
@@ -279,7 +294,6 @@ export default class JSONFormatterTool {
 
       this.setEditorContent(formatted);
       this.updateStatus(this.t("formatSuccess"), "success");
-
     } catch (error) {
       console.error("JSON format error:", error);
       this.updateStatus(`${this.t("syntaxError")}: ${error.message}`, "error");
@@ -307,7 +321,6 @@ export default class JSONFormatterTool {
 
       this.setEditorContent(compacted);
       this.updateStatus(this.t("compactSuccess"), "success");
-
     } catch (error) {
       console.error("JSON compact error:", error);
       this.updateStatus(`${this.t("syntaxError")}: ${error.message}`, "error");
@@ -326,7 +339,6 @@ export default class JSONFormatterTool {
 
       await navigator.clipboard.writeText(content);
       this.updateStatus(this.t("copySuccess"), "success");
-
     } catch (error) {
       console.error("Copy error:", error);
       this.updateStatus(this.t("copyError"), "error");
@@ -343,7 +355,7 @@ export default class JSONFormatterTool {
     if (this.editor) {
       return this.editor.getValue();
     } else {
-      const textarea = this.elements.editor.querySelector('textarea');
+      const textarea = this.elements.editor.querySelector("textarea");
       return textarea ? textarea.value : "";
     }
   }
@@ -352,7 +364,7 @@ export default class JSONFormatterTool {
     if (this.editor) {
       this.editor.setValue(content);
     } else {
-      const textarea = this.elements.editor.querySelector('textarea');
+      const textarea = this.elements.editor.querySelector("textarea");
       if (textarea) {
         textarea.value = content;
       }
@@ -380,18 +392,20 @@ export default class JSONFormatterTool {
   updateCharacterCount() {
     // Ensure DOM elements are available before updating
     if (!this.elements?.charCount) {
-      console.warn('Character count element not available, skipping update');
+      console.warn("Character count element not available, skipping update");
       return;
     }
 
     const content = this.getEditorContent();
     const charCount = content.length;
-    const lineCount = content.split('\n').length;
+    const lineCount = content.split("\n").length;
 
     this.state.characterCount = charCount;
     this.state.lineCount = lineCount;
 
-    this.elements.charCount.textContent = `${charCount} ${this.t("characters")}`;
+    this.elements.charCount.textContent = `${charCount} ${this.t(
+      "characters"
+    )}`;
   }
 
   validateJSON() {
@@ -414,18 +428,18 @@ export default class JSONFormatterTool {
     this.state.isProcessing = processing;
 
     // Update button states
-    const buttons = this.container.querySelectorAll('.json-formatter-btn');
-    buttons.forEach(btn => {
+    const buttons = this.container.querySelectorAll(".json-formatter-btn");
+    buttons.forEach((btn) => {
       btn.disabled = processing;
     });
 
     // Update container state
-    this.container.classList.toggle('json-formatter-loading', processing);
+    this.container.classList.toggle("json-formatter-loading", processing);
   }
 
-  updateStatus(message, type = 'normal') {
+  updateStatus(message, type = "normal") {
     if (!this.elements?.statusText) {
-      console.warn('Status text element not available, skipping status update');
+      console.warn("Status text element not available, skipping status update");
       return;
     }
 
@@ -433,22 +447,22 @@ export default class JSONFormatterTool {
 
     // Reset status classes
     this.elements.statusText.classList.remove(
-      'json-formatter-status-error',
-      'json-formatter-status-success',
-      'json-formatter-status-warning'
+      "json-formatter-status-error",
+      "json-formatter-status-success",
+      "json-formatter-status-warning"
     );
 
     // Add appropriate class
-    if (type === 'error') {
-      this.elements.statusText.classList.add('json-formatter-status-error');
-    } else if (type === 'success') {
-      this.elements.statusText.classList.add('json-formatter-status-success');
-    } else if (type === 'warning') {
-      this.elements.statusText.classList.add('json-formatter-status-warning');
+    if (type === "error") {
+      this.elements.statusText.classList.add("json-formatter-status-error");
+    } else if (type === "success") {
+      this.elements.statusText.classList.add("json-formatter-status-success");
+    } else if (type === "warning") {
+      this.elements.statusText.classList.add("json-formatter-status-warning");
     }
 
     // Auto-clear success/warning messages after 3 seconds
-    if (type === 'success' || type === 'warning') {
+    if (type === "success" || type === "warning") {
       setTimeout(() => {
         if (!this.state.isProcessing) {
           this.updateStatus(this.t("ready"));
@@ -471,10 +485,18 @@ export default class JSONFormatterTool {
     this.elements.title.textContent = this.t("title");
 
     // Update button texts
-    const formatBtn = this.elements.formatBtn.querySelector('.json-formatter-btn-text');
-    const compactBtn = this.elements.compactBtn.querySelector('.json-formatter-btn-text');
-    const copyBtn = this.elements.copyBtn.querySelector('.json-formatter-btn-text');
-    const clearBtn = this.elements.clearBtn.querySelector('.json-formatter-btn-text');
+    const formatBtn = this.elements.formatBtn.querySelector(
+      ".json-formatter-btn-text"
+    );
+    const compactBtn = this.elements.compactBtn.querySelector(
+      ".json-formatter-btn-text"
+    );
+    const copyBtn = this.elements.copyBtn.querySelector(
+      ".json-formatter-btn-text"
+    );
+    const clearBtn = this.elements.clearBtn.querySelector(
+      ".json-formatter-btn-text"
+    );
 
     if (formatBtn) formatBtn.textContent = this.t("format");
     if (compactBtn) compactBtn.textContent = this.t("compact");
@@ -486,7 +508,7 @@ export default class JSONFormatterTool {
       // Monaco editor doesn't support direct placeholder update
       // We would need to recreate it, but that's overkill for this case
     } else {
-      const textarea = this.elements.editor.querySelector('textarea');
+      const textarea = this.elements.editor.querySelector("textarea");
       if (textarea) {
         textarea.placeholder = this.t("placeholder");
       }
@@ -519,13 +541,13 @@ export default class JSONFormatterTool {
 
     // Remove event listeners
     this.eventHandlers.forEach((handler, event) => {
-      const [element, eventName] = event.split('-');
+      const [element, eventName] = event.split("-");
       let targetElement = null;
 
-      if (element === 'toolbar' && this.elements?.toolbar) {
+      if (element === "toolbar" && this.elements?.toolbar) {
         targetElement = this.elements.toolbar;
-      } else if (element === 'textarea' && this.elements?.editor) {
-        targetElement = this.elements.editor.querySelector('textarea');
+      } else if (element === "textarea" && this.elements?.editor) {
+        targetElement = this.elements.editor.querySelector("textarea");
       }
 
       if (targetElement) {
@@ -546,7 +568,7 @@ export default class JSONFormatterTool {
       currentContent: "",
       isValid: true,
       characterCount: 0,
-      lineCount: 1
+      lineCount: 1,
     };
 
     // Clear element references safely
