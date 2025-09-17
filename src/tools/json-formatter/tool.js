@@ -190,7 +190,7 @@ export default class JSONFormatterTool {
         value: "",
         language: "json",
         theme: "vs-light",
-        minimap: { enabled: false },
+        minimap: { enabled: true },
         automaticLayout: true,
         fontSize: 14,
         wordWrap: "on",
