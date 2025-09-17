@@ -1,0 +1,69 @@
+{
+  "id": "json-formatter",
+  "name": "JSON 格式化工具",
+  "nameEn": "JSON Formatter",
+  "description": "格式化、壓縮和驗證 JSON 資料的工具",
+  "descriptionEn": "Format, minify and validate JSON data with syntax highlighting",
+  "category": "文字處理",
+  "categoryEn": "Text Processing",
+  "icon": "📄",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "license": "MIT",
+  "repository": "https://github.com/JasonChenCH/base64Decoder",
+
+  "technical": {
+    "estimatedSize": "18KB",
+    "actualSize": null,
+    "preload": false,
+    "requiresWorker": false,
+    "requiresMonaco": true,
+    "supportedFormats": ["json"],
+    "maxFileSize": "50MB",
+    "browserRequirements": {
+      "chrome": "90",
+      "firefox": "88",
+      "safari": "14",
+      "edge": "90"
+    }
+  },
+
+  "keywords": [
+    "json",
+    "formatter",
+    "beautify",
+    "minify",
+    "validate",
+    "syntax",
+    "highlighting"
+  ],
+
+  "features": [
+    "JSON 語法高亮顯示",
+    "JSON 格式化和美化",
+    "JSON 壓縮和最小化",
+    "語法錯誤檢測",
+    "複製到剪貼簿",
+    "字元計數統計",
+    "Monaco 編輯器整合"
+  ],
+
+  "dependencies": {
+    "internal": ["monacoLoader"],
+    "external": {
+      "cdnLibraries": ["monaco-editor"],
+      "npmPackages": []
+    }
+  },
+
+  "performance": {
+    "loadTime": "<300ms",
+    "memoryUsage": "<30MB",
+    "cpuIntensive": false
+  },
+
+  "analytics": {
+    "trackingEnabled": true,
+    "events": ["tool-loaded", "format-json", "compact-json", "copy-content"]
+  }
+}

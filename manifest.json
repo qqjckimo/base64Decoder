@@ -1,14 +1,14 @@
 {
-  "name": "線上圖片工具集 - Image Tools Collection",
+  "name": "Professional Image Tools - Ad-Free Suite",
   "short_name": "ImageTools",
-  "description": "一個輕量級的圖片處理工具集合，包含 Base64 圖片互轉、PNG 製作 ICO 圖示、圖片格式轉換等實用功能。100% 客戶端處理，隱私安全，免費無廣告。",
+  "description": "Professional ad-free image processing tools for creators, designers, and developers. Base64 converter, PNG to ICO creator, format conversion. Zero tracking, no cookies, files never uploaded to server.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8f9fa",
   "theme_color": "#00b9fe",
   "orientation": "portrait-primary",
   "scope": "/",
-  "lang": "zh-TW",
+  "lang": "en",
   "categories": ["graphics", "utilities", "productivity"],
   "icons": [
     {
@@ -54,7 +54,7 @@
       "sizes": "1200x630",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "線上圖片工具集 - 主畫面"
+      "label": "Professional Image Tools - Main Interface"
     }
   ],
   "prefer_related_applications": false,
@@ -63,9 +63,9 @@
   },
   "shortcuts": [
     {
-      "name": "Base64 轉圖片工具",
-      "short_name": "轉圖片",
-      "description": "快速轉換 Base64 為圖片",
+      "name": "Base64 to Image Converter",
+      "short_name": "Base64→IMG",
+      "description": "Convert Base64 strings to images quickly",
       "url": "/#base64-decoder",
       "icons": [
         {
@@ -76,9 +76,9 @@
       ]
     },
     {
-      "name": "圖片轉 Base64 工具",
-      "short_name": "轉編碼",
-      "description": "快速將圖片轉為 Base64 編碼",
+      "name": "Image to Base64 Encoder",
+      "short_name": "IMG→Base64",
+      "description": "Convert images to Base64 encoding quickly",
       "url": "/#base64-encoder",
       "icons": [
         {

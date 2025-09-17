@@ -6,14 +6,16 @@ export class Sidebar {
     this.isExpanded = true;
     this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.floatingUI = null;
-    this.appVersion = __APP_VERSION__;
+    this.appVersion = _APP_VERSION_ || null; // Defined in webpack.config.js
     this.translations = {
       "zh-TW": {
-        sidebarTitle: "圖片工具",
+        sidebarTitle: "開發工具",
         categoryImageProcessing: "圖片處理",
+        categoryTextProcessing: "Formatter",
         base64DecoderName: "Base64 轉圖片工具",
         base64EncoderName: "圖片轉 Base64 工具",
         pngToIcoName: "PNG 製作 ICO 圖示",
+        jsonFormatterName: "JSON 格式化工具",
         featureFastLoad: "快速載入",
         featurePrivacyFirst: "隱私優先",
         featureModernTech: "最新技術",
@@ -24,11 +26,13 @@ export class Sidebar {
           "使用 ES6+、Web Workers、動態載入等現代 Web 技術",
       },
       en: {
-        sidebarTitle: "Image Tools",
+        sidebarTitle: "Developer Tools",
         categoryImageProcessing: "Image Processing",
+        categoryTextProcessing: "Formatter",
         base64DecoderName: "Base64 to Image Tool",
         base64EncoderName: "Image to Base64 Tool",
         pngToIcoName: "PNG to ICO Creator",
+        jsonFormatterName: "JSON Formatter",
         featureFastLoad: "Fast Loading",
         featurePrivacyFirst: "Privacy First",
         featureModernTech: "Modern Tech",
@@ -95,6 +99,12 @@ export class Sidebar {
         name: t.pngToIcoName,
         icon: createIcon("palette", 20, "tool-icon"),
         category: t.categoryImageProcessing,
+      },
+      {
+        id: "json-formatter",
+        name: t.jsonFormatterName,
+        icon: createIcon("file-text", 20, "tool-icon"),
+        category: t.categoryTextProcessing,
       },
     ];
   }
@@ -199,7 +209,7 @@ export class Sidebar {
       document.body.appendChild(floatingToggle);
     }
 
-    // 添加遮罩元素（僅在 480px 斷點使用）
+    // 添加遮罩元素（在 768px 斷點使用）
     let overlay = document.getElementById("sidebar-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
@@ -254,10 +264,10 @@ export class Sidebar {
       });
     }
 
-    // 處理遮罩點擊（僅在 480px 斷點）
+    // 處理遮罩點擊
     if (overlay && sidebar) {
       overlay.addEventListener("click", () => {
-        if (window.innerWidth <= 480 && this.isExpanded) {
+        if (this.isExpanded) {
           this.isExpanded = false;
           sidebar.classList.remove("expanded");
           this.updateFloatingToggleState(floatingToggle);
@@ -331,7 +341,7 @@ export class Sidebar {
 
   updateOverlayState() {
     const overlay = document.getElementById("sidebar-overlay");
-    if (overlay && window.innerWidth <= 480) {
+    if (overlay && window.innerWidth <= 768) {
       if (this.isExpanded) {
         // Sidebar 展開時：顯示遮罩
         overlay.classList.add("show");
@@ -340,7 +350,7 @@ export class Sidebar {
         overlay.classList.remove("show");
       }
     } else if (overlay) {
-      // 非 480px 斷點：確保遮罩隱藏
+      // 非 768px 斷點：確保遮罩隱藏
       overlay.classList.remove("show");
     }
   }
@@ -1118,7 +1128,12 @@ export class Sidebar {
             /* 768px斷點響應式定位 */
             @media (max-width: 768px) and (min-width: 481px) {
                 .floating-sidebar-toggle.attached {
-                    left: calc(var(--sidebar-width) - 2px);
+                    left: var(--sidebar-width);
+                }
+                .sidebar-overlay.show {
+                    opacity: 1;
+                    visibility: visible;
+                    pointer-events: auto;
                 }
             }
 

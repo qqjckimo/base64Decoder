@@ -22,7 +22,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:bundlephobia.com)",
       "WebFetch(domain:developers.cloudflare.com)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:www.npmjs.com)"
     ],
     "deny": [],
     "ask": []

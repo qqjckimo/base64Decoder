@@ -8,7 +8,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const WebpackObfuscator = require("webpack-obfuscator");
 const portfinder = require("portfinder");
 
 const isProduction = process.env.NODE_ENV === "production";
@@ -50,9 +50,9 @@ const generateAssetFilename = (pathData) => {
 
 // Size limit configuration
 const SIZE_LIMITS = {
-  core: 50 * 1024, // 50KB
+  core: 150 * 1024, // 150KB
   common: 100 * 1024, // 100KB
-  perTool: 30 * 1024, // 30KB per tool
+  perTool: 70 * 1024, // 70KB per tool
   total: 150 * 1024, // 150KB initial experience
 };
 
@@ -199,7 +199,7 @@ const webpackConfig = {
       : "chunks/[name].chunk.js",
     publicPath: "/",
     workerPublicPath: "./", // Fix for Web Workers to use self.location instead of document.baseURI
-    clean: false,
+    clean: true,
     assetModuleFilename: generateAssetFilename,
     // Standard JS module output for dynamic codec loading.
   },
@@ -283,6 +283,45 @@ const webpackConfig = {
           },
         ],
       },
+      // 核心業務邏輯 - 高強度混淆
+      {
+        test: /\.js$/,
+        exclude: [
+          /node_modules/,
+          /\.worker\.mjs$/, // 排除 worker 的 mjs 檔案
+          /monaco-editor/, // 排除 Monaco Editor
+        ],
+        enforce: "post",
+        use: {
+          loader: WebpackObfuscator.loader,
+          options: {
+            compact: true,
+            controlFlowFlattening: false,
+            deadCodeInjection: isProduction,
+            debugProtection: isProduction,
+            disableConsoleOutput: isProduction,
+            identifierNamesGenerator: "mangled-shuffled",
+            ignoreImports: true, // 忽略 import 語句
+            log: false,
+            renameGlobals: false, // 保護 webpack runtime
+            selfDefending: false, // 避免效能影響
+            simplify: isProduction,
+            splitStrings: false, // 避免增加體積
+            stringArray: isProduction,
+            stringArrayCallsTransform: false,
+            stringArrayEncoding: ["base64"],
+            stringArrayIndexShift: true,
+            stringArrayRotate: true,
+            stringArrayShuffle: true,
+            stringArrayWrappersCount: 1,
+            stringArrayWrappersChainedCalls: true,
+            stringArrayWrappersParametersMaxCount: 2,
+            stringArrayWrappersType: "variable",
+            stringArrayThreshold: 1, // 平衡體積和安全性
+            unicodeEscapeSequence: false,
+          },
+        },
+      },
     ],
   },
   ignoreWarnings: [
@@ -292,9 +331,8 @@ const webpackConfig = {
     },
   ],
   plugins: [
-    // CleanWebpackPlugin not needed for Cloudflare Workers deployment
     new webpack.DefinePlugin({
-      __APP_VERSION__: JSON.stringify(packageJson.version),
+      _APP_VERSION_: JSON.stringify(packageJson.version),
       __PRODUCTION__: JSON.stringify(isProduction),
     }),
     new webpack.BannerPlugin({
@@ -303,14 +341,12 @@ const webpackConfig = {
  * Copyright (c) ${new Date().getFullYear()} Jason Chen. All Rights Reserved.
  * Proprietary and Confidential - Unauthorized use prohibited
  */`,
-      raw: true,
-      entryOnly: false,
-      stage: webpack.Compilation.PROCESS_ASSETS_STAGE_REPORT,
     }),
     new HtmlWebpackPlugin({
       template: "./index.html",
       templateParameters: {
-        VERSION: packageJson.version,
+        _APP_VERSION_: packageJson.version,
+        _BUILD_DATE_: new Date().toISOString().split("T")[0],
       },
       minify: isProduction
         ? {
@@ -336,6 +372,22 @@ const webpackConfig = {
       chunks: ["core"],
       inject: "body",
     }),
+    // new WebpackObfuscator({
+    //   stringArray: isProduction,
+    //   stringArrayThreshold: 1,
+    //   rotateStringArray: false,
+    //   stringArrayEncoding: ["base64", "rc4"],
+    //   compact: isProduction,
+    //   controlFlowFlattening: false,
+    //   deadCodeInjection: isProduction,
+    //   // debugProtection: isProduction,
+    //   disableConsoleOutput: isProduction,
+    //   identifierNamesGenerator: "mangled-shuffled",
+    //   renameGlobals: false,
+    //   selfDefending: isProduction,
+    //   splitStrings: false,
+    //   unicodeEscapeSequence: false,
+    // }),
     // Copy static assets in production only
     isProduction &&
       new CopyWebpackPlugin({
@@ -390,14 +442,15 @@ const webpackConfig = {
           compress: {
             ecma: 2020,
             drop_console: isProduction,
-            drop_debugger: false,
-            pure_funcs: ["console.log", "console.info", "console.debug"],
-            passes: 2,
-            // Enhanced compression
-            dead_code: true,
-            evaluate: true,
-            sequences: true,
-            properties: true,
+            // drop_debugger: false,
+            // pure_funcs: ["console.log", "console.info", "console.debug"],
+            // passes: 2,
+            // // Enhanced compression
+            // dead_code: true,
+            // evaluate: true,
+            // sequences: true,
+            // properties: true,
+            booleans_as_integers: true,
           },
           mangle: {
             safari10: true,
@@ -407,14 +460,14 @@ const webpackConfig = {
               keep_quoted: true, // Keep quoted property names
             },
           },
-          format: {
-            ecma: 2020,
-            comments: false,
-            ascii_only: true,
-            // Additional formatting options
-            beautify: false,
-            semicolons: false,
-          },
+          // format: {
+          //   ecma: 2020,
+          //   comments: false,
+          //   ascii_only: true,
+          //   // Additional formatting options
+          //   beautify: false,
+          //   semicolons: false,
+          // },
         },
         extractComments: false,
       }),

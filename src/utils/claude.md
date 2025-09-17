@@ -160,7 +160,6 @@ export class UtilityName {
 2. **Compression Utilities**: Shared compression logic (~3KB)
 3. **Validation Helpers**: Input validation patterns (~1KB)
 4. **Storage Manager**: LocalStorage abstraction (~2KB)
-5. **Theme Manager**: Dark/light mode utilities (~1KB)
 
 ### Size Monitoring
 - Build system enforces 20KB total utils limit
