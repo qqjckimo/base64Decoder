@@ -5,6 +5,7 @@
 ## Available Tools
 
 ### 🔍 Base64 Image Decoder (~15KB, preloaded)
+
 - **Advanced Pixel Analysis**: Click pixels for RGB, HEX, HSL color information
 - **Color Statistics**: Unique colors, dominant colors, transparency analysis
 - **Interactive Features**: Monaco Editor integration for code display
@@ -12,6 +13,7 @@
 - **Multi-format Support**: PNG, JPEG, GIF, WebP with automatic detection
 
 ### 🖼️ Base64 Image Encoder (~135KB, on-demand)
+
 - **Multi-format Encoding**: PNG, WebP, AVIF with quality settings
 - **Web Worker Processing**: Non-blocking compression analysis
 - **Compression Comparison**: Real-time size comparison across formats
@@ -19,12 +21,14 @@
 - **Professional Features**: Batch processing with progress tracking
 
 ### 🔧 ICO File Analyzer (~25KB, pending integration)
+
 - **Deep ICO Analysis**: Format detection (PNG vs BMP embedded)
 - **Metadata Extraction**: Complete icon file structure analysis
 - **HEX Viewer**: Binary file inspection capabilities
 - **Multi-size Support**: Analyze all icon sizes within ICO files
 
 ### 🎨 PNG to ICO Converter (~28KB, pending integration)
+
 - **Professional Icon Creation**: Multiple size generation (16x16 to 256x256)
 - **High-quality Scaling**: Advanced scaling algorithms
 - **Three Conversion Modes**: Standard, high-quality, and professional
@@ -33,6 +37,7 @@
 ## Architecture Features
 
 ### 📦 Bundle Size Optimization
+
 - **Core Bundle**: ~29KB (app shell + critical components)
 - **Progressive Loading**: Tools loaded only when accessed
 - **Code Splitting**: Each tool as independent module
@@ -40,6 +45,7 @@
 - **Target Achievement**: Initial load + first tool < 150KB
 
 ### 🏗️ Modular Architecture
+
 - **Dynamic Routing**: Hash-based navigation with tool validation
 - **Component System**: Reusable UI components with scoped styles
 - **Utility Sharing**: Common functions extracted to shared modules
@@ -55,30 +61,35 @@
 ### Tool-Specific Usage
 
 #### Base64 Image Decoder
+
 1. Paste Base64 string or data URL into the input area
 2. Click "🔍 解碼並分析" to decode and analyze
 3. Click on any pixel for detailed color information
 4. Use "📋 載入範例" to load demo image
 
-#### Base64 Image Encoder  
+#### Base64 Image Encoder
+
 1. Upload or drag-drop an image file
 2. Select output format (PNG, WebP, AVIF) and quality
 3. Compare compression results across formats
 4. Copy optimized Base64 output
 
 #### ICO Analyzer (Standalone)
+
 1. Open `src/tools/icoAnalyzer/index.html` directly
 2. Load ICO file to analyze internal structure
 3. View embedded images and metadata
 
 #### PNG to ICO Converter (Standalone)
-1. Open `src/tools/pngToIco/index.html` directly  
+
+1. Open `src/tools/pngToIco/index.html` directly
 2. Upload PNG image and select output sizes
 3. Download generated ICO file
 
 ## Installation & Deployment
 
 ### Local Development
+
 ```bash
 # Clone the repository
 git clone https://github.com/qqjckimo/base64Decoder.git
@@ -97,21 +108,25 @@ npm run analyze
 ```
 
 ### Production Deployment
+
 - **GitHub Pages**: Push to GitHub, auto-deploys from `docs/` directory
 - **Static Hosting**: Upload `docs/` contents to any CDN or static host
 - **Self-hosted**: Serve `docs/` directory with any web server
 
 ### No-build Usage
+
 For quick testing, simply open `index.html` in a modern browser. The modular architecture works without a build step.
 
 ## Browser Compatibility
 
 This tool works with all modern web browsers that support:
+
 - HTML5 Canvas API
 - ES6+ JavaScript features
 - CSS Grid and Flexbox
 
 **Tested Browsers:**
+
 - Chrome 90+
 - Firefox 88+
 - Safari 14+
@@ -120,6 +135,7 @@ This tool works with all modern web browsers that support:
 ## Technical Architecture
 
 ### Core Technologies
+
 - **Frontend**: Pure HTML5, CSS3, Vanilla JavaScript (ES6+)
 - **Module System**: Dynamic ES6 imports with lazy loading
 - **Build System**: Webpack with aggressive bundle optimization
@@ -127,6 +143,7 @@ This tool works with all modern web browsers that support:
 - **External Dependencies**: CDN-loaded for minimal bundle impact
 
 ### Performance Optimizations
+
 - **Code Splitting**: Each tool as separate dynamically-loaded module
 - **Tree Shaking**: Aggressive removal of unused code
 - **Minification**: Terser (JS), cssnano (CSS), html-minifier-terser
@@ -135,14 +152,15 @@ This tool works with all modern web browsers that support:
 - **Memory Management**: Automatic cleanup and resource deallocation
 
 ### Bundle Size Strategy
-| Component | Size (minified + gzipped) | Loading Strategy |
-|-----------|---------------------------|------------------|
-| Core Bundle | ~29KB | Initial load |
-| Base64 Decoder | ~15KB | Preloaded |
-| Base64 Encoder | ~135KB | On-demand |
-| ICO Analyzer | ~25KB | Standalone/pending |
-| PNG to ICO | ~28KB | Standalone/pending |
-| **Total Initial** | **~44KB** | **< 50KB target** |
+
+| Component         | Size (minified + gzipped) | Loading Strategy   |
+| ----------------- | ------------------------- | ------------------ |
+| Core Bundle       | ~29KB                     | Initial load       |
+| Base64 Decoder    | ~15KB                     | Preloaded          |
+| Base64 Encoder    | ~135KB                    | On-demand          |
+| ICO Analyzer      | ~25KB                     | Standalone/pending |
+| PNG to ICO        | ~28KB                     | Standalone/pending |
+| **Total Initial** | **~44KB**                 | **< 50KB target**  |
 
 ## Project Structure
 
@@ -152,7 +170,7 @@ base64Decoder/
 ├── src/
 │   ├── core/                    # Core functionality - See core/claude.md
 │   │   ├── app.js              # Main application logic (~3KB)
-│   │   ├── router.js           # Hash-based routing (~2KB) 
+│   │   ├── router.js           # Hash-based routing (~2KB)
 │   │   ├── loader.js           # Dynamic module loader (~2KB)
 │   │   └── styles.css          # Critical core styles (~8KB)
 │   ├── components/             # UI components - See components/claude.md
@@ -173,9 +191,11 @@ base64Decoder/
 ```
 
 ### Documentation Structure
+
 Each module includes comprehensive documentation:
+
 - **[Core Systems](./src/core/claude.md)**: Application architecture
-- **[Components](./src/components/claude.md)**: UI component library  
+- **[Components](./src/components/claude.md)**: UI component library
 - **[Utilities](./src/utils/claude.md)**: Shared functionality
 - **[Tool Documentation](./src/tools/)**: Individual tool guides
 
@@ -190,18 +210,21 @@ The tool is designed primarily for Traditional Chinese users, but the functional
 ## Use Cases
 
 ### Development Workflows
+
 - **Web Development**: Debug Base64 encoded images in applications
 - **Performance Analysis**: Compare image compression across formats
 - **Icon Creation**: Generate professional Windows icons from PNG
 - **Format Conversion**: Convert between image formats with quality control
 
 ### Design & Analysis
-- **Color Analysis**: Extract color palettes and analyze composition  
+
+- **Color Analysis**: Extract color palettes and analyze composition
 - **Image Debugging**: Troubleshoot encoding/decoding issues
 - **Format Inspection**: Deep analysis of ICO file structures
 - **Educational**: Learn about image formats, compression, and pixel data
 
 ### Professional Tools
+
 - **Asset Optimization**: Find optimal compression settings
 - **Icon Production**: Create multi-size icon sets
 - **Quality Assessment**: Compare visual quality vs file size
@@ -211,13 +234,15 @@ The tool is designed primarily for Traditional Chinese users, but the functional
 Contributions are welcome! Please follow the established patterns and bundle size requirements.
 
 ### Development Guidelines
+
 - **Bundle Size Priority**: Every feature must justify its byte cost
-- **Modular Architecture**: Each tool as independent, lazy-loaded module  
+- **Modular Architecture**: Each tool as independent, lazy-loaded module
 - **Documentation**: Update relevant `claude.md` files for any changes
 - **Testing**: Test across different browsers and image formats
 - **Code Standards**: Follow existing patterns in each module
 
 ### Adding New Tools
+
 ```bash
 # Create new tool structure
 npm run create-tool [tool-name]
@@ -230,10 +255,11 @@ npm run analyze
 ```
 
 ### Integration Process
+
 1. **Development**: Create tool in `src/tools/[name]/`
 2. **Documentation**: Add comprehensive `claude.md`
 3. **Bundle Analysis**: Verify size requirements
-4. **Testing**: Cross-browser compatibility  
+4. **Testing**: Cross-browser compatibility
 5. **Integration**: Add to router and sidebar navigation
 
 ## License
@@ -272,21 +298,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🚀 線上使用
 
 訪問 GitHub Pages 部署的版本：
-[https://qqjckimo.github.io/base64Decoder/](https://qqjckimo.github.io/base64Decoder/)
+[https://tools.jzsobiz.cc/](https://tools.jzsobiz.cc/)
 
 > **注意**：GitHub Pages 部署已設定完成！請參考 [GitHub Pages 部署指南](GITHUB_PAGES_SETUP.md) 來啟用 GitHub Pages 功能。
 
 ## 📱 使用方法
 
 1. **輸入 Base64 字串**
+
    - 貼上完整的 data URL（如：`data:image/png;base64,iVBORw0KGgoAAAA...`）
    - 或僅貼上 Base64 編碼部分（工具會自動添加前綴）
 
 2. **拖放圖片檔案**
+
    - 直接將圖片檔案拖放到輸入框
    - 系統會自動轉換為 Base64 並顯示
 
 3. **剪貼簿貼上**
+
    - 複製圖片後，在頁面任意位置按 Ctrl+V（或 Cmd+V）
    - 自動轉換並顯示圖片
 
@@ -334,4 +363,3 @@ MIT License - 詳見 [LICENSE](LICENSE) 檔案
 Made with ❤️ by [Jason Chen](https://github.com/qqjckimo)
 
 **Note**: This tool processes images entirely in your browser. No data is sent to external servers, ensuring privacy and security of your images.
-

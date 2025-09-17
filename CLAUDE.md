@@ -10,8 +10,8 @@ You MUST see [ROLE_DEFINITION.md](./ROLE_DEFINITION.md) for detailed role and be
 
 A collection of developer tools built as a modular single-page web application. Starting with Base64 image decoder and expanding to include various web development utilities. Built with vanilla HTML/CSS/JavaScript for maximum portability, focusing on minimal bundle size through dynamic module loading.
 
-**Version**: 2.0.0 (as of 2025-09-15)
-**Latest Optimization**: Switched to single-thread oxipng to eliminate parallel version dependency issues
+**Version**: 2.1.0 (as of 2025-09-17)
+**Latest Updates**: Enhanced build system with cross-platform compatibility and streamlined deployment
 
 ### Technical Architecture
 
@@ -49,6 +49,7 @@ A collection of developer tools built as a modular single-page web application. 
   - Encoder Worker: **8.20KB** (background processing)
   - Compressor Worker: **3.49KB** (down from 441KB) - **MASSIVE OPTIMIZATION**
   - Codec Bundles: Dynamic loading (PNG: 2.55KB, WebP: 1.60KB, AVIF: 2.04KB)
+  - JSON Formatter: **16.1KB** (Monaco Editor integration, validation) - **ACHIEVED**
   - ICO Analyzer: ~25KB (pending modularization)
   - PNG to ICO: **15.43KB** (modularized, part of tools chunk) - **ACHIEVED**
 - **Shared Modules**: Common utilities extracted (**4.43KB** actual) - **ACHIEVED**
@@ -106,6 +107,11 @@ base64Decoder/
 │   │   ├── base64-encoder/   # Image encoder tool (~135KB, on-demand)
 │   │   │   ├── tool.js       # Tool with Web Worker
 │   │   │   ├── worker.js     # Background processing
+│   │   │   ├── styles.css    # Tool-specific styles
+│   │   │   ├── config.json   # Tool metadata
+│   │   │   └── claude.md     # Tool documentation
+│   │   ├── json-formatter/   # JSON formatter tool (~16KB, on-demand)
+│   │   │   ├── tool.js       # Tool implementation with Monaco
 │   │   │   ├── styles.css    # Tool-specific styles
 │   │   │   ├── config.json   # Tool metadata
 │   │   │   └── claude.md     # Tool documentation
@@ -254,11 +260,18 @@ For detailed implementation and maintenance information, refer to the module-spe
   - High-quality scaling algorithms
   - Three conversion modes
 
+- **[JSON Formatter](./src/tools/json-formatter/claude.md)**: JSON formatting and validation (~16KB, integrated)
+  - Monaco Editor integration with syntax highlighting
+  - Real-time validation and error detection
+  - Format, minify, and beautify JSON data
+  - Text processing category tool
+
 ### Current Status
 
-- **Integrated Tools**: 
+- **Integrated Tools**:
   - Base64 Decoder (28.54KB, preloaded)
   - Base64 Encoder (23.53KB, with dynamic codec loading)
+  - JSON Formatter (16.1KB, Monaco Editor integration)
   - PNG to ICO Converter (15.43KB, modularized)
 - **Pending Integration**: ICO Analyzer (standalone HTML file, ~25KB target)
 - **Bundle Size Achievement**: Core + Base64 Decoder = **~64KB** (excellent under 150KB target)
@@ -278,3 +291,15 @@ For detailed implementation and maintenance information, refer to the module-spe
 - **Dependency Reduction**: Eliminated complex parallel processing dependencies
 - **PNG Codec**: Optimized to 2.55KB with single-thread processing
 - **Stability**: Improved build reliability and cross-platform compatibility
+
+#### 2025-09-17: Build System Enhancement
+- **Cross-Platform Build**: Unified build system for Windows, macOS, and Linux
+- **Deployment Streamlined**: Direct GitHub Pages deployment from docs/ directory
+- **Build Performance**: Optimized webpack configuration for faster builds
+- **Developer Experience**: Improved npm scripts for common development tasks
+
+#### 2025-01-17: JSON Formatter Tool Integration
+- **New Tool Added**: JSON Formatter with Monaco Editor (~16.1KB)
+- **Text Processing Category**: First tool in text processing category
+- **SEO Enhanced**: Updated meta tags, sitemap, and PWA manifest
+- **Bundle Optimization**: Achieved 16.1KB size, well under 18KB target

@@ -408,6 +408,20 @@ const webpackConfig = {
             from: "icon-*.png",
             to: "[name][ext]",
           },
+          {
+            from: "public/sitemap.xml",
+            to: "sitemap.xml",
+            transform(content) {
+              // Update all lastmod dates to current build date
+              const buildDate = new Date().toISOString().split("T")[0];
+              return content.toString()
+                .replace(/<lastmod>[\d-]+<\/lastmod>/g, `<lastmod>${buildDate}</lastmod>`);
+            },
+          },
+          {
+            from: "public/robots.txt",
+            to: "robots.txt",
+          },
         ],
       }),
     isProduction &&

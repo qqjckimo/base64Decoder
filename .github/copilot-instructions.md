@@ -77,7 +77,7 @@ npm run test:build         # Build + serve for testing
 
 - **Automatic**: Pushes to `main` trigger `.github/workflows/pages.yml`
 - **Source**: Uses `docs/` directory (built files)
-- **URL**: `https://qqjckimo.github.io/base64Decoder/`
+- **URL**: `https://tools.jzsobiz.cc/`
 
 ## Code Conventions
 

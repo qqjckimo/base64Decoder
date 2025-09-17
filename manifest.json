@@ -1,7 +1,7 @@
 {
-  "name": "Professional Image Tools - Ad-Free Suite",
-  "short_name": "ImageTools",
-  "description": "Professional ad-free image processing tools for creators, designers, and developers. Base64 converter, PNG to ICO creator, format conversion. Zero tracking, no cookies, files never uploaded to server.",
+  "name": "Professional Developer Tools - Ad-Free Suite",
+  "short_name": "DevTools",
+  "description": "Professional ad-free developer tools for creators, designers, and developers. Base64 converter, JSON formatter, PNG to ICO creator, format conversion. Zero tracking, no cookies, data never uploaded to server.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8f9fa",
@@ -80,6 +80,19 @@
       "short_name": "IMG→Base64",
       "description": "Convert images to Base64 encoding quickly",
       "url": "/#base64-encoder",
+      "icons": [
+        {
+          "src": "icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "JSON Formatter & Validator",
+      "short_name": "JSON Format",
+      "description": "Format, validate, and beautify JSON data instantly",
+      "url": "/#tool/json-formatter",
       "icons": [
         {
           "src": "icon-96x96.png",

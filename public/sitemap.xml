@@ -2,21 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://qqjckimo.github.io/base64Decoder/</loc>
+    <loc>https://tools.jzsobiz.cc/</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://qqjckimo.github.io/base64Decoder/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://qqjckimo.github.io/base64Decoder/" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://tools.jzsobiz.cc/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://tools.jzsobiz.cc/" />
   </url>
   <url>
-    <loc>https://qqjckimo.github.io/base64Decoder/#tool/base64-decoder</loc>
+    <loc>https://tools.jzsobiz.cc/#tool/base64-decoder</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://qqjckimo.github.io/base64Decoder/#tool/base64-encoder</loc>
+    <loc>https://tools.jzsobiz.cc/#tool/base64-encoder</loc>
+    <lastmod>2024-12-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tools.jzsobiz.cc/#tool/json-formatter</loc>
+    <lastmod>2025-01-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://tools.jzsobiz.cc/#tool/png-to-ico</loc>
     <lastmod>2024-12-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
