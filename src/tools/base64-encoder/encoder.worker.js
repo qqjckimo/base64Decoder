@@ -33,6 +33,13 @@ function arrayBufferToBase64DataUrl(arrayBuffer, mimeType) {
   });
 }
 
+// Worker 初始化完成，發送就緒訊息
+console.log("🚀 Encoder worker loading...");
+setTimeout(() => {
+  postMessage({ type: "ready" });
+  console.log("✅ Encoder worker ready");
+}, 100);
+
 self.onmessage = async function (e) {
   if (!e.data) {
     console.error("❌ No data in received message!");
@@ -47,6 +54,10 @@ self.onmessage = async function (e) {
 
   try {
     switch (type) {
+      case "init":
+        // 再次確認就緒狀態
+        postMessage({ type: "ready" });
+        break;
       case "encode":
         await encodeImage(data, id);
         break;

@@ -12,6 +12,13 @@ export default class Base64EncoderTool {
     this.compressorWorker = null;
     this.chart = null;
 
+    // Worker 就緒狀態追蹤
+    this.workersReady = false;
+    this.encoderWorkerReady = false;
+    this.compressorWorkerReady = false;
+    this.workersInitPromise = null;
+    this.pendingFileQueue = [];
+
     this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
       "zh-TW": {
@@ -37,6 +44,7 @@ export default class Base64EncoderTool {
         compressionTime: "壓縮時間",
         copySuccess: "已複製到剪貼簿",
         downloadSuccess: "檔案下載完成",
+        result: "結果",
         error: "錯誤",
         unsupportedFile: "不支援的檔案格式",
         fileTooLarge: "檔案過大",
@@ -65,6 +73,7 @@ export default class Base64EncoderTool {
         compressionTime: "Compression Time",
         copySuccess: "Copied to clipboard",
         downloadSuccess: "File downloaded successfully",
+        result: "Result",
         error: "Error",
         unsupportedFile: "Unsupported file format",
         fileTooLarge: "File too large",
@@ -75,8 +84,23 @@ export default class Base64EncoderTool {
 
   async init(container) {
     this.container = container;
-    this.initWorkers();
+
+    // 先渲染 UI 但標記為載入中
     this.render();
+    this.setUILoadingState(true);
+
+    // 初始化 Workers 並等待就緒
+    try {
+      await this.initWorkersAsync();
+      console.log("✅ Workers initialized successfully");
+      this.setUILoadingState(false);
+    } catch (error) {
+      console.error("❌ Failed to initialize workers:", error);
+      this.showMessage("error", "工具初始化失敗，部分功能可能無法使用");
+      this.setUILoadingState(false);
+    }
+
+    // Workers 就緒後才附加事件
     this.attachEvents();
 
     // 檢查關鍵DOM元素
@@ -102,88 +126,247 @@ export default class Base64EncoderTool {
     // 監聽語言變更
     window.addEventListener("languageChanged", (e) => {
       this.currentLanguage = e.detail.language;
-      this.render();
-      this.attachEvents();
+      this.updateLanguage();
     });
   }
 
-  initWorkers() {
+  updateLanguage() {
+    const t = this.translations[this.currentLanguage];
+
+    // Update all elements with data-i18n attributes
+    this.container.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (t[key]) {
+        element.textContent = t[key];
+      }
+    });
+
+    // Update specific elements that need manual updating
+    const elements = {
+      title: this.container.querySelector('.tool-header h2'),
+      uploadText: this.container.querySelector('.upload-text'),
+      supportedFormats: this.container.querySelector('.upload-section > div:nth-child(3)'),
+      selectBtn: document.getElementById('selectBtn'),
+      qualityLabel: this.container.querySelector('.quality-control label'),
+      editorTitle: this.container.querySelector('.editor-title'),
+      copyBtn: document.getElementById('copyBtn'),
+      downloadBtn: document.getElementById('downloadBtn'),
+      sizeComparisonTitle: this.container.querySelector('#sizeComparison h3'),
+      compressionResultsTitle: this.container.querySelector('#compressionResults h4'),
+    };
+
+    if (elements.title) elements.title.textContent = t.title;
+    if (elements.uploadText) elements.uploadText.textContent = t.uploadText;
+    if (elements.supportedFormats) elements.supportedFormats.textContent = t.supportedFormats;
+    if (elements.selectBtn && !elements.selectBtn.disabled) elements.selectBtn.textContent = t.selectFile;
+    if (elements.qualityLabel) {
+      const qualityValue = document.getElementById('qualityValue')?.textContent || '75';
+      elements.qualityLabel.innerHTML = `${t.qualityLabel}: <span class="quality-value" id="qualityValue">${qualityValue}</span>`;
+    }
+    if (elements.editorTitle) elements.editorTitle.textContent = `Base64 ${t.result || "結果"}`;
+    if (elements.copyBtn) {
+      elements.copyBtn.innerHTML = `${createIcon('copy', 16, 'btn-icon')} ${t.copyBase64}`;
+    }
+    if (elements.downloadBtn) {
+      elements.downloadBtn.innerHTML = `${createIcon('download', 16, 'btn-icon')} ${t.downloadBase64}`;
+    }
+    if (elements.sizeComparisonTitle) elements.sizeComparisonTitle.textContent = t.sizeComparison;
+    if (elements.compressionResultsTitle) elements.compressionResultsTitle.textContent = t.compressionResults;
+
+    // Update file info labels if container exists
+    const fileInfoContainer = document.getElementById('fileInfoContainer');
+    if (fileInfoContainer) {
+      const infoItems = fileInfoContainer.querySelectorAll('.info-item');
+      const labelMap = [
+        { selector: '#fileName', label: t.fileName },
+        { selector: '#fileSize', label: t.fileSize },
+        { selector: '#imageSize', label: t.imageSize },
+        { selector: '#mimeType', label: t.mimeType },
+        { selector: '#base64Size', label: t.base64Size },
+        { selector: '#gzipSize', label: t.gzipSize }
+      ];
+
+      labelMap.forEach(({ selector, label }) => {
+        const element = fileInfoContainer.querySelector(selector);
+        if (element) {
+          const labelElement = element.querySelector('.info-label');
+          if (labelElement) labelElement.textContent = label;
+        }
+      });
+    }
+  }
+
+  async initWorkersAsync() {
+    // 如果已經在初始化中，返回現有的 Promise
+    if (this.workersInitPromise) {
+      return this.workersInitPromise;
+    }
+
+    this.workersInitPromise = this._initWorkersInternal();
+    return this.workersInitPromise;
+  }
+
+  async _initWorkersInternal() {
     try {
       // 檢查Worker支援
       if (typeof Worker === "undefined") {
         console.error("❌ Web Workers not supported");
         this.encoderWorkerFailed = true;
         this.compressorWorkerFailed = true;
-        return;
+        throw new Error("Web Workers not supported");
       }
 
-      // 建立 Web Workers
-      try {
-        this.encoderWorker = new Worker(
-          /* webpackChunkName: "encoder-worker" */
-          new URL("./encoder.worker.js", import.meta.url),
-          { type: "module" }
-        );
-      } catch (encoderError) {
-        console.error("❌ Failed to create encoder worker:", encoderError);
-        this.encoderWorkerFailed = true;
-      }
+      const workerPromises = [];
 
-      try {
-        this.compressorWorker = new Worker(
-          /* webpackChunkName: "compressor-worker" */
-          new URL("./compressor.worker.js", import.meta.url),
-          { type: "module" }
-        );
-      } catch (compressorError) {
-        console.error(
-          "❌ Failed to create compressor worker:",
-          compressorError
-        );
-        this.compressorWorkerFailed = true;
-      }
+      // 建立並初始化 Encoder Worker
+      const encoderPromise = new Promise((resolve, reject) => {
+        try {
+          this.encoderWorker = new Worker(
+            /* webpackChunkName: "encoder-worker" */
+            new URL("./encoder.worker.js", import.meta.url),
+            { type: "module" }
+          );
 
-      // 設定 Worker 訊息處理
-      if (this.encoderWorker) {
-        this.encoderWorker.onmessage = (e) => {
-          this.handleEncoderMessage(e);
-        };
-        setTimeout(() => {
-          this.encoderWorker.postMessage({
-            type: "ping",
-            id: "health-check-" + Date.now(),
-            timestamp: Date.now(),
-          });
-        }, 1000);
-      }
+          // 設定訊息處理
+          const initTimeout = setTimeout(() => {
+            reject(new Error("Encoder worker initialization timeout"));
+          }, 5000); // 5秒超時
 
-      if (this.compressorWorker) {
-        this.compressorWorker.onmessage = (e) => {
-          this.handleCompressorMessage(e);
-        };
-      }
+          const messageHandler = (e) => {
+            if (e.data.type === "ready") {
+              clearTimeout(initTimeout);
+              this.encoderWorkerReady = true;
+              console.log("✅ Encoder worker ready");
+              resolve();
+            } else {
+              this.handleEncoderMessage(e);
+            }
+          };
 
-      // 設定錯誤處理
-      if (this.encoderWorker) {
-        this.encoderWorker.onerror = (error) => {
-          console.error("❌ Encoder worker error:", error.message);
+          this.encoderWorker.onmessage = messageHandler;
+
+          this.encoderWorker.onerror = (error) => {
+            clearTimeout(initTimeout);
+            console.error("❌ Encoder worker error:", error);
+            this.encoderWorkerFailed = true;
+            reject(error);
+          };
+
+          // 發送初始化訊息
+          this.encoderWorker.postMessage({ type: "init" });
+        } catch (error) {
+          console.error("❌ Failed to create encoder worker:", error);
           this.encoderWorkerFailed = true;
-          this.showMessage("error", "編碼器載入失敗，將使用降級方案");
-        };
+          reject(error);
+        }
+      });
+
+      // 建立並初始化 Compressor Worker
+      const compressorPromise = new Promise((resolve, reject) => {
+        try {
+          this.compressorWorker = new Worker(
+            /* webpackChunkName: "compressor-worker" */
+            new URL("./compressor.worker.js", import.meta.url),
+            { type: "module" }
+          );
+
+          // 設定訊息處理
+          const initTimeout = setTimeout(() => {
+            reject(new Error("Compressor worker initialization timeout"));
+          }, 5000); // 5秒超時
+
+          const messageHandler = (e) => {
+            if (e.data.type === "ready") {
+              clearTimeout(initTimeout);
+              this.compressorWorkerReady = true;
+              console.log("✅ Compressor worker ready");
+              resolve();
+            } else {
+              this.handleCompressorMessage(e);
+            }
+          };
+
+          this.compressorWorker.onmessage = messageHandler;
+
+          this.compressorWorker.onerror = (error) => {
+            clearTimeout(initTimeout);
+            console.error("❌ Compressor worker error:", error);
+            this.compressorWorkerFailed = true;
+            reject(error);
+          };
+
+          // 發送初始化訊息
+          this.compressorWorker.postMessage({ type: "init" });
+        } catch (error) {
+          console.error("❌ Failed to create compressor worker:", error);
+          this.compressorWorkerFailed = true;
+          reject(error);
+        }
+      });
+
+      workerPromises.push(encoderPromise, compressorPromise);
+
+      // 等待所有 Workers 就緒
+      await Promise.allSettled(workerPromises);
+
+      // 檢查結果
+      if (this.encoderWorkerReady || this.compressorWorkerReady) {
+        this.workersReady = true;
+        console.log("✅ At least one worker is ready");
+
+        // 處理排隊的檔案
+        this.processPendingFiles();
+      } else {
+        throw new Error("All workers failed to initialize");
       }
 
-      if (this.compressorWorker) {
-        this.compressorWorker.onerror = (error) => {
-          console.error("❌ Compressor worker error:", error.message);
-          this.compressorWorkerFailed = true;
-          this.showMessage("error", "壓縮器載入失敗，將跳過壓縮功能");
-        };
-      }
     } catch (error) {
       console.error("❌ Failed to initialize workers:", error);
-      this.encoderWorkerFailed = true;
-      this.compressorWorkerFailed = true;
-      this.showMessage("error", "工具初始化失敗，將使用降級方案");
+      this.workersReady = false;
+      throw error;
+    }
+  }
+
+  setUILoadingState(loading) {
+    const uploadArea = document.getElementById("uploadArea");
+    const selectBtn = document.getElementById("selectBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    if (loading) {
+      if (uploadArea) {
+        uploadArea.classList.add("loading");
+        uploadArea.style.pointerEvents = "none";
+      }
+      if (selectBtn) {
+        selectBtn.disabled = true;
+        selectBtn.textContent = "載入中...";
+      }
+      if (fileInput) {
+        fileInput.disabled = true;
+      }
+    } else {
+      if (uploadArea) {
+        uploadArea.classList.remove("loading");
+        uploadArea.style.pointerEvents = "auto";
+      }
+      if (selectBtn) {
+        selectBtn.disabled = false;
+        const t = this.translations[this.currentLanguage];
+        selectBtn.textContent = t.selectFile;
+      }
+      if (fileInput) {
+        fileInput.disabled = false;
+      }
+    }
+  }
+
+  processPendingFiles() {
+    if (this.pendingFileQueue.length > 0) {
+      console.log(`📦 Processing ${this.pendingFileQueue.length} pending files`);
+      while (this.pendingFileQueue.length > 0) {
+        const file = this.pendingFileQueue.shift();
+        this.processFile(file);
+      }
     }
   }
 
@@ -345,6 +528,26 @@ export default class Base64EncoderTool {
         "error",
         this.translations[this.currentLanguage].unsupportedFile
       );
+      return;
+    }
+
+    // 檢查 Workers 是否就緒
+    if (!this.workersReady) {
+      console.log("⏳ Workers not ready, queuing file for later processing");
+      this.pendingFileQueue.push(file);
+      this.showMessage("info", "工具正在載入，請稍候...");
+
+      // 嘗試初始化 Workers（如果尚未初始化）
+      if (!this.workersInitPromise) {
+        await this.initWorkersAsync();
+      }
+      return;
+    }
+
+    // 檢查 Encoder Worker 是否可用
+    if (!this.encoderWorkerReady && !this.encoderWorkerFailed) {
+      console.log("⏳ Encoder worker not ready, waiting...");
+      this.pendingFileQueue.push(file);
       return;
     }
 
@@ -597,32 +800,62 @@ export default class Base64EncoderTool {
     const textEl = document.getElementById("progressText");
 
     if (show) {
-      container.style.display = "block";
-      fill.style.width = `${progress}%`;
-      textEl.textContent = text;
+      if (container) {
+        container.style.display = "block";
+      }
+      if (fill) {
+        fill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+      }
+      if (textEl) {
+        // 確保文字正確顯示，避免特殊字符或錯誤顯示
+        const safeText = text || "處理中...";
+        textEl.textContent = safeText;
+        textEl.style.whiteSpace = "normal";
+        textEl.style.wordBreak = "keep-all";
+        console.log(`📊 [Progress] ${safeText} - ${progress}%`);
+      }
     } else {
-      container.style.display = "none";
+      if (container) {
+        container.style.display = "none";
+      }
+      if (fill) {
+        fill.style.width = "0%";
+      }
+      if (textEl) {
+        textEl.textContent = "";
+      }
     }
   }
 
   async encodeFile(file) {
     const startTime = performance.now();
-    console.log("⚙️ [Tool DEBUG] encodeFile started:", {
+    console.log("⚙️ [Encoder] Starting file encoding:", {
       fileName: file.name,
       size: file.size,
+      type: file.type,
       timestamp: new Date().toISOString(),
     });
 
-    // 檢查Worker狀態
-    console.log("🔍 [Tool DEBUG] Worker status:", {
+    // 詳細的 Worker 狀態檢查
+    console.log("🔍 [Encoder] Worker status check:", {
       hasEncoderWorker: !!this.encoderWorker,
+      encoderWorkerReady: this.encoderWorkerReady,
       encoderWorkerFailed: this.encoderWorkerFailed,
+      workersReady: this.workersReady,
     });
 
     // 檢查是否需要使用降級方案
     if (!this.encoderWorker || this.encoderWorkerFailed) {
-      console.log("⬇️ [Tool DEBUG] Falling back to fallback encoding");
-      this.showMessage("error", "Worker not available");
+      console.error("❌ [Encoder] Worker not available, cannot proceed");
+      this.showMessage("error", "編碼器無法使用，請重新載入頁面");
+      this.showProgress(false);
+      return;
+    }
+
+    if (!this.encoderWorkerReady) {
+      console.warn("⚠️ [Encoder] Worker not ready yet, queuing file");
+      this.pendingFileQueue.push(file);
+      this.showMessage("info", "編碼器正在初始化，請稍候...");
       return;
     }
 
@@ -723,7 +956,7 @@ export default class Base64EncoderTool {
 
   handleEncoderMessage(event) {
     const { type, id, result, error } = event.data;
-    console.log("📨 [Tool DEBUG] Worker message received:", {
+    console.log("📨 [Encoder] Message received:", {
       type,
       id,
       hasResult: !!result,
@@ -732,6 +965,10 @@ export default class Base64EncoderTool {
     });
 
     switch (type) {
+      case "ready":
+        // Worker 已就緒，不需要額外處理（已在 initWorkersAsync 中處理）
+        console.log("✅ [Encoder] Ready message received");
+        break;
       case "progress":
         const { step, progress } = event.data;
         console.log("📈 [Tool DEBUG] Progress update:", { step, progress });
@@ -900,7 +1137,7 @@ export default class Base64EncoderTool {
 
   handleCompressorMessage(event) {
     const { type, id, result, format, results, error } = event.data;
-    console.log("Compressor message received:", {
+    console.log("📨 [Compressor] Message received:", {
       type,
       id,
       format,
@@ -909,6 +1146,10 @@ export default class Base64EncoderTool {
     });
 
     switch (type) {
+      case "ready":
+        // Worker 已就緒，不需要額外處理（已在 initWorkersAsync 中處理）
+        console.log("✅ [Compressor] Ready message received");
+        break;
       case "progress":
         const { step, progress } = event.data;
         this.showProgress(true, this.getProgressText(step), progress);
@@ -1183,34 +1424,60 @@ export default class Base64EncoderTool {
 
   drawChart(ctx, canvas, data) {
     const maxSize = Math.max(...data.map((d) => d.size));
-    const barHeight = 40;
-    const barSpacing = 60;
     const leftMargin = 120;
     const rightMargin = 100;
+    const topMargin = 20;
+    const bottomMargin = 20;
     const chartWidth = canvas.width - leftMargin - rightMargin;
 
-    ctx.font =
-      '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    // 動態計算條狀圖參數
+    const availableHeight = canvas.height - topMargin - bottomMargin;
+    const dataCount = data.length;
+
+    // 根據數據項目數量動態調整條狀圖高度和間距
+    const maxBarHeight = 40;
+    const minBarHeight = 20;
+    const idealSpacing = 1.5; // 間距與條狀圖高度的比例
+
+    // 計算適合的條狀圖高度
+    const totalSpaceNeeded = dataCount * maxBarHeight * idealSpacing;
+    let dynamicBarHeight, dynamicBarSpacing;
+
+    if (totalSpaceNeeded <= availableHeight) {
+      // 空間充足，使用較大的條狀圖
+      dynamicBarHeight = maxBarHeight;
+      dynamicBarSpacing = maxBarHeight * idealSpacing;
+    } else {
+      // 空間不足，動態調整大小
+      const spacePerBar = availableHeight / dataCount;
+      dynamicBarHeight = Math.max(minBarHeight, spacePerBar / idealSpacing);
+      dynamicBarSpacing = spacePerBar;
+    }
+
+    // 根據條狀圖高度調整字體大小
+    const fontSize = Math.max(12, Math.min(14, dynamicBarHeight * 0.6));
+    ctx.font = `${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
 
     data.forEach((item, index) => {
-      const y = 20 + index * barSpacing;
+      const y = topMargin + index * dynamicBarSpacing;
       const barWidth = (item.size / maxSize) * chartWidth;
+      const textY = y + dynamicBarHeight * 0.7; // 文字垂直居中
 
       // 畫長條
       ctx.fillStyle = item.color;
-      ctx.fillRect(leftMargin, y, barWidth, barHeight);
+      ctx.fillRect(leftMargin, y, barWidth, dynamicBarHeight);
 
       // 畫標籤
       ctx.fillStyle = "#333";
       ctx.textAlign = "right";
-      ctx.fillText(item.label, leftMargin - 10, y + 25);
+      ctx.fillText(item.label, leftMargin - 10, textY);
 
       // 畫數值
       ctx.textAlign = "left";
       ctx.fillText(
         this.formatFileSize(item.size),
         leftMargin + barWidth + 10,
-        y + 25
+        textY
       );
     });
   }

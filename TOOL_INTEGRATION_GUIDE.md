@@ -8,6 +8,7 @@ This guide provides a standardized process for systematically integrating indepe
 - **Progressive Loading**: Core functionality first, advanced features lazy-loaded
 - **Standardized Interface**: All tools follow unified API contracts
 - **Zero Breaking Changes**: Maintain complete original functionality
+- **Language Update Separation**: MANDATORY separation of initialization from language updates
 
 ---
 
@@ -1600,3 +1601,137 @@ Key Success Factors:
 - ✅ Detailed Technical Documentation
 
 Through this standardized process, any single-page HTML tool can be successfully integrated into the modular architecture while maintaining high performance and consistent user experience.
+
+---
+
+## MANDATORY: Language Update Implementation Pattern
+
+### Critical Requirements
+
+**EVERY tool must implement this pattern. Tools that call `render()` during language changes will be rejected.**
+
+### 1. Required Method Structure
+
+```javascript
+export default class YourTool {
+  constructor() {
+    this.currentLanguage = window.appLanguage?.get() || 'zh-TW';
+    this.translations = {
+      'zh-TW': { /* Traditional Chinese translations */ },
+      'en': { /* English translations */ }
+    };
+  }
+
+  async init(container) {
+    this.container = container;
+    this.renderInitial();
+    this.attachEvents();
+
+    // MANDATORY: Language change listener
+    window.addEventListener("languageChanged", (e) => {
+      this.currentLanguage = e.detail.language;
+      this.updateLanguage(); // NEVER call render()
+    });
+  }
+
+  renderInitial() {
+    // Create DOM structure with data-i18n attributes
+    this.container.innerHTML = `
+      <div class="tool">
+        <h1 data-i18n="title"></h1>
+        <button data-i18n="button">Button</button>
+        <input data-i18n-placeholder="inputPlaceholder">
+      </div>
+    `;
+    this.updateLanguage();
+  }
+
+  render() {
+    // Only calls renderInitial for first-time setup
+    this.renderInitial();
+  }
+
+  updateLanguage() {
+    const t = this.translations[this.currentLanguage];
+
+    // Update text content
+    this.container.querySelectorAll('[data-i18n]').forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (t[key]) element.textContent = t[key];
+    });
+
+    // Update placeholder attributes
+    this.container.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+      const key = element.getAttribute('data-i18n-placeholder');
+      if (t[key]) element.placeholder = t[key];
+    });
+
+    // Update title attributes
+    this.container.querySelectorAll('[data-i18n-title]').forEach(element => {
+      const key = element.getAttribute('data-i18n-title');
+      if (t[key]) element.title = t[key];
+    });
+  }
+}
+```
+
+### 2. Data Attribute Conventions
+
+| Attribute | Purpose | Usage |
+|-----------|---------|-------|
+| `data-i18n="key"` | Text content | `<span data-i18n="title"></span>` |
+| `data-i18n-placeholder="key"` | Placeholder text | `<input data-i18n-placeholder="inputHint">` |
+| `data-i18n-title="key"` | Title attribute | `<button data-i18n-title="buttonTooltip">` |
+| `data-i18n-aria-label="key"` | ARIA label | `<div data-i18n-aria-label="accessibleLabel">` |
+| `data-transform="type"` | Text transformation | `data-transform="firstLine"` |
+| `data-suffix="text"` | Add suffix | `data-suffix=":"` |
+
+### 3. State Preservation Requirements
+
+**Tools with complex state MUST preserve:**
+
+- **Monaco Editor instances**: Never recreate editors
+- **Web Workers**: Maintain worker connections and state
+- **Form data**: Preserve user input
+- **File uploads**: Keep uploaded files in memory
+- **Processing results**: Maintain computed data
+- **UI state**: Expanded/collapsed sections, active tabs
+- **Event listeners**: Avoid re-binding listeners
+
+### 4. Testing Checklist
+
+Before submitting, verify:
+
+- [ ] Language toggle preserves all tool state
+- [ ] No DOM recreation during language changes
+- [ ] Monaco Editors maintain content and configuration
+- [ ] Web Workers continue running without interruption
+- [ ] Form inputs retain their values
+- [ ] File upload state is preserved
+- [ ] Processing results remain visible
+- [ ] Event listeners don't duplicate
+- [ ] Performance is smooth (no lag during switch)
+- [ ] Memory usage doesn't increase over time
+
+### 5. Common Anti-Patterns (FORBIDDEN)
+
+```javascript
+// ❌ WRONG - Destroys state
+window.addEventListener("languageChanged", (e) => {
+  this.currentLanguage = e.detail.language;
+  this.render(); // DESTROYS ALL STATE
+  this.attachEvents(); // DUPLICATES LISTENERS
+});
+
+// ❌ WRONG - Recreates DOM
+updateLanguage() {
+  this.container.innerHTML = `<h1>${t.title}</h1>`; // REBUILDS DOM
+}
+
+// ❌ WRONG - Loses editor content
+languageChanged() {
+  this.initMonacoEditor(); // RECREATES EDITOR
+}
+```
+
+This pattern is now **MANDATORY** for all tools and will be enforced during code review.

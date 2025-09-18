@@ -1,5 +1,12 @@
 // Image Compressor Worker with dynamic loading for all codecs
 
+// Worker 初始化完成，發送就緒訊息
+console.log("🚀 Compressor worker loading...");
+setTimeout(() => {
+  postMessage({ type: "ready" });
+  console.log("✅ Compressor worker ready");
+}, 100);
+
 // Dynamic encoder loading
 const encoders = new Map();
 
@@ -45,6 +52,10 @@ self.onmessage = async function (e) {
 
   try {
     switch (type) {
+      case "init":
+        // 再次確認就緒狀態
+        postMessage({ type: "ready" });
+        break;
       case "compress":
         await compressImage(data, id);
         break;

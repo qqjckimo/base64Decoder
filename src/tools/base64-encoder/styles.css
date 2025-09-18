@@ -150,6 +150,11 @@
   font-size: 0.9em;
   color: #666;
   margin-top: 5px;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  line-height: 1.4;
+  min-height: 20px;
 }
 
 .editor-section {
@@ -311,6 +316,18 @@
 .loading {
   opacity: 0.6;
   pointer-events: none;
+  position: relative;
+}
+
+.upload-section.loading::after {
+  content: '載入中...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2em;
+  color: #007bff;
+  font-weight: 600;
 }
 
 .button-group {

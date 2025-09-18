@@ -40,7 +40,7 @@ body {
 
 #app-container {
   display: flex;
-  max-height: 100vh;
+  /* max-height: 100vh; */
 }
 
 .sidebar {

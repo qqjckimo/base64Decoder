@@ -1,61 +1,61 @@
-import { MonacoLoader } from "../../utils/monacoLoader.js";
-import "./styles.css";
+import { MonacoLoader } from '../../utils/monacoLoader.js';
+import './styles.css';
 
 export default class JSONFormatterTool {
   constructor() {
     // Language system initialization
-    this.currentLanguage = window.appLanguage?.get() || "zh-TW";
+    this.currentLanguage = window.appLanguage?.get() || 'zh-TW';
     this.translations = {
-      "zh-TW": {
-        title: "JSON 格式化工具",
-        format: "格式化",
-        compact: "壓縮",
-        copy: "複製",
-        clear: "清除",
-        ready: "就緒",
-        processing: "處理中...",
-        formatSuccess: "格式化成功",
-        compactSuccess: "壓縮成功",
-        copySuccess: "已複製到剪貼簿",
-        clearSuccess: "已清除內容",
-        invalidJson: "無效的 JSON 格式",
-        copyError: "複製失敗",
-        empty: "請輸入 JSON 內容",
-        characters: "個字元",
-        lines: "行",
-        syntaxError: "語法錯誤",
-        placeholder: "請在此輸入或貼上 JSON 內容...",
-        loadingEditor: "正在載入編輯器...",
-        fallbackMode: "使用基本編輯器模式",
+      'zh-TW': {
+        title: 'JSON 格式化工具',
+        format: '格式化',
+        compact: '壓縮',
+        copy: '複製',
+        clear: '清除',
+        ready: '就緒',
+        processing: '處理中...',
+        formatSuccess: '格式化成功',
+        compactSuccess: '壓縮成功',
+        copySuccess: '已複製到剪貼簿',
+        clearSuccess: '已清除內容',
+        invalidJson: '無效的 JSON 格式',
+        copyError: '複製失敗',
+        empty: '請輸入 JSON 內容',
+        characters: '個字元',
+        lines: '行',
+        syntaxError: '語法錯誤',
+        placeholder: '請在此輸入或貼上 JSON 內容...',
+        loadingEditor: '正在載入編輯器...',
+        fallbackMode: '使用基本編輯器模式',
       },
       en: {
-        title: "JSON Formatter",
-        format: "Format",
-        compact: "Compact",
-        copy: "Copy",
-        clear: "Clear",
-        ready: "Ready",
-        processing: "Processing...",
-        formatSuccess: "Formatted successfully",
-        compactSuccess: "Compacted successfully",
-        copySuccess: "Copied to clipboard",
-        clearSuccess: "Content cleared",
-        invalidJson: "Invalid JSON format",
-        copyError: "Copy failed",
-        empty: "Please enter JSON content",
-        characters: "characters",
-        lines: "lines",
-        syntaxError: "Syntax error",
-        placeholder: "Enter or paste JSON content here...",
-        loadingEditor: "Loading editor...",
-        fallbackMode: "Using basic editor mode",
+        title: 'JSON Formatter',
+        format: 'Format',
+        compact: 'Compact',
+        copy: 'Copy',
+        clear: 'Clear',
+        ready: 'Ready',
+        processing: 'Processing...',
+        formatSuccess: 'Formatted successfully',
+        compactSuccess: 'Compacted successfully',
+        copySuccess: 'Copied to clipboard',
+        clearSuccess: 'Content cleared',
+        invalidJson: 'Invalid JSON format',
+        copyError: 'Copy failed',
+        empty: 'Please enter JSON content',
+        characters: 'characters',
+        lines: 'lines',
+        syntaxError: 'Syntax error',
+        placeholder: 'Enter or paste JSON content here...',
+        loadingEditor: 'Loading editor...',
+        fallbackMode: 'Using basic editor mode',
       },
     };
 
     // State management
     this.state = {
       isProcessing: false,
-      currentContent: "",
+      currentContent: '',
       isValid: true,
       characterCount: 0,
       lineCount: 1,
@@ -94,13 +94,13 @@ export default class JSONFormatterTool {
 
     // Initial state setup - ensure DOM is ready
     if (this.elements?.statusText) {
-      this.updateStatus(this.t("ready"));
+      this.updateStatus(this.t('ready'));
     }
 
     // Update character count only after all elements are confirmed available
     this.updateCharacterCount();
 
-    console.log("JSON Formatter Tool initialized");
+    console.log('JSON Formatter Tool initialized');
   }
 
   setupDOM() {
@@ -110,7 +110,7 @@ export default class JSONFormatterTool {
       <div class="json-formatter-container">
         <div class="json-formatter-toolbar">
           <span class="json-formatter-title" data-i18n="title">${t(
-            "title"
+            'title'
           )}</span>
 
           <button class="json-formatter-btn json-formatter-btn-primary" data-action="format">
@@ -120,7 +120,7 @@ export default class JSONFormatterTool {
               <line x1="17" x2="3" y1="18" y2="18" />
             </svg>
             <span class="json-formatter-btn-text" data-i18n="format">${t(
-              "format"
+              'format'
             )}</span>
           </button>
 
@@ -129,7 +129,7 @@ export default class JSONFormatterTool {
               <path d="m9 18 6-6-6-6" />
             </svg>
             <span class="json-formatter-btn-text" data-i18n="compact">${t(
-              "compact"
+              'compact'
             )}</span>
           </button>
 
@@ -139,7 +139,7 @@ export default class JSONFormatterTool {
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
             <span class="json-formatter-btn-text" data-i18n="copy">${t(
-              "copy"
+              'copy'
             )}</span>
           </button>
 
@@ -150,7 +150,7 @@ export default class JSONFormatterTool {
               <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
             </svg>
             <span class="json-formatter-btn-text" data-i18n="clear">${t(
-              "clear"
+              'clear'
             )}</span>
           </button>
         </div>
@@ -161,10 +161,10 @@ export default class JSONFormatterTool {
 
         <div class="json-formatter-status-bar">
           <span class="json-formatter-status" id="status-text">${t(
-            "ready"
+            'ready'
           )}</span>
           <span class="json-formatter-char-count" id="char-count">0 ${t(
-            "characters"
+            'characters'
           )}</span>
         </div>
       </div>
@@ -173,46 +173,47 @@ export default class JSONFormatterTool {
 
   cacheElements() {
     this.elements = {
-      toolbar: this.container.querySelector(".json-formatter-toolbar"),
+      toolbar: this.container.querySelector('.json-formatter-toolbar'),
       formatBtn: this.container.querySelector('[data-action="format"]'),
       compactBtn: this.container.querySelector('[data-action="compact"]'),
       copyBtn: this.container.querySelector('[data-action="copy"]'),
       clearBtn: this.container.querySelector('[data-action="clear"]'),
       editorContainer: this.container.querySelector(
-        ".json-formatter-editor-container"
+        '.json-formatter-editor-container'
       ),
-      editor: this.container.querySelector(".json-formatter-editor"),
-      statusText: this.container.querySelector("#status-text"),
-      charCount: this.container.querySelector("#char-count"),
-      title: this.container.querySelector(".json-formatter-title"),
+      editor: this.container.querySelector('.json-formatter-editor'),
+      statusText: this.container.querySelector('#status-text'),
+      charCount: this.container.querySelector('#char-count'),
+      title: this.container.querySelector('.json-formatter-title'),
     };
   }
 
   bindEvents() {
     // Use event delegation for toolbar clicks
     const toolbarClickHandler = (e) => this.handleToolbarClick(e);
-    this.elements.toolbar.addEventListener("click", toolbarClickHandler);
-    this.eventHandlers.set("toolbar-click", toolbarClickHandler);
+    this.elements.toolbar.addEventListener('click', toolbarClickHandler);
+    this.eventHandlers.set('toolbar-click', toolbarClickHandler);
   }
 
   async loadMonacoEditor() {
     try {
-      this.updateStatus(this.t("loadingEditor"));
+      this.updateStatus(this.t('loadingEditor'));
 
       await MonacoLoader.load();
 
       // Create Monaco Editor instance
       this.editor = MonacoLoader.createEditor(this.elements.editor, {
-        value: "",
-        language: "json",
-        theme: "vs-light",
+        value: '',
+        language: 'json',
+        theme: 'vs-light',
         minimap: { enabled: true },
         automaticLayout: true,
         fontSize: 14,
-        wordWrap: "on",
-        lineNumbers: "on",
+        folding: true,
+        wordWrap: 'on',
+        lineNumbers: 'on',
         scrollBeyondLastLine: false,
-        placeholder: this.t("placeholder"),
+        placeholder: this.t('placeholder'),
         formatOnPaste: true,
         formatOnType: true,
       });
@@ -222,54 +223,54 @@ export default class JSONFormatterTool {
         this.onContentChange();
       });
 
-      this.updateStatus(this.t("ready"));
+      this.updateStatus(this.t('ready'));
     } catch (error) {
-      console.warn("Monaco Editor loading failed, using fallback:", error);
+      console.warn('Monaco Editor loading failed, using fallback:', error);
       this.setupFallbackEditor();
     }
   }
 
   setupFallbackEditor() {
-    this.updateStatus(this.t("fallbackMode"));
+    this.updateStatus(this.t('fallbackMode'));
 
     this.elements.editor.innerHTML = `
       <textarea
         class="json-formatter-fallback-editor"
-        placeholder="${this.t("placeholder")}"
+        placeholder="${this.t('placeholder')}"
         spellcheck="false"
       ></textarea>
     `;
 
-    const textarea = this.elements.editor.querySelector("textarea");
+    const textarea = this.elements.editor.querySelector('textarea');
 
     // Listen for content changes
     const inputHandler = () => this.onContentChange();
-    textarea.addEventListener("input", inputHandler);
-    this.eventHandlers.set("textarea-input", inputHandler);
+    textarea.addEventListener('input', inputHandler);
+    this.eventHandlers.set('textarea-input', inputHandler);
 
-    this.updateStatus(this.t("ready"));
+    this.updateStatus(this.t('ready'));
   }
 
   handleToolbarClick(e) {
     e.preventDefault();
     e.stopPropagation();
 
-    const button = e.target.closest("[data-action]");
+    const button = e.target.closest('[data-action]');
     if (!button) return;
 
     const action = button.dataset.action;
 
     switch (action) {
-      case "format":
+      case 'format':
         this.formatJSON();
         break;
-      case "compact":
+      case 'compact':
         this.compactJSON();
         break;
-      case "copy":
+      case 'copy':
         this.copyContent();
         break;
-      case "clear":
+      case 'clear':
         this.clearContent();
         break;
     }
@@ -280,11 +281,11 @@ export default class JSONFormatterTool {
 
     try {
       this.setProcessing(true);
-      this.updateStatus(this.t("processing"));
+      this.updateStatus(this.t('processing'));
 
       const content = this.getEditorContent();
       if (!content.trim()) {
-        this.updateStatus(this.t("empty"), "warning");
+        this.updateStatus(this.t('empty'), 'warning');
         return;
       }
 
@@ -293,10 +294,10 @@ export default class JSONFormatterTool {
       const formatted = JSON.stringify(parsed, null, 2);
 
       this.setEditorContent(formatted);
-      this.updateStatus(this.t("formatSuccess"), "success");
+      this.updateStatus(this.t('formatSuccess'), 'success');
     } catch (error) {
-      console.error("JSON format error:", error);
-      this.updateStatus(`${this.t("syntaxError")}: ${error.message}`, "error");
+      console.error('JSON format error:', error);
+      this.updateStatus(`${this.t('syntaxError')}: ${error.message}`, 'error');
     } finally {
       this.setProcessing(false);
     }
@@ -307,11 +308,11 @@ export default class JSONFormatterTool {
 
     try {
       this.setProcessing(true);
-      this.updateStatus(this.t("processing"));
+      this.updateStatus(this.t('processing'));
 
       const content = this.getEditorContent();
       if (!content.trim()) {
-        this.updateStatus(this.t("empty"), "warning");
+        this.updateStatus(this.t('empty'), 'warning');
         return;
       }
 
@@ -320,10 +321,10 @@ export default class JSONFormatterTool {
       const compacted = JSON.stringify(parsed);
 
       this.setEditorContent(compacted);
-      this.updateStatus(this.t("compactSuccess"), "success");
+      this.updateStatus(this.t('compactSuccess'), 'success');
     } catch (error) {
-      console.error("JSON compact error:", error);
-      this.updateStatus(`${this.t("syntaxError")}: ${error.message}`, "error");
+      console.error('JSON compact error:', error);
+      this.updateStatus(`${this.t('syntaxError')}: ${error.message}`, 'error');
     } finally {
       this.setProcessing(false);
     }
@@ -333,21 +334,21 @@ export default class JSONFormatterTool {
     try {
       const content = this.getEditorContent();
       if (!content.trim()) {
-        this.updateStatus(this.t("empty"), "warning");
+        this.updateStatus(this.t('empty'), 'warning');
         return;
       }
 
       await navigator.clipboard.writeText(content);
-      this.updateStatus(this.t("copySuccess"), "success");
+      this.updateStatus(this.t('copySuccess'), 'success');
     } catch (error) {
-      console.error("Copy error:", error);
-      this.updateStatus(this.t("copyError"), "error");
+      console.error('Copy error:', error);
+      this.updateStatus(this.t('copyError'), 'error');
     }
   }
 
   clearContent() {
-    this.setEditorContent("");
-    this.updateStatus(this.t("clearSuccess"), "success");
+    this.setEditorContent('');
+    this.updateStatus(this.t('clearSuccess'), 'success');
     this.updateCharacterCount();
   }
 
@@ -355,8 +356,8 @@ export default class JSONFormatterTool {
     if (this.editor) {
       return this.editor.getValue();
     } else {
-      const textarea = this.elements.editor.querySelector("textarea");
-      return textarea ? textarea.value : "";
+      const textarea = this.elements.editor.querySelector('textarea');
+      return textarea ? textarea.value : '';
     }
   }
 
@@ -364,7 +365,7 @@ export default class JSONFormatterTool {
     if (this.editor) {
       this.editor.setValue(content);
     } else {
-      const textarea = this.elements.editor.querySelector("textarea");
+      const textarea = this.elements.editor.querySelector('textarea');
       if (textarea) {
         textarea.value = content;
       }
@@ -392,19 +393,19 @@ export default class JSONFormatterTool {
   updateCharacterCount() {
     // Ensure DOM elements are available before updating
     if (!this.elements?.charCount) {
-      console.warn("Character count element not available, skipping update");
+      console.warn('Character count element not available, skipping update');
       return;
     }
 
     const content = this.getEditorContent();
     const charCount = content.length;
-    const lineCount = content.split("\n").length;
+    const lineCount = content.split('\n').length;
 
     this.state.characterCount = charCount;
     this.state.lineCount = lineCount;
 
     this.elements.charCount.textContent = `${charCount} ${this.t(
-      "characters"
+      'characters'
     )}`;
   }
 
@@ -428,18 +429,18 @@ export default class JSONFormatterTool {
     this.state.isProcessing = processing;
 
     // Update button states
-    const buttons = this.container.querySelectorAll(".json-formatter-btn");
+    const buttons = this.container.querySelectorAll('.json-formatter-btn');
     buttons.forEach((btn) => {
       btn.disabled = processing;
     });
 
     // Update container state
-    this.container.classList.toggle("json-formatter-loading", processing);
+    this.container.classList.toggle('json-formatter-loading', processing);
   }
 
-  updateStatus(message, type = "normal") {
+  updateStatus(message, type = 'normal') {
     if (!this.elements?.statusText) {
-      console.warn("Status text element not available, skipping status update");
+      console.warn('Status text element not available, skipping status update');
       return;
     }
 
@@ -447,32 +448,39 @@ export default class JSONFormatterTool {
 
     // Reset status classes
     this.elements.statusText.classList.remove(
-      "json-formatter-status-error",
-      "json-formatter-status-success",
-      "json-formatter-status-warning"
+      'json-formatter-status-error',
+      'json-formatter-status-success',
+      'json-formatter-status-warning'
     );
 
     // Add appropriate class
-    if (type === "error") {
-      this.elements.statusText.classList.add("json-formatter-status-error");
-    } else if (type === "success") {
-      this.elements.statusText.classList.add("json-formatter-status-success");
-    } else if (type === "warning") {
-      this.elements.statusText.classList.add("json-formatter-status-warning");
+    if (type === 'error') {
+      this.elements.statusText.classList.add('json-formatter-status-error');
+    } else if (type === 'success') {
+      this.elements.statusText.classList.add('json-formatter-status-success');
+    } else if (type === 'warning') {
+      this.elements.statusText.classList.add('json-formatter-status-warning');
     }
 
     // Auto-clear success/warning messages after 3 seconds
-    if (type === "success" || type === "warning") {
+    if (type === 'success' || type === 'warning') {
       setTimeout(() => {
         if (!this.state.isProcessing) {
-          this.updateStatus(this.t("ready"));
+          this.updateStatus(this.t('ready'));
         }
       }, 3000);
     }
   }
 
   setupLanguageListener() {
-    if (window.appLanguage) {
+    // Standard language change listener for consistency
+    window.addEventListener("languageChanged", (e) => {
+      this.currentLanguage = e.detail.language;
+      this.updateLanguage();
+    });
+
+    // Fallback for legacy subscription system
+    if (window.appLanguage?.subscribe) {
       window.appLanguage.subscribe(() => {
         this.currentLanguage = window.appLanguage.get();
         this.updateLanguage();
@@ -481,42 +489,26 @@ export default class JSONFormatterTool {
   }
 
   updateLanguage() {
-    // Update all translatable elements
-    this.elements.title.textContent = this.t("title");
+    // Update all elements with data-i18n attributes
+    const elementsToTranslate = this.container.querySelectorAll('[data-i18n]');
+    elementsToTranslate.forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (this.translations[this.currentLanguage][key]) {
+        element.textContent = this.t(key);
+      }
+    });
 
-    // Update button texts
-    const formatBtn = this.elements.formatBtn.querySelector(
-      ".json-formatter-btn-text"
-    );
-    const compactBtn = this.elements.compactBtn.querySelector(
-      ".json-formatter-btn-text"
-    );
-    const copyBtn = this.elements.copyBtn.querySelector(
-      ".json-formatter-btn-text"
-    );
-    const clearBtn = this.elements.clearBtn.querySelector(
-      ".json-formatter-btn-text"
-    );
-
-    if (formatBtn) formatBtn.textContent = this.t("format");
-    if (compactBtn) compactBtn.textContent = this.t("compact");
-    if (copyBtn) copyBtn.textContent = this.t("copy");
-    if (clearBtn) clearBtn.textContent = this.t("clear");
-
-    // Update placeholder
-    if (this.editor) {
-      // Monaco editor doesn't support direct placeholder update
-      // We would need to recreate it, but that's overkill for this case
-    } else {
-      const textarea = this.elements.editor.querySelector("textarea");
+    // Update placeholder for fallback textarea
+    if (!this.editor) {
+      const textarea = this.elements.editor.querySelector('textarea');
       if (textarea) {
-        textarea.placeholder = this.t("placeholder");
+        textarea.placeholder = this.t('placeholder');
       }
     }
 
     // Update status if it's the default message
     if (!this.state.isProcessing) {
-      this.updateStatus(this.t("ready"));
+      this.updateStatus(this.t('ready'));
     }
 
     // Update character count
@@ -541,13 +533,13 @@ export default class JSONFormatterTool {
 
     // Remove event listeners
     this.eventHandlers.forEach((handler, event) => {
-      const [element, eventName] = event.split("-");
+      const [element, eventName] = event.split('-');
       let targetElement = null;
 
-      if (element === "toolbar" && this.elements?.toolbar) {
+      if (element === 'toolbar' && this.elements?.toolbar) {
         targetElement = this.elements.toolbar;
-      } else if (element === "textarea" && this.elements?.editor) {
-        targetElement = this.elements.editor.querySelector("textarea");
+      } else if (element === 'textarea' && this.elements?.editor) {
+        targetElement = this.elements.editor.querySelector('textarea');
       }
 
       if (targetElement) {
@@ -565,7 +557,7 @@ export default class JSONFormatterTool {
     // Reset state completely
     this.state = {
       isProcessing: false,
-      currentContent: "",
+      currentContent: '',
       isValid: true,
       characterCount: 0,
       lineCount: 1,
@@ -577,6 +569,6 @@ export default class JSONFormatterTool {
     // Clear container reference
     this.container = null;
 
-    console.log("JSON Formatter Tool destroyed");
+    console.log('JSON Formatter Tool destroyed');
   }
 }

@@ -60,8 +60,7 @@ export default class PngToIcoTool {
     // 監聽語言變更
     window.addEventListener("languageChanged", (e) => {
       this.currentLanguage = e.detail.language;
-      this.render();
-      this.attachEvents();
+      this.updateLanguage();
     });
   }
 
@@ -70,20 +69,18 @@ export default class PngToIcoTool {
     this.converter = new PngIcoConverter();
   }
 
-  render() {
-    const t = this.translations[this.currentLanguage];
-
+  renderInitial() {
     this.container.innerHTML = `
       <div class="png-to-ico-tool">
         <div class="tool-header">
-          <h2>🎨 ${t.title}</h2>
+          <h2>🎨 <span data-i18n="title"></span></h2>
         </div>
-        
+
         <!-- 上傳區域 -->
         <div class="upload-area" id="uploadArea">
           <div class="upload-icon">📁</div>
-          <div class="upload-text">${t.uploadText}</div>
-          <div class="upload-hint">${t.uploadHint}</div>
+          <div class="upload-text" data-i18n="uploadText"></div>
+          <div class="upload-hint" data-i18n="uploadHint"></div>
           <input type="file" id="fileInput" accept="image/png" multiple style="display: none;">
         </div>
 
@@ -102,31 +99,31 @@ export default class PngToIcoTool {
             <label class="option-label">
               <input type="radio" name="sizeOption" id="optOriginalSize" checked>
               <div>
-                <div class="option-text">${t.originalSize}</div>
-                <div class="option-hint">${t.originalSizeHint}</div>
+                <div class="option-text" data-i18n="originalSize"></div>
+                <div class="option-hint" data-i18n="originalSizeHint"></div>
               </div>
             </label>
             <label class="option-label">
               <input type="radio" name="sizeOption" id="optIgnoreLimit">
               <div>
-                <div class="option-text">${t.ignoreLimit}</div>
-                <div class="option-hint">${t.ignoreLimitHint}</div>
+                <div class="option-text" data-i18n="ignoreLimit"></div>
+                <div class="option-hint" data-i18n="ignoreLimitHint"></div>
               </div>
             </label>
             <label class="option-label">
               <input type="radio" name="sizeOption" id="optMultiSize">
               <div>
-                <div class="option-text">${t.multiSize}</div>
-                <div class="option-hint">${t.multiSizeHint}</div>
+                <div class="option-text" data-i18n="multiSize"></div>
+                <div class="option-hint" data-i18n="multiSizeHint"></div>
               </div>
             </label>
           </div>
 
           <!-- 按鈕組 -->
           <div class="button-group">
-            <button class="btn btn-secondary" id="resetBtn">${t.selectAgain}</button>
+            <button class="btn btn-secondary" id="resetBtn" data-i18n="selectAgain"></button>
             <button class="btn btn-primary" id="convertBtn">
-              <span id="btnText">${t.convertToIco}</span>
+              <span id="btnText" data-i18n="convertToIco"></span>
             </button>
           </div>
         </div>
@@ -136,6 +133,25 @@ export default class PngToIcoTool {
         <div class="success-message" id="successMessage" style="display: none;"></div>
       </div>
     `;
+
+    this.updateLanguage();
+  }
+
+  render() {
+    this.renderInitial();
+  }
+
+  updateLanguage() {
+    const t = this.translations[this.currentLanguage];
+
+    // Update all elements with data-i18n attributes
+    const elementsToTranslate = this.container.querySelectorAll('[data-i18n]');
+    elementsToTranslate.forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (t[key]) {
+        element.textContent = t[key];
+      }
+    });
   }
 
   attachEvents() {

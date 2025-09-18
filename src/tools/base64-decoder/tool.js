@@ -81,12 +81,11 @@ export default class Base64DecoderTool {
     window.addEventListener("languageChanged", async (e) => {
       const editorValue = this.editor?.getValue() || "";
       this.currentLanguage = e.detail.language;
-      this.render();
-      await this.initMonacoEditor();
+      this.updateLanguage();
+      await this.updateMonacoEditor();
       if (editorValue) {
         this.editor.setValue(editorValue);
       }
-      this.attachEvents();
     });
   }
 
@@ -226,119 +225,93 @@ export default class Base64DecoderTool {
     });
   }
 
-  render() {
-    const t = this.translations[this.currentLanguage];
-
+  renderInitial() {
     this.container.innerHTML = `
             <div class="base64-decoder-tool">
                 <div class="tool-header">
-                    <h2>${t.title}</h2>
+                    <h2 data-i18n="title"></h2>
                 </div>
-                
+
                 <div class="tool-grid">
                     <div class="card input-section">
                         <div class="input-header">
-                            <h3>${t.inputPlaceholder.split("\n")[0]}</h3>
-                            <div id="editorBadge" class="editor-badge" style="display: none;" title="${
-                              t.editorFeatures
-                            }">
-                                <span class="badge-text">${
-                                  t.enhancedEditor
-                                }</span>
-                                <span class="badge-subtitle">${
-                                  t.largeFileSupport
-                                }</span>
+                            <h3 data-i18n="inputPlaceholder" data-transform="firstLine"></h3>
+                            <div id="editorBadge" class="editor-badge" style="display: none;" data-i18n-title="editorFeatures">
+                                <span class="badge-text" data-i18n="enhancedEditor"></span>
+                                <span class="badge-subtitle" data-i18n="largeFileSupport"></span>
                             </div>
                         </div>
                         <div class="input-group">
                             <div id="monacoEditorContainer" class="monaco-editor-wrapper"></div>
                         </div>
-                        
+
                         <div class="button-group">
-                            <button class="btn btn-primary" data-action="decode">
-                                ${t.decode}
-                            </button>
-                            <button class="btn btn-secondary" data-action="clear">
-                                ${t.clear}
-                            </button>
-                            <button class="btn btn-secondary" data-action="loadExample">
-                                ${t.loadExample}
-                            </button>
+                            <button class="btn btn-primary" data-action="decode" data-i18n="decode"></button>
+                            <button class="btn btn-secondary" data-action="clear" data-i18n="clear"></button>
+                            <button class="btn btn-secondary" data-action="loadExample" data-i18n="loadExample"></button>
                         </div>
-                        
+
                         <div id="alertMessage" class="alert" style="display: none;"></div>
                     </div>
-                    
+
                     <div class="card image-display">
-                        <h3>${t.waitingText.replace("...", "")}</h3>
+                        <h3 data-i18n="waitingText" data-transform="removeDots"></h3>
                         <div id="imageContainer" class="image-container">
-                            <div class="placeholder">${t.waitingText}</div>
+                            <div class="placeholder" data-i18n="waitingText"></div>
                         </div>
-                        
+
                         <div id="imageInfo" class="image-info" style="display: none;">
                             <div class="info-row">
-                                <span class="info-label">${t.dimensions}:</span>
+                                <span class="info-label" data-i18n="dimensions" data-suffix=":"></span>
                                 <span class="info-value" id="imageDimensions"></span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">${t.format}:</span>
+                                <span class="info-label" data-i18n="format" data-suffix=":"></span>
                                 <span class="info-value" id="imageFormat"></span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">${t.fileSize}:</span>
+                                <span class="info-label" data-i18n="fileSize" data-suffix=":"></span>
                                 <span class="info-value" id="fileSize"></span>
                             </div>
                             <div class="info-row">
-                                <span class="info-label">${
-                                  t.totalPixels
-                                }:</span>
+                                <span class="info-label" data-i18n="totalPixels" data-suffix=":"></span>
                                 <span class="info-value" id="totalPixels"></span>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card pixel-analysis-section">
-                        <h3>${t.pixelAnalysis}</h3>
+                        <h3 data-i18n="pixelAnalysis"></h3>
                         <div id="pixelAnalysis" style="display: none;">
                             <div class="stats-grid">
                                 <div class="stat-card">
                                     <div class="stat-value" id="uniqueColors">0</div>
-                                    <div class="stat-label">${
-                                      t.uniqueColors
-                                    }</div>
+                                    <div class="stat-label" data-i18n="uniqueColors"></div>
                                 </div>
                                 <div class="stat-card">
                                     <div class="stat-value" id="avgBrightness">0%</div>
-                                    <div class="stat-label">${
-                                      t.avgBrightness
-                                    }</div>
+                                    <div class="stat-label" data-i18n="avgBrightness"></div>
                                 </div>
                                 <div class="stat-card">
                                     <div class="stat-value" id="transparentPixels">0</div>
-                                    <div class="stat-label">${
-                                      t.transparentPixels
-                                    }</div>
+                                    <div class="stat-label" data-i18n="transparentPixels"></div>
                                 </div>
                             </div>
-                            
+
                             <div class="collapsible-section" style="margin-top: 15px;">
                                 <h4 class="collapsible-header" data-action="toggleDominantColors">
                                     <span class="collapse-icon">▼</span>
-                                    ${t.dominantColors}
+                                    <span data-i18n="dominantColors"></span>
                                 </h4>
                                 <div id="dominantColors" class="collapsible-content"></div>
                             </div>
-                            
+
                             <div style="margin-top: 15px;">
-                                <h4 style="margin-bottom: 10px;">${
-                                  t.clickedPixel
-                                }</h4>
+                                <h4 style="margin-bottom: 10px;" data-i18n="clickedPixel"></h4>
                                 <div id="clickedPixelInfo" class="color-info" style="display: none;">
                                     <div class="color-preview" id="clickedColorPreview"></div>
                                     <div class="info-row">
-                                        <span class="info-label">${
-                                          t.coordinates
-                                        }:</span>
+                                        <span class="info-label" data-i18n="coordinates" data-suffix=":"></span>
                                         <span class="info-value" id="pixelCoords">-</span>
                                     </div>
                                     <div class="info-row">
@@ -360,6 +333,66 @@ export default class Base64DecoderTool {
                 </div>
             </div>
         `;
+
+    this.updateLanguage();
+  }
+
+  render() {
+    this.renderInitial();
+  }
+
+  updateLanguage() {
+    const t = this.translations[this.currentLanguage];
+
+    // 更新所有帶有 data-i18n 屬性的元素
+    const elementsToTranslate = this.container.querySelectorAll('[data-i18n]');
+    elementsToTranslate.forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (t[key]) {
+        let text = t[key];
+
+        // 處理特殊變換
+        const transform = element.getAttribute('data-transform');
+        if (transform === 'firstLine') {
+          text = text.split('\n')[0];
+        } else if (transform === 'removeDots') {
+          text = text.replace('...', '');
+        }
+
+        // 處理後綴
+        const suffix = element.getAttribute('data-suffix');
+        if (suffix) {
+          text += suffix;
+        }
+
+        element.textContent = text;
+      }
+    });
+
+    // 更新 title 屬性
+    const elementsWithTitle = this.container.querySelectorAll('[data-i18n-title]');
+    elementsWithTitle.forEach(element => {
+      const key = element.getAttribute('data-i18n-title');
+      if (t[key]) {
+        element.setAttribute('title', t[key]);
+      }
+    });
+  }
+
+  async updateMonacoEditor() {
+    const t = this.translations[this.currentLanguage];
+
+    // 更新 Monaco Editor 的 placeholder 如果存在
+    if (this.editor) {
+      // Monaco Editor 已經初始化，不需要重新創建
+      return;
+    }
+
+    // 更新 textarea fallback 的 placeholder
+    const textarea = this.container.querySelector('#base64Input');
+    if (textarea) {
+      textarea.placeholder = t.inputPlaceholder;
+    }
   }
 
   attachEvents() {

@@ -1,48 +1,48 @@
-import { createIcon, initializeLucideIcons } from "../shared/Icon.js";
+import { createIcon, initializeLucideIcons } from '../shared/Icon.js';
 
 export class Sidebar {
   constructor() {
     this.tools = [];
     this.isExpanded = true;
-    this.currentLanguage = window.appLanguage?.get() || "zh-TW";
+    this.currentLanguage = window.appLanguage?.get() || 'zh-TW';
     this.floatingUI = null;
     this.appVersion = _APP_VERSION_ || null; // Defined in webpack.config.js
     this.translations = {
-      "zh-TW": {
-        sidebarTitle: "開發工具",
-        categoryImageProcessing: "圖片處理",
-        categoryTextProcessing: "Formatter",
-        base64DecoderName: "Base64 轉圖片工具",
-        base64EncoderName: "圖片轉 Base64 工具",
-        pngToIcoName: "PNG 製作 ICO 圖示",
-        jsonFormatterName: "JSON 格式化工具",
-        featureFastLoad: "快速載入",
-        featurePrivacyFirst: "隱私優先",
-        featureModernTech: "最新技術",
-        languageToggle: "🌐 EN",
-        featureFastLoadTooltip: "動態載入模組，減少初始載入時間",
-        featurePrivacyFirstTooltip: "所有處理都在瀏覽器端進行，不上傳任何資料",
+      'zh-TW': {
+        sidebarTitle: '開發工具',
+        categoryImageProcessing: '圖片處理',
+        categoryTextProcessing: 'Formatter',
+        base64DecoderName: 'Base64 轉圖片工具',
+        base64EncoderName: '圖片轉 Base64 工具',
+        pngToIcoName: 'PNG 製作 ICO 圖示',
+        jsonFormatterName: 'JSON 格式化工具',
+        featureFastLoad: '快速載入',
+        featurePrivacyFirst: '隱私優先',
+        featureModernTech: '最新技術',
+        languageToggle: '🌐 EN',
+        featureFastLoadTooltip: '動態載入模組，減少初始載入時間',
+        featurePrivacyFirstTooltip: '所有處理都在瀏覽器端進行，不上傳任何資料',
         featureModernTechTooltip:
-          "使用 ES6+、Web Workers、動態載入等現代 Web 技術",
+          '使用 ES6+、Web Workers、動態載入等現代 Web 技術',
       },
       en: {
-        sidebarTitle: "Developer Tools",
-        categoryImageProcessing: "Image Processing",
-        categoryTextProcessing: "Formatter",
-        base64DecoderName: "Base64 to Image Tool",
-        base64EncoderName: "Image to Base64 Tool",
-        pngToIcoName: "PNG to ICO Creator",
-        jsonFormatterName: "JSON Formatter",
-        featureFastLoad: "Fast Loading",
-        featurePrivacyFirst: "Privacy First",
-        featureModernTech: "Modern Tech",
-        languageToggle: "🌐 中文",
+        sidebarTitle: 'Developer Tools',
+        categoryImageProcessing: 'Image Processing',
+        categoryTextProcessing: 'Formatter',
+        base64DecoderName: 'Base64 to Image Tool',
+        base64EncoderName: 'Image to Base64 Tool',
+        pngToIcoName: 'PNG to ICO Creator',
+        jsonFormatterName: 'JSON Formatter',
+        featureFastLoad: 'Fast Loading',
+        featurePrivacyFirst: 'Privacy First',
+        featureModernTech: 'Modern Tech',
+        languageToggle: '🌐 中文',
         featureFastLoadTooltip:
-          "Dynamic module loading reduces initial load time",
+          'Dynamic module loading reduces initial load time',
         featurePrivacyFirstTooltip:
-          "All processing happens in your browser, no data uploaded",
+          'All processing happens in your browser, no data uploaded',
         featureModernTechTooltip:
-          "Built with ES6+, Web Workers, dynamic imports and modern web technologies",
+          'Built with ES6+, Web Workers, dynamic imports and modern web technologies',
       },
     };
     this.init();
@@ -60,7 +60,7 @@ export class Sidebar {
     try {
       if (!this.floatingUI) {
         const { computePosition, flip, shift, offset, size } = await import(
-          "https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.3/+esm"
+          'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.3/+esm'
         );
         this.floatingUI = {
           computePosition,
@@ -72,7 +72,7 @@ export class Sidebar {
       }
     } catch (error) {
       console.warn(
-        "Failed to load Floating UI, falling back to custom positioning:",
+        'Failed to load Floating UI, falling back to custom positioning:',
         error
       );
       this.floatingUI = null;
@@ -83,51 +83,52 @@ export class Sidebar {
     const t = this.translations[this.currentLanguage];
     this.tools = [
       {
-        id: "base64-decoder",
+        id: 'base64-decoder',
         name: t.base64DecoderName,
-        icon: createIcon("image", 20, "tool-icon"),
+        translationKey: 'base64DecoderName',
+        icon: createIcon('image', 20, 'tool-icon'),
         category: t.categoryImageProcessing,
       },
       {
-        id: "base64-encoder",
+        id: 'base64-encoder',
         name: t.base64EncoderName,
-        icon: createIcon("camera", 20, "tool-icon"),
+        translationKey: 'base64EncoderName',
+        icon: createIcon('camera', 20, 'tool-icon'),
         category: t.categoryImageProcessing,
       },
       {
-        id: "png-to-ico",
+        id: 'png-to-ico',
         name: t.pngToIcoName,
-        icon: createIcon("palette", 20, "tool-icon"),
+        translationKey: 'pngToIcoName',
+        icon: createIcon('palette', 20, 'tool-icon'),
         category: t.categoryImageProcessing,
       },
       {
-        id: "json-formatter",
+        id: 'json-formatter',
         name: t.jsonFormatterName,
-        icon: createIcon("file-text", 20, "tool-icon"),
+        translationKey: 'jsonFormatterName',
+        icon: createIcon('file-text', 20, 'tool-icon'),
         category: t.categoryTextProcessing,
       },
     ];
   }
 
-  render() {
-    const sidebar = document.getElementById("sidebar");
+  renderInitial() {
+    const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
-    const t = this.translations[this.currentLanguage];
     const toolsGrouped = this.groupByCategory();
 
     sidebar.innerHTML = `
             <div class="sidebar-header">
                 <div class="header-main">
-                    <h2 class="sidebar-title">${t.sidebarTitle}</h2>
+                    <h2 class="sidebar-title" data-i18n="sidebarTitle"></h2>
                     <div class="header-controls">
                         <button class="language-toggle" data-action="toggleLanguage" title="Switch Language">
-                            ${createIcon("globe", 12, "language-icon")} ${
-      this.currentLanguage === "zh-TW" ? "EN" : "中文"
-    }
+                            ${createIcon('globe', 12, 'language-icon')} <span class="language-text"></span>
                         </button>
                         <button class="sidebar-toggle" aria-label="切換側邊欄">
-                            ${createIcon("menu", 16, "menu-icon")}
+                            ${createIcon('menu', 16, 'menu-icon')}
                         </button>
                     </div>
                 </div>
@@ -136,96 +137,157 @@ export class Sidebar {
                     ? `<div class="version-line">
                         <span class="version-badge">v${this.appVersion}</span>
                     </div>`
-                    : ""
+                    : ''
                 }
             </div>
             <nav class="sidebar-nav">
                 ${Object.entries(toolsGrouped)
                   .map(
-                    ([category, tools]) => `
+                    ([categoryKey, tools]) => `
                     <div class="nav-category">
-                        <div class="category-header">${category}</div>
+                        <div class="category-header" data-i18n="${this.getCategoryTranslationKey(categoryKey)}"></div>
                         ${tools
                           .map(
                             (tool) => `
-                            <a href="#tool/${tool.id}" data-route="tool" data-tool="${tool.id}" class="nav-item" data-tooltip="${tool.name}">
+                            <a href="#tool/${tool.id}" data-route="tool" data-tool="${tool.id}" class="nav-item" data-tooltip-key="${tool.translationKey}">
                                 <span class="nav-icon">${tool.icon}</span>
-                                <span class="nav-text">${tool.name}</span>
+                                <span class="nav-text" data-i18n="${tool.translationKey}"></span>
                             </a>
                         `
                           )
-                          .join("")}
+                          .join('')}
                     </div>
                 `
                   )
-                  .join("")}
+                  .join('')}
             </nav>
             <div class="sidebar-footer">
                 <div class="feature-info">
                     <div class="feature-item">
                         <div class="feature-left">
-                            ${createIcon("zap", 12, "feature-icon")}
-                            <span class="feature-text">${
-                              t.featureFastLoad
-                            }</span>
+                            ${createIcon('zap', 12, 'feature-icon')}
+                            <span class="feature-text" data-i18n="featureFastLoad"></span>
                         </div>
-                        ${createIcon("info", 10, "info-icon")}
-                        <div class="tooltip">${t.featureFastLoadTooltip}</div>
+                        ${createIcon('info', 10, 'info-icon')}
+                        <div class="tooltip" data-i18n="featureFastLoadTooltip"></div>
                     </div>
                     <div class="feature-item">
                         <div class="feature-left">
-                            ${createIcon("lock", 12, "feature-icon")}
-                            <span class="feature-text">${
-                              t.featurePrivacyFirst
-                            }</span>
+                            ${createIcon('lock', 12, 'feature-icon')}
+                            <span class="feature-text" data-i18n="featurePrivacyFirst"></span>
                         </div>
-                        ${createIcon("info", 10, "info-icon")}
-                        <div class="tooltip">${
-                          t.featurePrivacyFirstTooltip
-                        }</div>
+                        ${createIcon('info', 10, 'info-icon')}
+                        <div class="tooltip" data-i18n="featurePrivacyFirstTooltip"></div>
                     </div>
                     <div class="feature-item">
                         <div class="feature-left">
-                            ${createIcon("cpu", 12, "feature-icon")}
-                            <span class="feature-text">${
-                              t.featureModernTech
-                            }</span>
+                            ${createIcon('cpu', 12, 'feature-icon')}
+                            <span class="feature-text" data-i18n="featureModernTech"></span>
                         </div>
-                        ${createIcon("info", 10, "info-icon")}
-                        <div class="tooltip">${t.featureModernTechTooltip}</div>
+                        ${createIcon('info', 10, 'info-icon')}
+                        <div class="tooltip" data-i18n="featureModernTechTooltip"></div>
                     </div>
                 </div>
             </div>
         `;
 
     // 添加懸浮 toggle 按鈕（在 768px 斷點顯示）
-    let floatingToggle = document.getElementById("floating-sidebar-toggle");
+    let floatingToggle = document.getElementById('floating-sidebar-toggle');
     if (!floatingToggle) {
-      floatingToggle = document.createElement("button");
-      floatingToggle.id = "floating-sidebar-toggle";
-      floatingToggle.className = "floating-sidebar-toggle";
-      floatingToggle.setAttribute("aria-label", "開關側邊欄");
-      floatingToggle.innerHTML = createIcon("menu", 20, "menu-icon");
-      document.body.appendChild(floatingToggle);
+      floatingToggle = document.createElement('button');
+      floatingToggle.id = 'floating-sidebar-toggle';
+      floatingToggle.className = 'floating-sidebar-toggle';
+      floatingToggle.setAttribute('aria-label', '開關側邊欄');
+      floatingToggle.innerHTML = createIcon('menu', 20, 'menu-icon');
+      document.getElementById('app-container').appendChild(floatingToggle);
     }
 
     // 添加遮罩元素（在 768px 斷點使用）
-    let overlay = document.getElementById("sidebar-overlay");
+    let overlay = document.getElementById('sidebar-overlay');
     if (!overlay) {
-      overlay = document.createElement("div");
-      overlay.id = "sidebar-overlay";
-      overlay.className = "sidebar-overlay";
-      document.body.appendChild(overlay);
+      overlay = document.createElement('div');
+      overlay.id = 'sidebar-overlay';
+      overlay.className = 'sidebar-overlay';
+      const sideBarElement = document.getElementById('sidebar');
+      sideBarElement.parentNode.insertBefore(overlay, sideBarElement);
     }
 
     this.addStyles();
 
+    // 更新語言內容
+    this.updateLanguage();
+
     // 初始化 Lucide 圖標
     setTimeout(() => {
       initializeLucideIcons();
-      // 重新初始化 tooltips（在語言切換後）
+      // 重新初始化 tooltips
       this.initTooltips();
     }, 0);
+  }
+
+  render() {
+    // 保存當前的展開狀態
+    const wasExpanded = this.isExpanded;
+
+    // 執行初始化渲染
+    this.renderInitial();
+
+    // 恢復側邊欄的展開/收縮狀態
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      if (wasExpanded) {
+        sidebar.classList.add('expanded');
+        sidebar.classList.remove('collapsed');
+      } else {
+        sidebar.classList.remove('expanded');
+        sidebar.classList.add('collapsed');
+      }
+      this.isExpanded = wasExpanded;
+    }
+
+    // 更新浮動按鈕和遮罩狀態
+    const floatingToggle = document.getElementById('floating-sidebar-toggle');
+    this.updateFloatingToggleState(floatingToggle);
+    this.updateOverlayState();
+  }
+
+  updateLanguage() {
+    const t = this.translations[this.currentLanguage];
+
+    // 更新所有帶有 data-i18n 屬性的元素
+    const elementsToTranslate = document.querySelectorAll('[data-i18n]');
+    elementsToTranslate.forEach(element => {
+      const key = element.getAttribute('data-i18n');
+      if (t[key]) {
+        element.textContent = t[key];
+      }
+    });
+
+    // 更新語言切換按鈕文字
+    const languageText = document.querySelector('.language-text');
+    if (languageText) {
+      languageText.textContent = this.currentLanguage === 'zh-TW' ? 'EN' : '中文';
+    }
+
+    // 更新 tooltip 屬性
+    const tooltipElements = document.querySelectorAll('[data-tooltip-key]');
+    tooltipElements.forEach(element => {
+      const key = element.getAttribute('data-tooltip-key');
+      if (t[key]) {
+        element.setAttribute('data-tooltip', t[key]);
+      }
+    });
+  }
+
+  getCategoryTranslationKey(categoryValue) {
+    // 根據類別值返回對應的翻譯 key
+    const categoryMap = {
+      '圖片處理': 'categoryImageProcessing',
+      'Image Processing': 'categoryImageProcessing',
+      'Formatter': 'categoryTextProcessing',
+      'Text Processing': 'categoryTextProcessing'
+    };
+    return categoryMap[categoryValue] || 'categoryImageProcessing';
   }
 
   groupByCategory() {
@@ -239,26 +301,35 @@ export class Sidebar {
   }
 
   attachEvents() {
-    const toggle = document.querySelector(".sidebar-toggle");
-    const floatingToggle = document.getElementById("floating-sidebar-toggle");
-    const overlay = document.getElementById("sidebar-overlay");
-    const languageToggle = document.querySelector(".language-toggle");
-    const sidebar = document.getElementById("sidebar");
+    const toggle = document.querySelector('.sidebar-toggle');
+    const floatingToggle = document.getElementById('floating-sidebar-toggle');
+    const overlay = document.getElementById('sidebar-overlay');
+    const languageToggle = document.querySelector('.language-toggle');
+    const sidebar = document.getElementById('sidebar');
+
+    // 防止重複綁定事件監聽器
+    // 檢查是否已經綁定過事件（使用 data attribute 標記）
+    if (sidebar && sidebar.hasAttribute('data-events-attached')) {
+      return;
+    }
+    if (sidebar) {
+      sidebar.setAttribute('data-events-attached', 'true');
+    }
 
     // 處理內部 toggle 按鈕（桌面版）
     if (toggle && sidebar) {
-      toggle.addEventListener("click", () => {
+      toggle.addEventListener('click', () => {
         this.isExpanded = !this.isExpanded;
-        sidebar.classList.toggle("expanded", this.isExpanded);
-        sidebar.classList.toggle("collapsed", !this.isExpanded);
+        sidebar.classList.toggle('expanded', this.isExpanded);
+        sidebar.classList.toggle('collapsed', !this.isExpanded);
       });
     }
 
     // 處理懸浮 toggle 按鈕（平板/手機版）
     if (floatingToggle && sidebar) {
-      floatingToggle.addEventListener("click", () => {
+      floatingToggle.addEventListener('click', () => {
         this.isExpanded = !this.isExpanded;
-        sidebar.classList.toggle("expanded", this.isExpanded);
+        sidebar.classList.toggle('expanded', this.isExpanded);
         this.updateFloatingToggleState(floatingToggle);
         this.updateOverlayState();
       });
@@ -266,10 +337,12 @@ export class Sidebar {
 
     // 處理遮罩點擊
     if (overlay && sidebar) {
-      overlay.addEventListener("click", () => {
-        if (this.isExpanded) {
+      overlay.addEventListener('click', (e) => {
+        // 只有當點擊直接在遮罩上時才關閉側邊欄
+        // 避免點擊側邊欄內的元素時觸發關閉
+        if (e.target === e.currentTarget && this.isExpanded) {
           this.isExpanded = false;
-          sidebar.classList.remove("expanded");
+          sidebar.classList.remove('expanded');
           this.updateFloatingToggleState(floatingToggle);
           this.updateOverlayState();
         }
@@ -277,7 +350,7 @@ export class Sidebar {
     }
 
     if (languageToggle) {
-      languageToggle.addEventListener("click", () => {
+      languageToggle.addEventListener('click', () => {
         this.toggleLanguage();
       });
     }
@@ -286,15 +359,15 @@ export class Sidebar {
     this.handleResponsiveBehavior(sidebar);
 
     // 監聽窗口大小變化
-    window.addEventListener("resize", () => {
+    window.addEventListener('resize', () => {
       this.handleResponsiveBehavior(sidebar);
     });
 
-    const navItems = document.querySelectorAll(".nav-item");
+    const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach((item) => {
-      item.addEventListener("click", () => {
+      item.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
-          sidebar.classList.remove("expanded");
+          sidebar.classList.remove('expanded');
           this.isExpanded = false;
           if (floatingToggle) {
             this.updateFloatingToggleState(floatingToggle);
@@ -306,11 +379,11 @@ export class Sidebar {
   }
 
   handleResponsiveBehavior(sidebar) {
-    const floatingToggle = document.getElementById("floating-sidebar-toggle");
+    const floatingToggle = document.getElementById('floating-sidebar-toggle');
 
     if (window.innerWidth <= 768) {
       // 768px 以下：隱藏 sidebar，顯示懸浮 toggle
-      sidebar.classList.remove("expanded");
+      sidebar.classList.remove('expanded');
       this.isExpanded = false;
       if (floatingToggle) {
         this.updateFloatingToggleState(floatingToggle);
@@ -318,10 +391,10 @@ export class Sidebar {
       this.updateOverlayState();
     } else {
       // 768px 以上：恢復正常桌面行為
-      sidebar.classList.remove("collapsed");
+      sidebar.classList.remove('collapsed');
       this.isExpanded = true;
       if (floatingToggle) {
-        floatingToggle.classList.remove("attached");
+        floatingToggle.classList.remove('attached');
       }
       this.updateOverlayState();
     }
@@ -331,27 +404,27 @@ export class Sidebar {
     if (window.innerWidth <= 768) {
       if (this.isExpanded) {
         // Sidebar 展開時：切換到頁籤模式
-        floatingToggle.classList.add("attached");
+        floatingToggle.classList.add('attached');
       } else {
         // Sidebar 收縮時：回到圓形按鈕模式
-        floatingToggle.classList.remove("attached");
+        floatingToggle.classList.remove('attached');
       }
     }
   }
 
   updateOverlayState() {
-    const overlay = document.getElementById("sidebar-overlay");
+    const overlay = document.getElementById('sidebar-overlay');
     if (overlay && window.innerWidth <= 768) {
       if (this.isExpanded) {
         // Sidebar 展開時：顯示遮罩
-        overlay.classList.add("show");
+        overlay.classList.add('show');
       } else {
         // Sidebar 收縮時：隱藏遮罩
-        overlay.classList.remove("show");
+        overlay.classList.remove('show');
       }
     } else if (overlay) {
       // 非 768px 斷點：確保遮罩隱藏
-      overlay.classList.remove("show");
+      overlay.classList.remove('show');
     }
   }
 
@@ -361,24 +434,22 @@ export class Sidebar {
       this.currentLanguage = window.appLanguage.toggle();
     } else {
       // Fallback for cases where global system isn't available
-      this.currentLanguage = this.currentLanguage === "zh-TW" ? "en" : "zh-TW";
-      localStorage.setItem("preferredLanguage", this.currentLanguage);
+      this.currentLanguage = this.currentLanguage === 'zh-TW' ? 'en' : 'zh-TW';
+      localStorage.setItem('preferredLanguage', this.currentLanguage);
 
       // Trigger global language change event
       window.dispatchEvent(
-        new CustomEvent("languageChanged", {
+        new CustomEvent('languageChanged', {
           detail: { language: this.currentLanguage },
         })
       );
     }
 
-    // Re-render sidebar with new language
+    // 更新工具配置和語言內容，不重新渲染整個DOM
     this.loadToolsConfig().then(() => {
-      this.render();
-      this.attachEvents();
-      // 重新初始化圖標和 tooltips
+      this.updateLanguage();
+      // 重新初始化 tooltips 以使用新的語言
       setTimeout(() => {
-        initializeLucideIcons();
         this.initTooltips();
       }, 0);
     });
@@ -397,11 +468,11 @@ export class Sidebar {
 
   clearTooltips() {
     // 移除舊的事件監聽器標記，防止重複綁定
-    const boundElements = document.querySelectorAll("[data-tooltip-bound]");
-    boundElements.forEach((el) => el.removeAttribute("data-tooltip-bound"));
+    const boundElements = document.querySelectorAll('[data-tooltip-bound]');
+    boundElements.forEach((el) => el.removeAttribute('data-tooltip-bound'));
 
     // 移除所有動態創建的 tooltips
-    const existingTooltips = document.querySelectorAll(".dynamic-tooltip");
+    const existingTooltips = document.querySelectorAll('.dynamic-tooltip');
     existingTooltips.forEach((tooltip) => tooltip.remove());
 
     // 清除當前 tooltip 引用
@@ -411,17 +482,17 @@ export class Sidebar {
   }
 
   initFeatureTooltips() {
-    const featureItems = document.querySelectorAll(".feature-item");
+    const featureItems = document.querySelectorAll('.feature-item');
 
     featureItems.forEach((item) => {
       // 防止重複綁定事件監聽器
-      if (item.hasAttribute("data-tooltip-bound")) return;
+      if (item.hasAttribute('data-tooltip-bound')) return;
 
-      const tooltip = item.querySelector(".tooltip");
+      const tooltip = item.querySelector('.tooltip');
       if (!tooltip) return;
 
       // 標記已綁定，防止重複
-      item.setAttribute("data-tooltip-bound", "feature");
+      item.setAttribute('data-tooltip-bound', 'feature');
 
       // 移除原有的 CSS hover 效果，使用 JavaScript 控制
       const handleMouseEnter = async (e) => {
@@ -429,10 +500,10 @@ export class Sidebar {
           await this.showTooltip(
             e.currentTarget,
             tooltip.textContent,
-            "feature"
+            'feature'
           );
         } catch (error) {
-          console.warn("Tooltip show error:", error);
+          console.warn('Tooltip show error:', error);
         }
       };
 
@@ -440,37 +511,37 @@ export class Sidebar {
         try {
           this.hideTooltip();
         } catch (error) {
-          console.warn("Tooltip hide error:", error);
+          console.warn('Tooltip hide error:', error);
         }
       };
 
-      item.addEventListener("mouseenter", handleMouseEnter);
-      item.addEventListener("mouseleave", handleMouseLeave);
+      item.addEventListener('mouseenter', handleMouseEnter);
+      item.addEventListener('mouseleave', handleMouseLeave);
     });
   }
 
   initNavTooltips() {
-    const navItems = document.querySelectorAll(".nav-item");
+    const navItems = document.querySelectorAll('.nav-item');
 
     navItems.forEach((item) => {
       // 防止重複綁定事件監聽器
-      if (item.hasAttribute("data-tooltip-bound")) return;
+      if (item.hasAttribute('data-tooltip-bound')) return;
 
-      const tooltipText = item.getAttribute("data-tooltip");
+      const tooltipText = item.getAttribute('data-tooltip');
       if (!tooltipText) return;
 
       // 標記已綁定，防止重複
-      item.setAttribute("data-tooltip-bound", "nav");
+      item.setAttribute('data-tooltip-bound', 'nav');
 
       const handleMouseEnter = async (e) => {
         try {
           // 只在收縮狀態顯示導航 tooltips
-          const sidebar = document.getElementById("sidebar");
-          if (sidebar && sidebar.classList.contains("collapsed")) {
-            await this.showTooltip(e.currentTarget, tooltipText, "nav");
+          const sidebar = document.getElementById('sidebar');
+          if (sidebar && sidebar.classList.contains('collapsed')) {
+            await this.showTooltip(e.currentTarget, tooltipText, 'nav');
           }
         } catch (error) {
-          console.warn("Nav tooltip show error:", error);
+          console.warn('Nav tooltip show error:', error);
         }
       };
 
@@ -478,12 +549,12 @@ export class Sidebar {
         try {
           this.hideTooltip();
         } catch (error) {
-          console.warn("Nav tooltip hide error:", error);
+          console.warn('Nav tooltip hide error:', error);
         }
       };
 
-      item.addEventListener("mouseenter", handleMouseEnter);
-      item.addEventListener("mouseleave", handleMouseLeave);
+      item.addEventListener('mouseenter', handleMouseEnter);
+      item.addEventListener('mouseleave', handleMouseLeave);
     });
   }
 
@@ -492,7 +563,7 @@ export class Sidebar {
     this.hideTooltip();
 
     // 創建新的 tooltip
-    const tooltip = document.createElement("div");
+    const tooltip = document.createElement('div');
     tooltip.className = `dynamic-tooltip tooltip-${type}`;
     tooltip.textContent = text;
     document.body.appendChild(tooltip);
@@ -506,34 +577,34 @@ export class Sidebar {
 
     // 設置位置和樣式
     Object.assign(tooltip.style, {
-      position: "fixed",
+      position: 'fixed',
       left: `${position.left}px`,
       top: `${position.top}px`,
-      zIndex: "10000",
-      background: "rgba(0, 0, 0, 0.9)",
-      color: "white",
-      padding: "0.5rem 0.75rem",
-      borderRadius: "6px",
-      fontSize: "0.7rem",
-      whiteSpace: "nowrap",
-      maxWidth: "300px",
-      wordWrap: "break-word",
-      opacity: "0",
-      visibility: "hidden",
-      transition: "all 0.3s ease",
-      pointerEvents: "none",
+      zIndex: '10000',
+      background: 'rgba(0, 0, 0, 0.9)',
+      color: 'white',
+      padding: '0.5rem 0.75rem',
+      borderRadius: '6px',
+      fontSize: '0.7rem',
+      whiteSpace: 'nowrap',
+      maxWidth: '300px',
+      wordWrap: 'break-word',
+      opacity: '0',
+      visibility: 'hidden',
+      transition: 'all 0.3s ease',
+      pointerEvents: 'none',
     });
 
     // 處理長文字換行
     if (text.length > 50) {
-      tooltip.style.whiteSpace = "normal";
-      tooltip.style.maxWidth = "250px";
+      tooltip.style.whiteSpace = 'normal';
+      tooltip.style.maxWidth = '250px';
     }
 
     // 顯示動畫
     requestAnimationFrame(() => {
-      tooltip.style.opacity = "1";
-      tooltip.style.visibility = "visible";
+      tooltip.style.opacity = '1';
+      tooltip.style.visibility = 'visible';
     });
 
     this.currentTooltip = tooltip;
@@ -548,18 +619,18 @@ export class Sidebar {
     // 降級到自定義定位邏輯
     const triggerRect = trigger.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
-    const sidebar = document.getElementById("sidebar");
+    const sidebar = document.getElementById('sidebar');
     const sidebarRect = sidebar.getBoundingClientRect();
 
     let left, top;
 
-    if (type === "nav") {
+    if (type === 'nav') {
       // 導航項目 tooltips 顯示在右側
       left = sidebarRect.right + 10;
       top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
     } else {
       // Feature tooltips
-      const isCollapsed = sidebar.classList.contains("collapsed");
+      const isCollapsed = sidebar.classList.contains('collapsed');
 
       if (isCollapsed) {
         // 收縮狀態：右側顯示
@@ -613,7 +684,7 @@ export class Sidebar {
 
               // 如果 tooltip 太寬，啟用換行
               if (tooltipRect.width > window.innerWidth - 50) {
-                tooltip.style.whiteSpace = "normal";
+                tooltip.style.whiteSpace = 'normal';
                 tooltip.style.maxWidth = `${window.innerWidth - 50}px`;
               }
 
@@ -646,11 +717,11 @@ export class Sidebar {
     const { computePosition, flip, shift, offset, size } = this.floatingUI;
 
     // 根據類型決定預設定位和中介軟體
-    let placement = "right";
+    let placement = 'right';
     let middlewareOptions = [
       offset(25), // 25px 間距
       flip({
-        fallbackPlacements: ["left", "top", "bottom"],
+        fallbackPlacements: ['left', 'top', 'bottom'],
         padding: 25, // 與螢幕邊界的最小距離
       }),
       shift({
@@ -660,7 +731,7 @@ export class Sidebar {
         apply({ availableWidth, availableHeight, elements }) {
           // 如果空間不足，啟用換行
           if (availableWidth < elements.floating.offsetWidth) {
-            elements.floating.style.whiteSpace = "normal";
+            elements.floating.style.whiteSpace = 'normal';
             elements.floating.style.maxWidth = `${Math.max(
               200,
               availableWidth - 10
@@ -671,9 +742,9 @@ export class Sidebar {
     ];
 
     // Nav tooltips 總是顯示在右側，不翻轉到左側
-    if (type === "nav") {
+    if (type === 'nav') {
       middlewareOptions[1] = flip({
-        fallbackPlacements: ["top", "bottom"], // 只允許上下翻轉
+        fallbackPlacements: ['top', 'bottom'], // 只允許上下翻轉
         padding: 25,
       });
     }
@@ -689,7 +760,7 @@ export class Sidebar {
         top: position.y,
       };
     } catch (error) {
-      console.warn("Floating UI positioning failed:", error);
+      console.warn('Floating UI positioning failed:', error);
       // 降級到原有邏輯
       return this.calculateCustomPosition(trigger, tooltip, type);
     }
@@ -699,16 +770,16 @@ export class Sidebar {
     // 保留原有的自定義定位邏輯作為降級方案
     const triggerRect = trigger.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
-    const sidebar = document.getElementById("sidebar");
+    const sidebar = document.getElementById('sidebar');
     const sidebarRect = sidebar.getBoundingClientRect();
 
     let left, top;
 
-    if (type === "nav") {
+    if (type === 'nav') {
       left = sidebarRect.right + 25;
       top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
     } else {
-      const isCollapsed = sidebar.classList.contains("collapsed");
+      const isCollapsed = sidebar.classList.contains('collapsed');
 
       if (isCollapsed) {
         left = sidebarRect.right + 25;
@@ -721,7 +792,7 @@ export class Sidebar {
         } else {
           left = 25;
           if (left + tooltipRect.width > window.innerWidth - 25) {
-            tooltip.style.whiteSpace = "normal";
+            tooltip.style.whiteSpace = 'normal';
             tooltip.style.maxWidth = `${window.innerWidth - 50}px`;
           }
         }
@@ -745,8 +816,8 @@ export class Sidebar {
     try {
       // 立即開始隱藏動畫
       const tooltip = this.currentTooltip;
-      tooltip.style.opacity = "0";
-      tooltip.style.visibility = "hidden";
+      tooltip.style.opacity = '0';
+      tooltip.style.visibility = 'hidden';
 
       // 清除引用，防止重複處理
       this.currentTooltip = null;
@@ -758,21 +829,21 @@ export class Sidebar {
             tooltip.remove();
           }
         } catch (error) {
-          console.warn("Error removing tooltip:", error);
+          console.warn('Error removing tooltip:', error);
         }
       }, 300);
     } catch (error) {
-      console.warn("Error hiding tooltip:", error);
+      console.warn('Error hiding tooltip:', error);
       // 強制清除引用
       this.currentTooltip = null;
     }
   }
 
   addStyles() {
-    const styleId = "sidebar-styles";
+    const styleId = 'sidebar-styles';
     if (document.getElementById(styleId)) return;
 
-    const style = document.createElement("style");
+    const style = document.createElement('style');
     style.id = styleId;
     style.textContent = `
             .sidebar-header {

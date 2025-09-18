@@ -10,7 +10,7 @@ You MUST see [ROLE_DEFINITION.md](./ROLE_DEFINITION.md) for detailed role and be
 
 A collection of developer tools built as a modular single-page web application. Starting with Base64 image decoder and expanding to include various web development utilities. Built with vanilla HTML/CSS/JavaScript for maximum portability, focusing on minimal bundle size through dynamic module loading.
 
-**Version**: 2.1.0 (as of 2025-09-17)
+**Version**: 2.1.0 (as of 2025-09-18)
 **Latest Updates**: Enhanced build system with cross-platform compatibility and streamlined deployment
 
 ### Technical Architecture
@@ -158,6 +158,7 @@ base64Decoder/
 4. **Privacy-First**: All processing client-side, no server communication
 5. **Bundle Size First**: Every feature must justify its byte cost
 6. **Code Reuse**: Extract common patterns to shared modules
+7. **Language Update Separation**: MANDATORY separation of initialization from language updates to preserve state
 
 #### Common Tasks
 
@@ -204,6 +205,63 @@ Each tool MUST follow these guidelines:
 - **Cache strategy**: Service Worker for offline support (optional)
 - **Resource hints**: Preconnect, prefetch for anticipated tools
 
+### Language Update Architecture (MANDATORY)
+
+#### Core Principle
+**NEVER** call `render()` or recreate DOM during language updates. This destroys state, breaks UI components, and creates poor user experience.
+
+#### Required Implementation Pattern
+
+**All components and tools MUST implement this pattern:**
+
+1. **Split rendering methods**:
+   ```javascript
+   renderInitial() {
+     // Create DOM structure with data-i18n attributes
+     this.container.innerHTML = `<h1 data-i18n="title"></h1>`;
+     this.updateLanguage();
+   }
+
+   render() {
+     // Initial render only
+     this.renderInitial();
+   }
+
+   updateLanguage() {
+     // Update text content only, preserve DOM structure
+     const t = this.translations[this.currentLanguage];
+     this.container.querySelectorAll('[data-i18n]').forEach(element => {
+       const key = element.getAttribute('data-i18n');
+       if (t[key]) element.textContent = t[key];
+     });
+   }
+   ```
+
+2. **Language event handling**:
+   ```javascript
+   window.addEventListener("languageChanged", (e) => {
+     this.currentLanguage = e.detail.language;
+     this.updateLanguage(); // NOT render()
+   });
+   ```
+
+3. **Data attribute system**:
+   - Use `data-i18n="key"` for translatable text
+   - Use `data-i18n-title="key"` for title attributes
+   - Use `data-transform="firstLine"` for text transformations
+   - Use `data-suffix=":"` for adding punctuation
+
+#### Benefits
+- ✅ **State Preservation**: Monaco Editors, Web Workers, form data maintained
+- ✅ **Performance**: No DOM recreation, instant language switching
+- ✅ **Memory Efficiency**: No event listener duplication
+- ✅ **User Experience**: Smooth language transitions without interruption
+
+#### Examples
+- **Sidebar Component**: Successfully refactored with `renderInitial()` and `updateLanguage()`
+- **Base64 Decoder Tool**: Implements comprehensive data attribute system
+- **Base64 Encoder Tool**: Preserves Web Worker state during language changes
+
 ### Maintenance Notes
 
 - Single maintainer project
@@ -211,6 +269,7 @@ Each tool MUST follow these guidelines:
 - Modular architecture must be preserved
 - Each tool should be independently deployable
 - Regular size audits and optimization passes
+- **Language update pattern is MANDATORY for all new tools**
 
 ### Module Documentation
 
