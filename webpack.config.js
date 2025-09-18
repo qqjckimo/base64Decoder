@@ -284,7 +284,7 @@ const webpackConfig = {
         ],
       },
       // 核心業務邏輯 - 高強度混淆
-      {
+      isProduction && {
         test: /\.js$/,
         exclude: [
           /node_modules/,
@@ -297,17 +297,17 @@ const webpackConfig = {
           options: {
             compact: true,
             controlFlowFlattening: false,
-            deadCodeInjection: isProduction,
-            debugProtection: isProduction,
-            disableConsoleOutput: isProduction,
+            deadCodeInjection: true,
+            debugProtection: false,
+            disableConsoleOutput: true,
             identifierNamesGenerator: 'mangled-shuffled',
             ignoreImports: true, // 忽略 import 語句
             log: false,
             renameGlobals: false, // 保護 webpack runtime
             selfDefending: false, // 避免效能影響
-            simplify: isProduction,
+            simplify: true,
             splitStrings: false, // 避免增加體積
-            stringArray: isProduction,
+            stringArray: true,
             stringArrayCallsTransform: false,
             stringArrayEncoding: ['base64'],
             stringArrayIndexShift: true,
