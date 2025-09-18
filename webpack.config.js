@@ -1,18 +1,18 @@
-const path = require("path");
-const crypto = require("crypto");
-const webpack = require("webpack");
-const packageJson = require("./package.json");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const path = require('path');
+const crypto = require('crypto');
+const webpack = require('webpack');
+const packageJson = require('./package.json');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const BundleAnalyzerPlugin =
-  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const WebpackObfuscator = require("webpack-obfuscator");
-const portfinder = require("portfinder");
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const WebpackObfuscator = require('webpack-obfuscator');
+const portfinder = require('portfinder');
 
-const isProduction = process.env.NODE_ENV === "production";
-const shouldAnalyze = process.env.ANALYZE === "true";
+const isProduction = process.env.NODE_ENV === 'production';
+const shouldAnalyze = process.env.ANALYZE === 'true';
 
 // Unified asset filename generator to avoid conflicts
 const generateAssetFilename = (pathData) => {
@@ -25,21 +25,21 @@ const generateAssetFilename = (pathData) => {
 
   // Generate path hash (8 chars is enough to avoid conflicts)
   const pathHash = crypto
-    .createHash("md5")
+    .createHash('md5')
     .update(relativePath)
-    .digest("hex")
+    .digest('hex')
     .substring(0, 8);
 
   // Determine subdirectory based on file type
-  let subdir = "";
-  if (ext === ".wasm") {
-    subdir = "wasm/";
-  } else if (ext === ".mjs" || basename.includes(".worker")) {
-    subdir = "workers/";
-  } else if (ext === ".txt") {
-    subdir = "assets/";
+  let subdir = '';
+  if (ext === '.wasm') {
+    subdir = 'wasm/';
+  } else if (ext === '.mjs' || basename.includes('.worker')) {
+    subdir = 'workers/';
+  } else if (ext === '.txt') {
+    subdir = 'assets/';
   } else {
-    subdir = "assets/";
+    subdir = 'assets/';
   }
 
   // Return unified format: [subdir][name]-[pathHash].[contenthash:8][ext]
@@ -58,34 +58,34 @@ const SIZE_LIMITS = {
 
 class BundleSizePlugin {
   apply(compiler) {
-    compiler.hooks.afterEmit.tap("BundleSizePlugin", (compilation) => {
+    compiler.hooks.afterEmit.tap('BundleSizePlugin', (compilation) => {
       // Skip size checks in development mode
       if (!isProduction) {
-        console.log("📦 Skipping bundle size checks in development mode");
+        console.log('📦 Skipping bundle size checks in development mode');
         return;
       }
 
       const assets = compilation.assets;
       const warnings = [];
 
-      console.log("\n📊 Bundle Size Analysis:");
+      console.log('\n📊 Bundle Size Analysis:');
       Object.keys(assets).forEach((filename) => {
         // Skip WASM files from bundle size analysis
         if (
-          (filename.endsWith(".js") || filename.endsWith(".css")) &&
-          !filename.endsWith(".wasm")
+          (filename.endsWith('.js') || filename.endsWith('.css')) &&
+          !filename.endsWith('.wasm')
         ) {
           const size = assets[filename].size();
           console.log(`   ${filename}: ${(size / 1024).toFixed(2)}KB`);
 
-          if (filename.includes("core") && size > SIZE_LIMITS.core) {
+          if (filename.includes('core') && size > SIZE_LIMITS.core) {
             warnings.push(
               `Core bundle (${filename}) exceeds limit: ${(size / 1024).toFixed(
                 2
               )}KB > ${SIZE_LIMITS.core / 1024}KB`
             );
           }
-          if (filename.includes("tool-base64-decoder") && size > 130 * 1024) {
+          if (filename.includes('tool-base64-decoder') && size > 130 * 1024) {
             warnings.push(
               `Base64 Decoder tool (${filename}) exceeds limit: ${(
                 size / 1024
@@ -93,7 +93,7 @@ class BundleSizePlugin {
             );
           }
           if (
-            filename.includes("tool-base64-encoder") &&
+            filename.includes('tool-base64-encoder') &&
             size > SIZE_LIMITS.perTool
           ) {
             warnings.push(
@@ -103,7 +103,7 @@ class BundleSizePlugin {
             );
           }
           if (
-            filename.includes("encoder-worker") &&
+            filename.includes('encoder-worker') &&
             size > 20 * 1024 // Increased limit to account for fflate
           ) {
             warnings.push(
@@ -113,7 +113,7 @@ class BundleSizePlugin {
             );
           }
           if (
-            filename.includes("compressor-worker") &&
+            filename.includes('compressor-worker') &&
             size > 10 * 1024 // Reduced limit after codec extraction
           ) {
             warnings.push(
@@ -123,8 +123,8 @@ class BundleSizePlugin {
             );
           }
           if (
-            filename.includes("tools") &&
-            !filename.includes("tool-") &&
+            filename.includes('tools') &&
+            !filename.includes('tool-') &&
             size > SIZE_LIMITS.common
           ) {
             warnings.push(
@@ -134,8 +134,8 @@ class BundleSizePlugin {
             );
           }
           if (
-            filename.includes("chunks/") &&
-            filename.includes("tool-base64-decoder") &&
+            filename.includes('chunks/') &&
+            filename.includes('tool-base64-decoder') &&
             size > 130 * 1024
           ) {
             warnings.push(
@@ -144,8 +144,8 @@ class BundleSizePlugin {
               )}KB > 130KB`
             );
           } else if (
-            filename.includes("chunks/") &&
-            !filename.includes("tool-base64-decoder") &&
+            filename.includes('chunks/') &&
+            !filename.includes('tool-base64-decoder') &&
             size > SIZE_LIMITS.perTool
           ) {
             warnings.push(
@@ -158,22 +158,22 @@ class BundleSizePlugin {
       });
 
       if (warnings.length > 0) {
-        console.warn("\n⚠️  Bundle Size Warnings:");
+        console.warn('\n⚠️  Bundle Size Warnings:');
         warnings.forEach((w) => console.warn(`   ${w}`));
         // Temporarily disable build failure for testing Worker functionality
         // if (isProduction) {
         //     throw new Error('Bundle size limits exceeded. Build failed.');
         // }
       } else {
-        console.log("✅ All bundles within size limits");
+        console.log('✅ All bundles within size limits');
       }
     });
   }
 }
 
 // Log configuration for debugging
-console.log("🔧 Webpack Configuration:");
-console.log(`   Mode: ${isProduction ? "production" : "development"}`);
+console.log('🔧 Webpack Configuration:');
+console.log(`   Mode: ${isProduction ? 'production' : 'development'}`);
 console.log(`   Analyze: ${shouldAnalyze}`);
 
 // Base port configuration
@@ -181,24 +181,24 @@ const DEFAULT_PORT = 3000;
 portfinder.basePort = DEFAULT_PORT;
 
 const webpackConfig = {
-  mode: isProduction ? "production" : "development",
+  mode: isProduction ? 'production' : 'development',
   entry: {
-    core: "./src/core/app.js",
-    "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
-    "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
+    core: './src/core/app.js',
+    'encoder-worker': './src/tools/base64-encoder/encoder.worker.js',
+    'compressor-worker': './src/tools/base64-encoder/compressor.worker.js',
   },
   output: {
-    path: path.resolve(__dirname, "docs"),
+    path: path.resolve(__dirname, 'docs'),
     filename: (pathData) => {
       return isProduction
-        ? "[name].[contenthash:8].bundle.js"
-        : "[name].bundle.js";
+        ? '[name].[contenthash:8].bundle.js'
+        : '[name].bundle.js';
     },
     chunkFilename: isProduction
-      ? "chunks/[name].[contenthash:8].chunk.js"
-      : "chunks/[name].chunk.js",
-    publicPath: "/",
-    workerPublicPath: "./", // Fix for Web Workers to use self.location instead of document.baseURI
+      ? 'chunks/[name].[contenthash:8].chunk.js'
+      : 'chunks/[name].chunk.js',
+    publicPath: '/',
+    workerPublicPath: './', // Fix for Web Workers to use self.location instead of document.baseURI
     clean: true,
     assetModuleFilename: generateAssetFilename,
     // Standard JS module output for dynamic codec loading.
@@ -209,17 +209,17 @@ const webpackConfig = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
             presets: [
               [
-                "@babel/preset-env",
+                '@babel/preset-env',
                 {
                   targets: {
-                    chrome: "90",
-                    firefox: "88",
-                    safari: "14",
-                    edge: "90",
+                    chrome: '90',
+                    firefox: '88',
+                    safari: '14',
+                    edge: '90',
                   },
                   modules: false,
                   useBuiltIns: false, // No polyfills
@@ -231,12 +231,12 @@ const webpackConfig = {
       },
       {
         test: /\.wasm$/,
-        type: "asset/resource",
+        type: 'asset/resource',
         // Using global assetModuleFilename with generateAssetFilename
       },
       {
         test: /avif_enc_mt\.worker\.mjs$/,
-        type: "asset/resource",
+        type: 'asset/resource',
         // Using global assetModuleFilename with generateAssetFilename
         // Prevent webpack from parsing and injecting runtime deps
         parser: { javascript: { commonjsMagicComments: false } },
@@ -244,15 +244,15 @@ const webpackConfig = {
       {
         test: /\.txt$/,
         resourceQuery: /raw/,
-        type: "asset/resource",
+        type: 'asset/resource',
         // Using global assetModuleFilename with generateAssetFilename
       },
       {
         test: /\.css$/,
         use: [
-          "style-loader",
+          'style-loader',
           {
-            loader: "css-loader",
+            loader: 'css-loader',
             options: {
               sourceMap: !isProduction,
               modules: false,
@@ -260,16 +260,16 @@ const webpackConfig = {
             },
           },
           {
-            loader: "postcss-loader",
+            loader: 'postcss-loader',
             options: {
               postcssOptions: {
                 plugins: [
-                  ["autoprefixer"],
+                  ['autoprefixer'],
                   isProduction && [
-                    "cssnano",
+                    'cssnano',
                     {
                       preset: [
-                        "default",
+                        'default',
                         {
                           discardComments: { removeAll: true },
                           normalizeWhitespace: true,
@@ -291,7 +291,7 @@ const webpackConfig = {
           /\.worker\.mjs$/, // 排除 worker 的 mjs 檔案
           /monaco-editor/, // 排除 Monaco Editor
         ],
-        enforce: "post",
+        enforce: 'post',
         use: {
           loader: WebpackObfuscator.loader,
           options: {
@@ -300,7 +300,7 @@ const webpackConfig = {
             deadCodeInjection: isProduction,
             debugProtection: isProduction,
             disableConsoleOutput: isProduction,
-            identifierNamesGenerator: "mangled-shuffled",
+            identifierNamesGenerator: 'mangled-shuffled',
             ignoreImports: true, // 忽略 import 語句
             log: false,
             renameGlobals: false, // 保護 webpack runtime
@@ -309,14 +309,14 @@ const webpackConfig = {
             splitStrings: false, // 避免增加體積
             stringArray: isProduction,
             stringArrayCallsTransform: false,
-            stringArrayEncoding: ["base64"],
+            stringArrayEncoding: ['base64'],
             stringArrayIndexShift: true,
             stringArrayRotate: true,
             stringArrayShuffle: true,
             stringArrayWrappersCount: 1,
             stringArrayWrappersChainedCalls: true,
             stringArrayWrappersParametersMaxCount: 2,
-            stringArrayWrappersType: "variable",
+            stringArrayWrappersType: 'variable',
             stringArrayThreshold: 1, // 平衡體積和安全性
             unicodeEscapeSequence: false,
           },
@@ -343,10 +343,10 @@ const webpackConfig = {
  */`,
     }),
     new HtmlWebpackPlugin({
-      template: "./index.html",
+      template: './index.html',
       templateParameters: {
         _APP_VERSION_: packageJson.version,
-        _BUILD_DATE_: new Date().toISOString().split("T")[0],
+        _BUILD_DATE_: new Date().toISOString().split('T')[0],
       },
       minify: isProduction
         ? {
@@ -369,8 +369,8 @@ const webpackConfig = {
             removeOptionalTags: false,
           }
         : false,
-      chunks: ["core"],
-      inject: "body",
+      chunks: ['core'],
+      inject: 'body',
     }),
     // new WebpackObfuscator({
     //   stringArray: isProduction,
@@ -388,62 +388,65 @@ const webpackConfig = {
     //   splitStrings: false,
     //   unicodeEscapeSequence: false,
     // }),
-    // Copy static assets in production only
-    isProduction &&
-      new CopyWebpackPlugin({
-        patterns: [
-          {
-            from: "manifest.json",
-            to: "manifest.json",
+    // Copy static assets
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'manifest.json',
+          to: 'manifest.json',
+        },
+        {
+          from: 'og-image.png',
+          to: 'og-image.png',
+        },
+        {
+          from: 'twitter-card.png',
+          to: 'twitter-card.png',
+        },
+        {
+          from: 'icon-*.png',
+          to: '[name][ext]',
+        },
+        {
+          from: 'public/sitemap.xml',
+          to: 'sitemap.xml',
+          transform(content) {
+            // Update all lastmod dates to current build date
+            const buildDate = new Date().toISOString().split('T')[0];
+            return content
+              .toString()
+              .replace(
+                /<lastmod>[\d-]+<\/lastmod>/g,
+                `<lastmod>${buildDate}</lastmod>`
+              );
           },
-          {
-            from: "og-image.png",
-            to: "og-image.png",
-          },
-          {
-            from: "twitter-card.png",
-            to: "twitter-card.png",
-          },
-          {
-            from: "icon-*.png",
-            to: "[name][ext]",
-          },
-          {
-            from: "public/sitemap.xml",
-            to: "sitemap.xml",
-            transform(content) {
-              // Update all lastmod dates to current build date
-              const buildDate = new Date().toISOString().split("T")[0];
-              return content.toString()
-                .replace(/<lastmod>[\d-]+<\/lastmod>/g, `<lastmod>${buildDate}</lastmod>`);
-            },
-          },
-          {
-            from: "public/robots.txt",
-            to: "robots.txt",
-          },
-        ],
-      }),
+        },
+        {
+          from: 'public/robots.txt',
+          to: 'robots.txt',
+        },
+      ],
+    }),
     isProduction &&
       new CompressionPlugin({
         test: /\.(js|css|html)$/,
-        algorithm: "gzip",
+        algorithm: 'gzip',
         threshold: 1024,
         minRatio: 0.8,
       }),
     isProduction &&
       new CompressionPlugin({
         test: /\.(js|css|html)$/,
-        algorithm: "brotliCompress",
-        filename: "[path][base].br",
+        algorithm: 'brotliCompress',
+        filename: '[path][base].br',
         threshold: 1024,
         minRatio: 0.8,
       }),
     isProduction && new BundleSizePlugin(),
     shouldAnalyze &&
       new BundleAnalyzerPlugin({
-        analyzerMode: "static",
-        reportFilename: "bundle-report.html",
+        analyzerMode: 'static',
+        reportFilename: 'bundle-report.html',
         openAnalyzer: true,
       }),
   ].filter(Boolean),
@@ -490,7 +493,7 @@ const webpackConfig = {
       chunks: (chunk) => {
         // Don't split worker chunks and codec chunks
         return (
-          !chunk.name?.includes("-worker") && !chunk.name?.includes("codecs/")
+          !chunk.name?.includes('-worker') && !chunk.name?.includes('codecs/')
         );
       },
       maxAsyncRequests: 30,
@@ -498,33 +501,33 @@ const webpackConfig = {
       cacheGroups: {
         core: {
           test: /[\\/]src[\\/]core[\\/]/,
-          name: "core",
+          name: 'core',
           priority: 30,
           enforce: true,
         },
-        "tool-base64-decoder": {
+        'tool-base64-decoder': {
           test: /[\\/]src[\\/]tools[\\/]base64-decoder[\\/]/,
-          name: "tool-base64-decoder",
+          name: 'tool-base64-decoder',
           priority: 25,
           enforce: true,
-          chunks: "all",
+          chunks: 'all',
         },
-        "tool-base64-encoder": {
+        'tool-base64-encoder': {
           test: /[\\/]src[\\/]tools[\\/]base64-encoder[\\/](?!.*\.worker\.js$)/,
-          name: "tool-base64-encoder",
+          name: 'tool-base64-encoder',
           priority: 25,
           enforce: true,
-          chunks: (chunk) => chunk.name !== "compressor-worker",
+          chunks: (chunk) => chunk.name !== 'compressor-worker',
         },
         tools: {
           test: /[\\/]src[\\/]tools[\\/](?!.*\.worker\.js$)/,
-          name: "tools",
+          name: 'tools',
           priority: 20,
           enforce: false,
         },
         utils: {
           test: /[\\/]src[\\/]utils[\\/]/,
-          name: "utils",
+          name: 'utils',
           priority: 10,
           minSize: 1024,
         },
@@ -534,16 +537,16 @@ const webpackConfig = {
       },
     },
     runtimeChunk: false, // Keep runtime inline to reduce requests
-    moduleIds: "deterministic",
+    moduleIds: 'deterministic',
   },
   resolve: {
-    extensions: [".js", ".json", ".css"],
+    extensions: ['.js', '.json', '.css'],
     alias: {
-      "@": path.resolve(__dirname, "src"),
-      "@core": path.resolve(__dirname, "src/core"),
-      "@tools": path.resolve(__dirname, "src/tools"),
-      "@components": path.resolve(__dirname, "src/components"),
-      "@utils": path.resolve(__dirname, "src/utils"),
+      '@': path.resolve(__dirname, 'src'),
+      '@core': path.resolve(__dirname, 'src/core'),
+      '@tools': path.resolve(__dirname, 'src/tools'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
     },
     // Fix ESM module resolution for packages like @jsquash/oxipng
     byDependency: {
@@ -564,9 +567,9 @@ const webpackConfig = {
     },
     // Additional configuration to handle strict ESM resolution
     extensionAlias: {
-      ".js": [".js", ".ts", ".mjs"],
+      '.js': ['.js', '.ts', '.mjs'],
     },
-    modules: ["node_modules"],
+    modules: ['node_modules'],
   },
   devServer: {
     static: false,
@@ -577,7 +580,7 @@ const webpackConfig = {
     historyApiFallback: true,
     onListening: function (devServer) {
       if (!devServer) {
-        throw new Error("webpack-dev-server is not defined");
+        throw new Error('webpack-dev-server is not defined');
       }
       const port = devServer.server.address().port;
       console.log(`\n🚀 Dev server running at: http://localhost:${port}\n`);
@@ -590,11 +593,11 @@ const webpackConfig = {
     assetFilter: (assetFilename) => {
       // Skip size checks for WASM files and source maps
       return (
-        !assetFilename.endsWith(".map") && !assetFilename.endsWith(".wasm")
+        !assetFilename.endsWith('.map') && !assetFilename.endsWith('.wasm')
       );
     },
   },
-  devtool: isProduction ? false : "eval-source-map",
+  devtool: isProduction ? false : 'eval-source-map',
   stats: {
     assets: true,
     chunks: true,
@@ -611,10 +614,10 @@ const webpackConfig = {
 // Worker-specific configuration
 const workerConfig = {
   ...webpackConfig,
-  target: "webworker",
+  target: 'webworker',
   entry: {
-    "encoder-worker": "./src/tools/base64-encoder/encoder.worker.js",
-    "compressor-worker": "./src/tools/base64-encoder/compressor.worker.js",
+    'encoder-worker': './src/tools/base64-encoder/encoder.worker.js',
+    'compressor-worker': './src/tools/base64-encoder/compressor.worker.js',
   },
   output: {
     ...webpackConfig.output,
@@ -632,7 +635,7 @@ const workerConfig = {
     splitChunks: {
       chunks: (chunk) => {
         // Allow splitting for worker chunks
-        return !chunk.name?.includes("codecs/");
+        return !chunk.name?.includes('codecs/');
       },
       cacheGroups: {
         // Only keep essential cache groups for workers
@@ -647,15 +650,15 @@ const workerConfig = {
 const mainConfig = {
   ...webpackConfig,
   entry: {
-    core: "./src/core/app.js",
+    core: './src/core/app.js',
   },
 };
 
 // Export configuration with port finding for dev server
 module.exports = (env, argv) => {
-  const mode = argv.mode || "development";
+  const mode = argv.mode || 'development';
 
-  if (mode === "development") {
+  if (mode === 'development') {
     return portfinder
       .getPortPromise({
         port: DEFAULT_PORT,
@@ -672,7 +675,7 @@ module.exports = (env, argv) => {
         return [mainConfig, workerConfig];
       })
       .catch((err) => {
-        console.error("Could not find an available port:", err);
+        console.error('Could not find an available port:', err);
         return [mainConfig, workerConfig];
       });
   }
