@@ -1,0 +1,132 @@
+{
+  "id": "xml-formatter",
+  "name": "XML 格式化工具",
+  "nameEn": "XML Formatter",
+  "description": "專業的 XML 格式化和驗證工具，支援語法高亮、格式化、壓縮和驗證功能",
+  "descriptionEn": "Professional XML formatter and validator with syntax highlighting, formatting, compression and validation features",
+  "category": "文字處理",
+  "categoryEn": "Text Processing",
+  "icon": "📄",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "license": "MIT",
+  "repository": "https://github.com/JasonChenCH/base64Decoder",
+
+  "technical": {
+    "estimatedSize": "22KB",
+    "actualSize": null,
+    "preload": false,
+    "requiresWorker": false,
+    "requiresMonaco": true,
+    "supportedFormats": ["xml", "xsd", "xsl", "xslt", "svg"],
+    "maxFileSize": "5MB",
+    "browserRequirements": {
+      "chrome": "90",
+      "firefox": "88",
+      "safari": "14",
+      "edge": "90"
+    }
+  },
+
+  "keywords": [
+    "xml",
+    "formatter",
+    "beautifier",
+    "validator",
+    "minifier",
+    "compactor",
+    "syntax-highlighting",
+    "monaco-editor",
+    "dom-parser",
+    "text-processing"
+  ],
+
+  "features": [
+    "XML 語法高亮和智能提示",
+    "一鍵格式化和美化 XML",
+    "XML 壓縮和最小化",
+    "即時 XML 語法驗證",
+    "字元統計和狀態顯示",
+    "鍵盤快捷鍵支援",
+    "複製到剪貼簿功能",
+    "Monaco Editor 整合",
+    "響應式設計",
+    "多語言支援 (繁中/英文)"
+  ],
+
+  "featuresEn": [
+    "XML syntax highlighting and IntelliSense",
+    "One-click XML formatting and beautification",
+    "XML compression and minification",
+    "Real-time XML syntax validation",
+    "Character count and status display",
+    "Keyboard shortcuts support",
+    "Copy to clipboard functionality",
+    "Monaco Editor integration",
+    "Responsive design",
+    "Multi-language support (Traditional Chinese/English)"
+  ],
+
+  "dependencies": {
+    "internal": ["monacoLoader", "Icon"],
+    "external": {
+      "cdnLibraries": [],
+      "npmPackages": []
+    }
+  },
+
+  "performance": {
+    "loadTime": "<500ms",
+    "memoryUsage": "<30MB",
+    "cpuIntensive": false
+  },
+
+  "analytics": {
+    "trackingEnabled": true,
+    "events": [
+      "tool-loaded",
+      "xml-formatted",
+      "xml-compacted",
+      "xml-validated",
+      "content-copied",
+      "editor-cleared",
+      "language-switched"
+    ]
+  },
+
+  "shortcuts": {
+    "format": "Ctrl+S",
+    "compact": "Ctrl+Shift+S",
+    "copy": "Ctrl+C",
+    "clear": "Ctrl+K"
+  },
+
+  "validation": {
+    "xmlStandards": ["XML 1.0", "XML 1.1"],
+    "encoding": ["UTF-8", "UTF-16", "ISO-8859-1"],
+    "maxDepth": 100,
+    "maxAttributes": 1000
+  },
+
+  "formatting": {
+    "indentation": "2 spaces",
+    "preserveWhitespace": false,
+    "sortAttributes": false,
+    "wrapAttributes": false
+  },
+
+  "accessibility": {
+    "keyboardNavigation": true,
+    "screenReaderSupport": true,
+    "highContrast": true,
+    "focusIndicators": true
+  },
+
+  "seo": {
+    "metaTitle": "免費線上 XML 格式化工具 | 語法驗證與美化 | Developer Tools",
+    "metaTitleEn": "Free Online XML Formatter Tool | Syntax Validation & Beautifier | Developer Tools",
+    "metaDescription": "專業的線上 XML 格式化工具，支援語法高亮、即時驗證、格式美化、壓縮最小化等功能。完全免費，無需註冊，保護隱私。",
+    "metaDescriptionEn": "Professional online XML formatter tool with syntax highlighting, real-time validation, beautification, and minification. Completely free, no registration required, privacy protected.",
+    "keywords": "XML formatter, XML beautifier, XML validator, XML minifier, 格式化工具, 語法驗證"
+  }
+}

@@ -1157,6 +1157,242 @@ optimization: {
 
 ---
 
+## Phase 6.5: Sidebar Navigation Integration (Critical for Visibility)
+
+### 6.5.1 **REQUIRED**: Tool Registration in Sidebar
+
+**❌ COMMON ISSUE**: Tools build successfully but don't appear in sidebar navigation.
+
+The sidebar component maintains a hardcoded list of tools. **Every new tool MUST be manually added** to the sidebar configuration.
+
+#### Step 1: Add Translation Keys
+
+**File**: `src/components/sidebar/sidebar.js`
+
+**Location**: Lines ~11-46 in translations object
+
+```javascript
+// Traditional Chinese translations (zh-TW section)
+'zh-TW': {
+  // ... existing translations ...
+  base64EncoderName: '圖片轉 Base64 工具',
+  pngToIcoName: 'PNG 製作 ICO 圖示',
+  // ➕ ADD YOUR TOOL HERE
+  yourToolName: '你的工具中文名稱',
+  jsonFormatterName: 'JSON 格式化工具',
+  // ... rest of translations ...
+},
+
+// English translations (en section)
+en: {
+  // ... existing translations ...
+  base64EncoderName: 'Image to Base64 Tool',
+  pngToIcoName: 'PNG to ICO Creator',
+  // ➕ ADD YOUR TOOL HERE
+  yourToolName: 'Your Tool English Name',
+  jsonFormatterName: 'JSON Formatter',
+  // ... rest of translations ...
+}
+```
+
+#### Step 2: Register Tool in loadToolsConfig()
+
+**File**: `src/components/sidebar/sidebar.js`
+
+**Location**: Lines ~84-113 in `loadToolsConfig()` method
+
+```javascript
+async loadToolsConfig() {
+  const t = this.translations[this.currentLanguage];
+  this.tools = [
+    // ... existing tools ...
+    {
+      id: 'png-to-ico',
+      name: t.pngToIcoName,
+      translationKey: 'pngToIcoName',
+      icon: createIcon('palette', 20, 'tool-icon'),
+      category: t.categoryImageProcessing,
+    },
+    // ➕ ADD YOUR TOOL HERE
+    {
+      id: 'your-tool-id',                    // Must match tool directory name
+      name: t.yourToolName,                  // Reference to translation key
+      translationKey: 'yourToolName',        // Translation key for language switching
+      icon: createIcon('iconName', 20, 'tool-icon'),  // Choose appropriate icon
+      category: t.categoryImageProcessing,   // Choose appropriate category
+    },
+    {
+      id: 'json-formatter',
+      // ... rest of tools ...
+    }
+  ];
+}
+```
+
+#### Step 3: Icon Selection Guidelines
+
+Choose an appropriate Lucide icon for your tool:
+
+| Tool Type | Recommended Icons | Examples |
+|-----------|------------------|----------|
+| **Image Processing** | `image`, `camera`, `palette`, `layers` | Base64 tools, PNG to ICO |
+| **File Analysis** | `search`, `file-search`, `scan-line`, `zap` | ICO Analyzer, File Inspector |
+| **Text Processing** | `file-text`, `type`, `edit`, `code` | JSON Formatter, XML Editor |
+| **Conversion Tools** | `shuffle`, `repeat`, `arrow-right-left` | Format converters |
+| **Utilities** | `tool`, `settings`, `wrench`, `cog` | General utilities |
+
+**Icon Usage Pattern**:
+```javascript
+icon: createIcon('iconName', 20, 'tool-icon')
+```
+
+#### Step 4: Category Assignment
+
+Assign your tool to the appropriate category:
+
+| Category (Chinese) | Category (English) | Variable Reference |
+|-------------------|-------------------|-------------------|
+| `圖片處理` | `Image Processing` | `t.categoryImageProcessing` |
+| `Formatter` | `Text Processing` | `t.categoryTextProcessing` |
+
+**Adding New Categories** (if needed):
+1. Add category to both language sections in translations
+2. Add category translation key mapping in `getCategoryTranslationKey()` method
+
+#### Step 5: Router Configuration (CRITICAL for Navigation)
+**❌ COMMON ISSUE**: Tool appears in sidebar but clicking redirects to default tool.
+The core router maintains a whitelist of valid tools. **Every new tool MUST be added** to the router's validTools array.
+
+**File**: `src/core/router.js`
+**Location**: Line ~6 in constructor
+
+```javascript
+constructor() {
+    this.routes = new Map();
+    this.currentRoute = null;
+    this.defaultRoute = 'home';
+    this.validTools = [
+        'base64-decoder',
+        'base64-encoder',
+        'png-to-ico',
+        'json-formatter',
+        // ➕ ADD YOUR TOOL HERE
+        'your-tool-id'              // Must match tool directory name exactly
+    ];
+    this.init();
+}
+```
+
+**CRITICAL**: The tool ID must match:
+- Sidebar registration: `id: 'your-tool-id'`
+- Router validation: `'your-tool-id'`
+- Directory name: `src/tools/your-tool-id/`
+- URL route: `#tool/your-tool-id`
+
+**Security Purpose**: This whitelist prevents loading of non-existent or malicious tools by validating tool names before routing.
+
+### 6.5.2 Integration Verification Checklist
+
+After adding your tool to the sidebar:
+
+- [ ] **Build Success**: Tool compiles without errors
+- [ ] **Sidebar Appearance**: Tool appears in appropriate category
+- [ ] **Translation Keys**: Both Chinese and English names display correctly
+- [ ] **Language Switching**: Tool name updates when toggling language
+- [ ] **Navigation**: Clicking tool loads correctly
+- [ ] **Icon Display**: Tool icon renders properly
+- [ ] **Category Grouping**: Tool appears in correct category section
+
+### 6.5.3 Common Issues and Solutions
+
+#### Issue: Tool not appearing in sidebar
+```javascript
+// ❌ Problem: Forgot to add translation keys
+// ✅ Solution: Add keys to BOTH language sections
+```
+
+#### Issue: Tool shows undefined name
+```javascript
+// ❌ Problem: Translation key mismatch
+{
+  name: t.myToolName,           // Translation key doesn't exist
+  translationKey: 'myToolName', // Key not defined in translations
+}
+
+// ✅ Solution: Ensure key exists in translations
+'zh-TW': {
+  myToolName: '我的工具',
+},
+en: {
+  myToolName: 'My Tool',
+}
+```
+
+#### Issue: Tool navigation fails
+**Most Common Cause**: Tool not added to router's validTools array
+```javascript
+// ❌ Problem: Missing from router configuration
+// User clicks tool → redirects to default tool (base64-decoder)
+// ✅ Solution: Add tool to router.js validTools array
+this.validTools = [
+  'base64-decoder',
+  'base64-encoder',
+  'png-to-ico',
+  'json-formatter',
+  'your-tool-id'        // ➕ ADD YOUR TOOL HERE
+];
+```
+
+**Secondary Cause**: ID mismatch with directory
+```javascript
+// ❌ Problem: ID mismatch with directory
+{
+  id: 'my-tool',               // Sidebar registration
+}
+// But directory is: src/tools/myTool/
+
+// ✅ Solution: Ensure ID matches directory name exactly
+{
+  id: 'myTool',                // Must match src/tools/myTool/
+}
+```
+
+#### Issue: Icon not displaying
+```javascript
+// ❌ Problem: Invalid icon name
+icon: createIcon('invalid-icon', 20, 'tool-icon'),
+
+// ✅ Solution: Use valid Lucide icon names
+icon: createIcon('search', 20, 'tool-icon'),
+```
+
+### 6.5.4 Testing Sidebar Integration
+
+```bash
+# 1. Start development server
+npm run dev
+
+# 2. Check browser console for errors
+# 3. Verify tool appears in sidebar
+# 4. Test navigation by clicking tool
+# 5. Test language switching (🌐 button)
+# 6. Verify tool loads correctly
+```
+
+### 6.5.5 **Why This Step is Critical**
+
+**The sidebar integration is MANDATORY for tool visibility**:
+
+1. **No automatic discovery**: Tools are not automatically detected
+2. **Hardcoded configuration**: Sidebar uses a static tool list
+3. **User navigation**: Users find tools through sidebar navigation
+4. **Professional appearance**: Missing tools appear as incomplete integration
+5. **Language support**: Translation keys enable bilingual interface
+
+**Remember**: A perfectly built tool that's missing from the sidebar is effectively invisible to users!
+
+---
+
 ## Phase 7: Testing & Performance Validation (Testing & Performance Phase)
 
 ### 7.1 Function Testing Checklist

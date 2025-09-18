@@ -3,7 +3,7 @@ export class Router {
         this.routes = new Map();
         this.currentRoute = null;
         this.defaultRoute = 'home';
-        this.validTools = ['base64-decoder', 'base64-encoder', 'png-to-ico', 'json-formatter']; // List of valid tools
+        this.validTools = ['base64-decoder', 'base64-encoder', 'png-to-ico', 'json-formatter', 'ico-analyzer']; // List of valid tools
         this.init();
     }
 

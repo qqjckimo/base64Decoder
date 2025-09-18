@@ -1,0 +1,72 @@
+{
+  "id": "ico-analyzer",
+  "name": "ICO 檔案分析工具",
+  "nameEn": "ICO File Analyzer",
+  "description": "深度分析 ICO 圖標檔案的內部結構，支援 PNG/BMP 格式檢測和詳細資訊顯示",
+  "descriptionEn": "Deep analysis of ICO icon file internal structure with PNG/BMP format detection and detailed information display",
+  "category": "圖片處理",
+  "categoryEn": "Image Processing",
+  "icon": "🔍",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "license": "MIT",
+  "repository": "https://github.com/JasonChenCH/base64Decoder",
+
+  "technical": {
+    "estimatedSize": "25KB",
+    "actualSize": null,
+    "preload": false,
+    "requiresWorker": false,
+    "requiresMonaco": false,
+    "supportedFormats": ["ico", "image/x-icon"],
+    "maxFileSize": "10MB",
+    "browserRequirements": {
+      "chrome": "90",
+      "firefox": "88",
+      "safari": "14",
+      "edge": "90"
+    }
+  },
+
+  "keywords": [
+    "ico",
+    "icon",
+    "analyzer",
+    "png",
+    "bmp",
+    "format",
+    "binary",
+    "hex",
+    "analysis"
+  ],
+
+  "features": [
+    "ICO 檔案格式驗證和解析",
+    "個別圖片擷取和預覽",
+    "PNG vs BMP 格式檢測",
+    "檔案結構分析",
+    "HEX 二進制資料檢視器",
+    "多圖片 ICO 支援",
+    "拖放檔案上傳",
+    "詳細圖片資訊顯示"
+  ],
+
+  "dependencies": {
+    "internal": [],
+    "external": {
+      "cdnLibraries": [],
+      "npmPackages": []
+    }
+  },
+
+  "performance": {
+    "loadTime": "<300ms",
+    "memoryUsage": "<30MB",
+    "cpuIntensive": false
+  },
+
+  "analytics": {
+    "trackingEnabled": true,
+    "events": ["tool-loaded", "file-analyzed", "format-detected", "image-extracted"]
+  }
+}

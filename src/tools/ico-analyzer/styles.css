@@ -1,0 +1,387 @@
+/* ICO Analyzer Tool Styles */
+.ico-analyzer-tool {
+  /* Color system */
+  --primary: var(--app-primary, #3494e6);
+  --secondary: var(--app-secondary, #ec6ead);
+  --bg-primary: var(--app-bg-primary, #ffffff);
+  --bg-secondary: var(--app-bg-secondary, #f8f9fa);
+  --text-primary: var(--app-text-primary, #333);
+  --text-secondary: var(--app-text-secondary, #666);
+  --border-color: var(--app-border-color, #e0e0e0);
+  --error-color: var(--app-error-color, #c33);
+  --success-color: var(--app-success-color, #155724);
+
+  /* Spacing system */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border radius system */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+
+  /* Shadow system */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+
+  /* Animation duration */
+  --animation-duration: 0.3s;
+}
+
+.ico-analyzer-tool .container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--spacing-xl);
+}
+
+.ico-analyzer-tool h1 {
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.ico-analyzer-tool .upload-area {
+  border: 3px dashed var(--primary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
+  transition: all var(--animation-duration) ease;
+  cursor: pointer;
+  background: #f0f7ff;
+  position: relative;
+}
+
+.ico-analyzer-tool .upload-area.dragover {
+  background: #e1f0ff;
+  border-color: var(--secondary);
+  transform: scale(1.02);
+}
+
+.ico-analyzer-tool .upload-area:hover {
+  background: #e1f0ff;
+}
+
+.ico-analyzer-tool .upload-icon {
+  font-size: 48px;
+  color: var(--primary);
+  margin-bottom: var(--spacing-md);
+  display: block;
+}
+
+.ico-analyzer-tool .upload-text {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+}
+
+.ico-analyzer-tool .upload-hint {
+  color: #999;
+  font-size: 14px;
+}
+
+.ico-analyzer-tool input[type="file"] {
+  display: none;
+}
+
+.ico-analyzer-tool .results-section {
+  margin-top: var(--spacing-lg);
+  display: none;
+}
+
+.ico-analyzer-tool .results-section.active {
+  display: block;
+  animation: fadeIn var(--animation-duration) ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ico-analyzer-tool .file-info {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.ico-analyzer-tool .info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ico-analyzer-tool .info-row:last-child {
+  border-bottom: none;
+}
+
+.ico-analyzer-tool .info-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ico-analyzer-tool .info-value {
+  color: var(--text-primary);
+}
+
+.ico-analyzer-tool .images-container {
+  margin-top: var(--spacing-lg);
+}
+
+.ico-analyzer-tool .section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ico-analyzer-tool .image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.ico-analyzer-tool .image-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+  transition: all var(--animation-duration) ease;
+}
+
+.ico-analyzer-tool .image-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.ico-analyzer-tool .image-preview {
+  width: 100%;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-xs);
+}
+
+.ico-analyzer-tool .image-details {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: left;
+}
+
+.ico-analyzer-tool .image-detail {
+  margin: var(--spacing-xs) 0;
+}
+
+.ico-analyzer-tool .format-badge {
+  display: inline-block;
+  padding: 3px var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: var(--spacing-xs);
+}
+
+.ico-analyzer-tool .format-png {
+  background: #d4edda;
+  color: var(--success-color);
+}
+
+.ico-analyzer-tool .format-bmp {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.ico-analyzer-tool .reset-btn {
+  margin-top: var(--spacing-lg);
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--animation-duration) ease;
+}
+
+.ico-analyzer-tool .reset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(52, 148, 230, 0.4);
+}
+
+.ico-analyzer-tool .reset-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ico-analyzer-tool .error-message {
+  background: #fee;
+  color: var(--error-color);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-md);
+  display: none;
+  border: 1px solid #f5c6cb;
+}
+
+.ico-analyzer-tool .error-message.active {
+  display: block;
+}
+
+.ico-analyzer-tool .hex-view {
+  background: #1e1e1e;
+  color: #00ff00;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  margin-top: var(--spacing-sm);
+  border: 1px solid #333;
+}
+
+.ico-analyzer-tool .hex-row {
+  margin: 2px 0;
+  white-space: nowrap;
+}
+
+.ico-analyzer-tool .hex-offset {
+  color: #888;
+  margin-right: var(--spacing-sm);
+}
+
+.ico-analyzer-tool .hex-bytes {
+  color: #00ff00;
+  margin-right: var(--spacing-sm);
+}
+
+.ico-analyzer-tool .hex-ascii {
+  color: #ffff00;
+}
+
+.ico-analyzer-tool .hex-details {
+  margin-top: var(--spacing-lg);
+}
+
+.ico-analyzer-tool .hex-details summary {
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  outline: none;
+  user-select: none;
+  font-weight: 500;
+}
+
+.ico-analyzer-tool .hex-details summary:hover {
+  background: var(--border-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ico-analyzer-tool .container {
+    margin: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+  }
+
+  .ico-analyzer-tool h1 {
+    font-size: 24px;
+  }
+
+  .ico-analyzer-tool .upload-area {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .ico-analyzer-tool .upload-icon {
+    font-size: 36px;
+  }
+
+  .ico-analyzer-tool .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .ico-analyzer-tool .info-row {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .ico-analyzer-tool .info-label,
+  .ico-analyzer-tool .info-value {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .ico-analyzer-tool .container {
+    margin: var(--spacing-xs);
+    padding: var(--spacing-md);
+  }
+
+  .ico-analyzer-tool h1 {
+    font-size: 20px;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .ico-analyzer-tool .upload-area {
+    padding: var(--spacing-md);
+  }
+
+  .ico-analyzer-tool .upload-icon {
+    font-size: 32px;
+  }
+
+  .ico-analyzer-tool .upload-text {
+    font-size: 14px;
+  }
+
+  .ico-analyzer-tool .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .ico-analyzer-tool .image-preview {
+    height: 80px;
+  }
+
+  .ico-analyzer-tool .hex-view {
+    font-size: 10px;
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Animation for reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+  .ico-analyzer-tool * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

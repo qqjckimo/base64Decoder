@@ -143,6 +143,16 @@ class BundleSizePlugin {
                 2
               )}KB > 130KB`
             );
+          }
+          if (
+            filename.includes('tool-xml-formatter') &&
+            size > 30 * 1024 // 30KB limit for XML formatter
+          ) {
+            warnings.push(
+              `XML Formatter tool (${filename}) exceeds limit: ${(
+                size / 1024
+              ).toFixed(2)}KB > 30KB`
+            );
           } else if (
             filename.includes('chunks/') &&
             !filename.includes('tool-base64-decoder') &&
@@ -518,6 +528,13 @@ const webpackConfig = {
           priority: 25,
           enforce: true,
           chunks: (chunk) => chunk.name !== 'compressor-worker',
+        },
+        'tool-xml-formatter': {
+          test: /[\\/]src[\\/]tools[\\/]xmlFormatter[\\/]/,
+          name: 'tool-xml-formatter',
+          priority: 25,
+          enforce: true,
+          chunks: 'all',
         },
         tools: {
           test: /[\\/]src[\\/]tools[\\/](?!.*\.worker\.js$)/,
