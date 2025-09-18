@@ -104,7 +104,7 @@
   border: none;
   outline: none;
   padding: var(--spacing-md, 16px);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 14px;
   line-height: 1.5;
   resize: none;
@@ -131,7 +131,7 @@
 }
 
 .status-bar #charCount {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
 }
 
 /* Status Messages */
@@ -204,38 +204,6 @@
   }
 }
 
-/* Dark Theme Support */
-@media (prefers-color-scheme: dark) {
-  .xml-formatter-tool {
-    --bg-primary: #1e1e1e;
-    --bg-secondary: #2d2d30;
-    --text-primary: #cccccc;
-    --text-secondary: #969696;
-    --border-color: #3e3e42;
-    --primary: #0e639c;
-    --primary-dark: #1177bb;
-    --error: #f48771;
-    --success: #89d185;
-  }
-
-  .editor-container textarea {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-  }
-}
-
-/* High Contrast Support */
-@media (prefers-contrast: high) {
-  .xml-formatter-tool .btn {
-    border-width: 2px;
-  }
-
-  .tool-toolbar,
-  .status-bar {
-    border-width: 2px;
-  }
-}
-
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .xml-formatter-tool .btn {
@@ -272,8 +240,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Tool Integration Styles */
