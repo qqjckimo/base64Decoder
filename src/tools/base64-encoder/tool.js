@@ -359,7 +359,12 @@ export default class Base64EncoderTool {
       }
       if (selectBtn) {
         selectBtn.disabled = true;
-        selectBtn.textContent = '載入中...';
+        selectBtn.innerHTML = `
+          <div class="btn-loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">載入中...</div>
+          </div>
+        `;
       }
       if (fileInput) {
         fileInput.disabled = true;
@@ -404,12 +409,12 @@ export default class Base64EncoderTool {
         <!-- 上傳區域 -->
         <div class="upload-section" id="uploadArea">
 
-        <!-- TODO: update to the style aligned with other tools -->
+        <!-- TODO: update to the style aligned with other tools 
         <div class="editor-loading">
           <div class="loading-spinner"></div>
           <div class="loading-text">${t.loadingEditor}</div>
         </div>
-
+        -->
           <div class="upload-icon">📷</div>
           <div class="upload-text">${t.uploadText}</div>
           <div style="color: #999; font-size: 0.9em; margin-bottom: 15px;">${
