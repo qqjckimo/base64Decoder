@@ -320,14 +320,33 @@
 }
 
 .upload-section.loading::after {
-  content: '載入中...';
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e0e0e0;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.upload-section.loading::before {
+  content: '載入中...';
+  position: absolute;
+  top: calc(50% + 20px);
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 1.2em;
   color: #007bff;
   font-weight: 600;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .button-group {
