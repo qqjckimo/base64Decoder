@@ -1,39 +1,41 @@
 /* JSON Formatter Tool Styles */
 
-.json-formatter-container {
+.json-formatter-tool {
   height: 100%;
   display: flex;
   flex-direction: column;
   background: var(--bg-primary, #ffffff);
   border-radius: var(--radius-lg, 12px);
   overflow: hidden;
-  box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.15));
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
-/* Toolbar */
-.json-formatter-toolbar {
+/* Toolbar Styles */
+.tool-toolbar {
   background: var(--bg-primary, #ffffff);
-  padding: var(--spacing-md, 15px) var(--spacing-lg, 20px);
-  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.1));
+  padding: var(--spacing-md, 16px) var(--spacing-lg, 24px);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
   display: flex;
   align-items: center;
-  gap: var(--spacing-md, 15px);
+  gap: var(--spacing-md, 16px);
   border-bottom: 1px solid var(--border-color, #e0e0e0);
+  flex-wrap: wrap;
 }
 
-.json-formatter-title {
+.tool-title {
   font-size: 20px;
   font-weight: 600;
   color: var(--text-primary, #333333);
   margin-right: auto;
+  white-space: nowrap;
 }
 
-/* Buttons */
-.json-formatter-btn {
-  padding: var(--spacing-sm, 8px) var(--spacing-lg, 20px);
+/* Button Styles */
+.json-formatter-tool .btn {
+  padding: var(--spacing-sm, 8px) var(--spacing-lg, 24px);
   border: 1px solid var(--border-color, #d0d0d0);
   background: var(--bg-primary, #ffffff);
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-md, 8px);
   cursor: pointer;
   font-size: 14px;
   display: flex;
@@ -42,54 +44,49 @@
   transition: all 0.2s ease;
   color: var(--text-primary, #333333);
   font-family: inherit;
+  white-space: nowrap;
 }
 
-.json-formatter-btn:hover {
+.json-formatter-tool .btn:hover {
   background: var(--bg-secondary, #f5f5f5);
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.1));
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
   transform: translateY(-1px);
 }
 
-.json-formatter-btn:active {
-  transform: scale(0.98) translateY(0);
+.json-formatter-tool .btn:active {
+  transform: scale(0.98);
 }
 
-.json-formatter-btn:disabled {
+.json-formatter-tool .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.json-formatter-btn:disabled:hover {
-  background: var(--bg-primary, #ffffff);
-  box-shadow: none;
-  transform: none;
-}
-
-.json-formatter-btn-primary {
+.json-formatter-tool .btn-primary {
   background: var(--primary, #333333);
   color: #ffffff;
   border-color: var(--primary, #333333);
 }
 
-.json-formatter-btn-primary:hover {
+.json-formatter-tool .btn-primary:hover {
   background: var(--primary-hover, #555555);
   border-color: var(--primary-hover, #555555);
 }
 
-.json-formatter-btn-icon {
+.json-formatter-tool .btn-icon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
 }
 
 /* Editor Container */
-.json-formatter-editor-container {
+.editor-container {
   flex: 1;
   position: relative;
   overflow: hidden;
+  background: var(--bg-primary, #ffffff);
   min-height: 400px;
-  background: var(--bg-secondary, #f8f9ff);
 }
 
 .json-formatter-editor {
@@ -109,12 +106,12 @@
   border: none;
   outline: none;
   padding: var(--spacing-md, 16px);
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 14px;
   line-height: 1.5;
+  resize: none;
   background: var(--bg-primary, #ffffff);
   color: var(--text-primary, #333333);
-  resize: none;
 }
 
 .json-formatter-fallback-editor:focus {
@@ -122,38 +119,38 @@
 }
 
 /* Status Bar */
-.json-formatter-status-bar {
+.status-bar {
   background: var(--bg-primary, #ffffff);
-  padding: var(--spacing-sm, 8px) var(--spacing-lg, 20px);
+  padding: var(--spacing-sm, 8px) var(--spacing-lg, 24px);
   border-top: 1px solid var(--border-color, #e0e0e0);
   font-size: 12px;
   color: var(--text-secondary, #666666);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 32px;
-}
-
-.json-formatter-status {
-  display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--spacing-sm, 8px);
 }
 
-.json-formatter-status-error {
-  color: var(--error, #d32f2f);
-}
-
-.json-formatter-status-success {
-  color: var(--success, #388e3c);
-}
-
-.json-formatter-status-warning {
-  color: var(--warning, #f57c00);
+.json-formatter-status {
+  font-weight: 500;
 }
 
 .json-formatter-char-count {
-  font-weight: 500;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+}
+
+/* Status Messages */
+.json-formatter-status-error {
+  color: var(--error, #d32f2f) !important;
+}
+
+.json-formatter-status-success {
+  color: var(--success, #388e3c) !important;
+}
+
+.json-formatter-status-warning {
+  color: var(--warning, #f57c00) !important;
 }
 
 /* Loading State */
@@ -164,69 +161,127 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .json-formatter-toolbar {
-    padding: var(--spacing-sm, 12px) var(--spacing-md, 16px);
-    gap: var(--spacing-sm, 10px);
-    flex-wrap: wrap;
-  }
-
-  .json-formatter-title {
-    font-size: 18px;
-    width: 100%;
-    margin-bottom: var(--spacing-sm, 8px);
-    margin-right: 0;
-  }
-
-  .json-formatter-btn {
+  .tool-toolbar {
     padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+    gap: var(--spacing-sm, 8px);
+  }
+
+  .tool-title {
+    font-size: 18px;
+    margin-right: 0;
+    width: 100%;
+    margin-bottom: var(--spacing-xs, 4px);
+  }
+
+  .json-formatter-tool .btn {
+    padding: var(--spacing-xs, 4px) var(--spacing-md, 16px);
     font-size: 13px;
   }
 
-  .json-formatter-btn-icon {
-    width: 16px;
-    height: 16px;
+  .json-formatter-tool .btn .btn-text {
+    display: none;
   }
 
-  .json-formatter-editor-container {
+  .json-formatter-tool .btn-icon {
+    margin: 0;
+  }
+
+  .status-bar {
+    padding: var(--spacing-xs, 4px) var(--spacing-md, 16px);
+    font-size: 11px;
+  }
+
+  .editor-container {
     min-height: 300px;
   }
 }
 
 @media (max-width: 480px) {
-  .json-formatter-toolbar {
-    padding: var(--spacing-sm, 10px);
-    gap: var(--spacing-xs, 8px);
+  .json-formatter-tool {
+    border-radius: 0;
+    height: 100vh;
   }
 
-  .json-formatter-btn {
-    padding: var(--spacing-xs, 6px) var(--spacing-sm, 12px);
-    font-size: 12px;
+  .tool-toolbar {
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
   }
 
-  .json-formatter-btn-text {
-    display: none;
+  .tool-title {
+    font-size: 16px;
   }
 
-  .json-formatter-status-bar {
-    padding: var(--spacing-xs, 6px) var(--spacing-sm, 12px);
-    font-size: 11px;
+  .json-formatter-tool .btn {
+    padding: var(--spacing-xs, 4px) var(--spacing-sm, 8px);
+    min-width: 36px;
   }
 
-  .json-formatter-editor-container {
-    min-height: 250px;
+  .editor-container {
+    min-height: calc(100vh - 120px);
   }
 }
 
-/* Accessibility */
+/* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
-  .json-formatter-btn {
+  .json-formatter-tool .btn {
     transition: none;
   }
+
+  .json-formatter-tool .btn:hover {
+    transform: none;
+  }
+
+  .json-formatter-tool .btn:active {
+    transform: none;
+  }
 }
 
-/* Focus styles for accessibility */
-.json-formatter-btn:focus-visible {
+/* Focus Styles for Accessibility */
+.json-formatter-tool .btn:focus {
   outline: 2px solid var(--primary, #333333);
   outline-offset: 2px;
 }
 
+.json-formatter-tool .btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Loading State */
+.json-formatter-tool .btn.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.json-formatter-tool .btn.loading .btn-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tool Integration Styles */
+.json-formatter-tool {
+  /* Ensure the tool fits within the app container */
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Monaco Editor Theme Integration */
+.json-formatter-tool .monaco-editor {
+  border-radius: 0;
+}
+
+.json-formatter-tool .monaco-editor .margin,
+.json-formatter-tool .monaco-editor .monaco-editor-background {
+  background-color: var(--bg-primary, #ffffff);
+}
+
+/* Ensure proper text rendering in Monaco */
+.json-formatter-tool .monaco-editor .view-lines {
+  color: var(--text-primary, #333333);
+}
