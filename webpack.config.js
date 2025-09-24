@@ -529,13 +529,6 @@ const webpackConfig = {
           enforce: true,
           chunks: (chunk) => chunk.name !== 'compressor-worker',
         },
-        'tool-xml-formatter': {
-          test: /[\\/]src[\\/]tools[\\/]xmlFormatter[\\/]/,
-          name: 'tool-xml-formatter',
-          priority: 25,
-          enforce: true,
-          chunks: 'all',
-        },
         tools: {
           test: /[\\/]src[\\/]tools[\\/](?!.*\.worker\.js$)/,
           name: 'tools',

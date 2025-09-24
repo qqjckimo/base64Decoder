@@ -1,9 +1,11 @@
 # Single-Page HTML Tool to Modular Toolkit - Universal Integration Guide
 
 ## Overview
+
 This guide provides a standardized process for systematically integrating independent single-page HTML tools (such as image processors, JSON formatters, etc.) into the existing modular toolkit architecture. This process has been battle-tested and successfully converted PNG to ICO Converter from a single HTML file (655 lines) into a modular tool (15.43KB bundle size).
 
 ## Core Principles
+
 - **Bundle Size Priority**: Every decision must consider the impact on bundle size
 - **Progressive Loading**: Core functionality first, advanced features lazy-loaded
 - **Standardized Interface**: All tools follow unified API contracts
@@ -15,15 +17,18 @@ This guide provides a standardized process for systematically integrating indepe
 ## Phase 1: Original File Analysis & Assessment (Analysis Phase)
 
 ### 1.1 File Structure Parsing
+
 Conduct comprehensive technical debt assessment to understand the original tool's tech stack and complexity.
 
 #### HTML Structure Analysis
+
 - Identify all DOM elements and their functions
 - Mark reusable UI components
 - Evaluate HTML template complexity
 - Document special HTML5 API usage (Canvas, File API, etc.)
 
 #### CSS Scope Assessment
+
 ```
 Total line count: _____ lines
 Style type classification:
@@ -35,6 +40,7 @@ Style type classification:
 ```
 
 #### JavaScript Function Analysis
+
 ```javascript
 // Function module list
 - Core business logic: [list main functions]
@@ -44,6 +50,7 @@ Style type classification:
 ```
 
 #### Bundle Size Estimation
+
 ```
 Original HTML file: _____ KB
 Estimated after decomposition:
@@ -56,8 +63,10 @@ Target Bundle Size: < 30KB
 ### 1.2 Tool Type Classification & Processing Strategy
 
 #### Image Processing Tools
+
 **Characteristics**: Use Canvas API, File API, image format conversion
 **Standard Processing Pattern**:
+
 ```javascript
 // Standard architecture
 - Canvas operations → Independent methods
@@ -65,11 +74,14 @@ Target Bundle Size: < 30KB
 - Download functionality → Shared utilities
 - Web Worker → Heavy computation tasks
 ```
+
 **Examples**: Base64 Encoder/Decoder, PNG to ICO, Image compressor
 
 #### Text Processing Tools
+
 **Characteristics**: String operations, format validation, syntax highlighting needs
 **Standard Processing Pattern**:
+
 ```javascript
 // Monaco Editor integration pattern
 - Input handling → Monaco Editor
@@ -77,11 +89,14 @@ Target Bundle Size: < 30KB
 - Validation functionality → Independent modules
 - Output display → Monaco readonly mode
 ```
+
 **Examples**: JSON Formatter, XML Beautifier, SQL Formatter
 
 #### Data Conversion Tools
+
 **Characteristics**: Format conversion, encoding/decoding, data mapping
 **Standard Processing Pattern**:
+
 ```javascript
 // Converter pattern
 - Input validation → Unified validator
@@ -89,25 +104,30 @@ Target Bundle Size: < 30KB
 - Error handling → Standardized error classes
 - Batch processing → Web Worker
 ```
+
 **Examples**: CSV to JSON, Base64 encoder/decoder, Time converter
 
 #### Hybrid Tools
+
 **Characteristics**: Combine multiple processing types
 **Processing Strategy**: Modular separation of different functions, use strategy pattern
 
 ### 1.3 Technical Debt Assessment Checklist
 
 - [ ] **Deprecated API Check**
+
   - Using any deprecated APIs?
   - Browser compatibility issues?
   - Polyfill requirements assessment
 
 - [ ] **Security Review**
+
   - XSS vulnerability risks
   - Input validation completeness
   - CSP compatibility
 
 - [ ] **Performance Bottleneck Identification**
+
   - Synchronous blocking operations
   - Memory leak risks
   - Heavy DOM manipulations
@@ -124,6 +144,7 @@ Target Bundle Size: < 30KB
 ### 2.1 Module Division Strategy
 
 #### Core Class Design
+
 ```javascript
 // Standard tool class structure
 export default class [ToolName]Tool {
@@ -178,6 +199,7 @@ export default class [ToolName]Tool {
 ```
 
 #### Function Module Separation Principles
+
 ```javascript
 // Decompose complex functionality into independent modules
 class ToolCore {
@@ -200,6 +222,7 @@ class ToolProcessor {
 ### 2.2 Bundle Size Optimization Planning
 
 #### Bundle Strategy Decision Tree
+
 ```
 Usage frequency assessment:
 ├─ High frequency (>80% users will use)
@@ -211,6 +234,7 @@ Usage frequency assessment:
 ```
 
 #### Dynamic Loading Architecture Design
+
 ```javascript
 // Similar to Base64 Encoder's codec system
 class DynamicFeatureLoader {
@@ -226,6 +250,7 @@ class DynamicFeatureLoader {
 ```
 
 #### External Dependency Processing Decisions
+
 ```
 Dependency size judgment:
 - < 5KB: Direct bundling
@@ -240,17 +265,24 @@ Dependency size judgment:
 ### 3.1 Style Extraction Standard Process
 
 #### Step 1: Identification and Classification
+
 ```css
 /* Original inline CSS classification */
 
 /* 1. Removable - Duplicate with main architecture */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: system-ui; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: system-ui;
+}
 
 /* 2. Need integration - Convert to CSS variables */
 .container {
   background: #ffffff; /* → var(--bg-primary) */
-  color: #333333;      /* → var(--text-primary) */
+  color: #333333; /* → var(--text-primary) */
 }
 
 /* 3. Keep - Tool-specific styles */
@@ -260,6 +292,7 @@ body { font-family: system-ui; }
 ```
 
 #### Step 2: Theme Variable Mapping
+
 ```css
 /* styles.css - Standard theme integration */
 .tool-container {
@@ -284,13 +317,14 @@ body { font-family: system-ui; }
   --radius-lg: 12px;
 
   /* Shadow system */
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
-  --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 ```
 
 #### Step 3: Responsive Design Standardization
+
 ```css
 /* Unified breakpoint system */
 /* Desktop First Approach */
@@ -318,8 +352,14 @@ body { font-family: system-ui; }
 ```css
 /* Keep necessary animations, optimize performance */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Use CSS variables to control animations */
@@ -356,21 +396,21 @@ export default class ExampleTool {
         process: "處理",
         clear: "清除",
         error: "發生錯誤",
-        success: "處理成功"
+        success: "處理成功",
       },
-      "en": {
+      en: {
         title: "Example Tool",
         process: "Process",
         clear: "Clear",
         error: "An error occurred",
-        success: "Processing successful"
-      }
+        success: "Processing successful",
+      },
     };
 
     // State management
     this.state = {
       isProcessing: false,
-      currentData: null
+      currentData: null,
     };
 
     // DOM references
@@ -434,16 +474,16 @@ export default class ExampleTool {
     this.elements = {
       processBtn: this.container.querySelector('[data-action="process"]'),
       clearBtn: this.container.querySelector('[data-action="clear"]'),
-      errorMsg: this.container.querySelector('.message-error'),
-      successMsg: this.container.querySelector('.message-success')
+      errorMsg: this.container.querySelector(".message-error"),
+      successMsg: this.container.querySelector(".message-success"),
     };
   }
 
   bindEvents() {
     // Use event delegation for clicks
     const clickHandler = (e) => this.handleClick(e);
-    this.container.addEventListener('click', clickHandler);
-    this.eventHandlers.set('click', clickHandler);
+    this.container.addEventListener("click", clickHandler);
+    this.eventHandlers.set("click", clickHandler);
 
     // Other event bindings...
   }
@@ -452,11 +492,11 @@ export default class ExampleTool {
     const action = e.target.dataset.action;
     if (!action) return;
 
-    switch(action) {
-      case 'process':
+    switch (action) {
+      case "process":
         this.process();
         break;
-      case 'clear':
+      case "clear":
         this.clear();
         break;
     }
@@ -474,7 +514,6 @@ export default class ExampleTool {
 
       // Show result
       this.showSuccess(result);
-
     } catch (error) {
       this.showError(error.message);
     } finally {
@@ -519,33 +558,33 @@ export default class ExampleTool {
   showError(message) {
     const t = this.translations[this.currentLanguage];
     this.elements.errorMsg.textContent = message || t.error;
-    this.elements.errorMsg.style.display = 'block';
-    this.elements.successMsg.style.display = 'none';
+    this.elements.errorMsg.style.display = "block";
+    this.elements.successMsg.style.display = "none";
   }
 
   showSuccess(message) {
     const t = this.translations[this.currentLanguage];
     this.elements.successMsg.textContent = message || t.success;
-    this.elements.successMsg.style.display = 'block';
-    this.elements.errorMsg.style.display = 'none';
+    this.elements.successMsg.style.display = "block";
+    this.elements.errorMsg.style.display = "none";
   }
 
   showLoading() {
     // Show loading state
     this.elements.processBtn.disabled = true;
-    this.elements.processBtn.classList.add('loading');
+    this.elements.processBtn.classList.add("loading");
   }
 
   hideLoading() {
     // Hide loading state
     this.elements.processBtn.disabled = false;
-    this.elements.processBtn.classList.remove('loading');
+    this.elements.processBtn.classList.remove("loading");
   }
 
   resetUI() {
     // Reset UI to initial state
-    this.elements.errorMsg.style.display = 'none';
-    this.elements.successMsg.style.display = 'none';
+    this.elements.errorMsg.style.display = "none";
+    this.elements.successMsg.style.display = "none";
   }
 
   async loadDependencies() {
@@ -559,7 +598,7 @@ export default class ExampleTool {
 
   onReady() {
     // Processing after initialization complete
-    console.log('Tool ready');
+    console.log("Tool ready");
   }
 
   destroy() {
@@ -571,7 +610,7 @@ export default class ExampleTool {
 
     // 2. Clear timers
     if (this.timers) {
-      this.timers.forEach(timer => clearTimeout(timer));
+      this.timers.forEach((timer) => clearTimeout(timer));
     }
 
     // 3. Terminate Web Workers
@@ -601,6 +640,7 @@ export default class ExampleTool {
 ### 4.2 Web Worker Integration Pattern
 
 #### Main Thread Code
+
 ```javascript
 class ToolWithWorker {
   async init(container) {
@@ -610,8 +650,8 @@ class ToolWithWorker {
 
   initWorker() {
     this.worker = new Worker(
-      new URL('./processor.worker.js', import.meta.url),
-      { type: 'module' }
+      new URL("./processor.worker.js", import.meta.url),
+      { type: "module" }
     );
 
     this.worker.onmessage = (e) => {
@@ -626,14 +666,14 @@ class ToolWithWorker {
   handleWorkerMessage(data) {
     const { type, payload } = data;
 
-    switch(type) {
-      case 'progress':
+    switch (type) {
+      case "progress":
         this.updateProgress(payload);
         break;
-      case 'result':
+      case "result":
         this.handleResult(payload);
         break;
-      case 'error':
+      case "error":
         this.handleError(payload);
         break;
     }
@@ -641,8 +681,8 @@ class ToolWithWorker {
 
   processInWorker(data) {
     this.worker.postMessage({
-      type: 'process',
-      payload: data
+      type: "process",
+      payload: data,
     });
   }
 
@@ -656,13 +696,14 @@ class ToolWithWorker {
 ```
 
 #### Worker Code Template
+
 ```javascript
 // processor.worker.js
-self.addEventListener('message', async (e) => {
+self.addEventListener("message", async (e) => {
   const { type, payload } = e.data;
 
-  switch(type) {
-    case 'process':
+  switch (type) {
+    case "process":
       await processData(payload);
       break;
   }
@@ -672,8 +713,8 @@ async function processData(data) {
   try {
     // Report progress
     self.postMessage({
-      type: 'progress',
-      payload: { percent: 0, status: 'Starting processing...' }
+      type: "progress",
+      payload: { percent: 0, status: "Starting processing..." },
     });
 
     // Execute processing
@@ -681,14 +722,13 @@ async function processData(data) {
 
     // Report result
     self.postMessage({
-      type: 'result',
-      payload: result
+      type: "result",
+      payload: result,
     });
-
   } catch (error) {
     self.postMessage({
-      type: 'error',
-      payload: error.message
+      type: "error",
+      payload: error.message,
     });
   }
 }
@@ -712,27 +752,26 @@ class TextProcessingTool {
 
       // Input editor
       this.inputEditor = monaco.editor.create(this.inputContainer, {
-        value: '',
-        language: 'json', // or other language
-        theme: 'vs-light',
+        value: "",
+        language: "json", // or other language
+        theme: "vs-light",
         minimap: { enabled: false },
         automaticLayout: true,
         fontSize: 14,
-        wordWrap: 'on'
+        wordWrap: "on",
       });
 
       // Output editor (readonly)
       this.outputEditor = monaco.editor.create(this.outputContainer, {
-        value: '',
-        language: 'json',
-        theme: 'vs-light',
+        value: "",
+        language: "json",
+        theme: "vs-light",
         readOnly: true,
         minimap: { enabled: false },
-        automaticLayout: true
+        automaticLayout: true,
       });
-
     } catch (error) {
-      console.error('Monaco loading failed, fallback to textarea');
+      console.error("Monaco loading failed, fallback to textarea");
       this.fallbackToTextarea();
     }
   }
@@ -751,15 +790,15 @@ class TextProcessingTool {
     if (this.inputEditor) {
       return this.inputEditor.getValue();
     } else {
-      return this.inputContainer.querySelector('textarea').value;
+      return this.inputContainer.querySelector("textarea").value;
     }
   }
 
-  setValue(value, target = 'output') {
-    if (target === 'output' && this.outputEditor) {
+  setValue(value, target = "output") {
+    if (target === "output" && this.outputEditor) {
       this.outputEditor.setValue(value);
-    } else if (target === 'output') {
-      this.outputContainer.querySelector('textarea').value = value;
+    } else if (target === "output") {
+      this.outputContainer.querySelector("textarea").value = value;
     }
   }
 
@@ -799,7 +838,7 @@ class I18nTool {
           clear: "清除",
           download: "下載",
           copy: "複製",
-          upload: "上傳檔案"
+          upload: "上傳檔案",
         },
 
         // Messages
@@ -808,14 +847,14 @@ class I18nTool {
           success: "處理成功",
           error: "處理失敗",
           copied: "已複製到剪貼簿",
-          invalidInput: "無效的輸入格式"
+          invalidInput: "無效的輸入格式",
         },
 
         // Hints
         hints: {
           dragDrop: "拖放檔案到此處或點擊選擇",
           supportedFormats: "支援格式：{formats}",
-          maxSize: "最大檔案大小：{size}"
+          maxSize: "最大檔案大小：{size}",
         },
 
         // Error messages
@@ -823,11 +862,11 @@ class I18nTool {
           fileTooLarge: "檔案太大，最大允許 {maxSize}",
           unsupportedFormat: "不支援的檔案格式",
           networkError: "網路錯誤，請稍後再試",
-          processingError: "處理過程中發生錯誤：{error}"
-        }
+          processingError: "處理過程中發生錯誤：{error}",
+        },
       },
 
-      "en": {
+      en: {
         // Basic UI
         title: "Tool Name",
         description: "Tool description",
@@ -838,7 +877,7 @@ class I18nTool {
           clear: "Clear",
           download: "Download",
           copy: "Copy",
-          upload: "Upload File"
+          upload: "Upload File",
         },
 
         // Messages
@@ -847,14 +886,14 @@ class I18nTool {
           success: "Process successful",
           error: "Process failed",
           copied: "Copied to clipboard",
-          invalidInput: "Invalid input format"
+          invalidInput: "Invalid input format",
         },
 
         // Hints
         hints: {
           dragDrop: "Drag and drop files here or click to select",
           supportedFormats: "Supported formats: {formats}",
-          maxSize: "Maximum file size: {size}"
+          maxSize: "Maximum file size: {size}",
         },
 
         // Error messages
@@ -862,9 +901,9 @@ class I18nTool {
           fileTooLarge: "File too large, maximum allowed {maxSize}",
           unsupportedFormat: "Unsupported file format",
           networkError: "Network error, please try again later",
-          processingError: "Error during processing: {error}"
-        }
-      }
+          processingError: "Error during processing: {error}",
+        },
+      },
     };
   }
 
@@ -875,18 +914,18 @@ class I18nTool {
     }
 
     // Second: use localStorage
-    const saved = localStorage.getItem('app-language');
+    const saved = localStorage.getItem("app-language");
     if (saved) return saved;
 
     // Last: use browser language
     const browserLang = navigator.language;
-    if (browserLang.startsWith('zh')) return 'zh-TW';
-    return 'en';
+    if (browserLang.startsWith("zh")) return "zh-TW";
+    return "en";
   }
 
   t(key, params = {}) {
     // Get translation text
-    const keys = key.split('.');
+    const keys = key.split(".");
     let value = this.translations[this.currentLanguage];
 
     for (const k of keys) {
@@ -920,22 +959,25 @@ class I18nTool {
 
   updateAllTranslations() {
     // Update all elements with data-i18n attribute
-    this.container.querySelectorAll('[data-i18n]').forEach(element => {
+    this.container.querySelectorAll("[data-i18n]").forEach((element) => {
       const key = element.dataset.i18n;
-      const params = element.dataset.i18nParams ?
-        JSON.parse(element.dataset.i18nParams) : {};
+      const params = element.dataset.i18nParams
+        ? JSON.parse(element.dataset.i18nParams)
+        : {};
 
       element.textContent = this.t(key, params);
     });
 
     // Update input elements with data-i18n-placeholder
-    this.container.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-      const key = element.dataset.i18nPlaceholder;
-      element.placeholder = this.t(key);
-    });
+    this.container
+      .querySelectorAll("[data-i18n-placeholder]")
+      .forEach((element) => {
+        const key = element.dataset.i18nPlaceholder;
+        element.placeholder = this.t(key);
+      });
 
     // Update elements with data-i18n-title
-    this.container.querySelectorAll('[data-i18n-title]').forEach(element => {
+    this.container.querySelectorAll("[data-i18n-title]").forEach((element) => {
       const key = element.dataset.i18nTitle;
       element.title = this.t(key);
     });
@@ -955,16 +997,13 @@ class I18nTool {
   <button data-i18n="buttons.clear"></button>
 
   <!-- Translation with parameters -->
-  <p data-i18n="hints.maxSize"
-     data-i18n-params='{"size": "10MB"}'></p>
+  <p data-i18n="hints.maxSize" data-i18n-params='{"size": "10MB"}'></p>
 
   <!-- Placeholder translation -->
-  <input type="text"
-         data-i18n-placeholder="messages.inputPlaceholder">
+  <input type="text" data-i18n-placeholder="messages.inputPlaceholder" />
 
   <!-- Title attribute translation -->
-  <button data-i18n="buttons.help"
-          data-i18n-title="hints.helpTooltip"></button>
+  <button data-i18n="buttons.help" data-i18n-title="hints.helpTooltip"></button>
 </div>
 ```
 
@@ -986,9 +1025,6 @@ class I18nTool {
   "icon": "🔧",
   "version": "1.0.0",
   "author": "Jason Chen",
-  "license": "MIT",
-  "repository": "https://github.com/username/repo",
-
   "technical": {
     "estimatedSize": "25KB",
     "actualSize": null,
@@ -1005,17 +1041,10 @@ class I18nTool {
     }
   },
 
-  "keywords": [
-    "keyword1",
-    "keyword2",
-    "keyword3"
-  ],
+  "keywords": ["keyword1", "keyword2", "keyword3"],
 
-  "features": [
-    "feature1",
-    "feature2",
-    "feature3"
-  ],
+  "features": ["feature1", "feature2", "feature3"],
+  "featuresEn": ["feature1", "feature2", "feature3"],
 
   "dependencies": {
     "internal": ["monacoLoader"],
@@ -1041,6 +1070,7 @@ class I18nTool {
 ### 6.2 Webpack Configuration Integration
 
 #### Webpack Configuration for New Tools
+
 ```javascript
 // webpack.config.js modifications
 
@@ -1083,29 +1113,32 @@ plugins: [
 ```
 
 #### Dynamic Import Configuration
+
 ```javascript
 // src/core/loader.js update
 const toolPaths = {
   // Existing tools...
-  'new-tool': () => import(
-    /* webpackChunkName: "tool-new-tool" */
-    /* webpackPreload: false */
-    '../tools/new-tool/tool.js'
-  )
+  "new-tool": () =>
+    import(
+      /* webpackChunkName: "tool-new-tool" */
+      /* webpackPreload: false */
+      "../tools/new-tool/tool.js"
+    ),
 };
 ```
 
 ### 6.3 Bundle Size Optimization Techniques
 
 #### Tree Shaking Optimization
+
 ```javascript
 // Use named exports to promote tree shaking
-export { specificFunction } from './utils';
+export { specificFunction } from "./utils";
 // Avoid
-export * from './utils';
+export * from "./utils";
 
 // Use production mode flags
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   // Production environment code
 }
 
@@ -1115,6 +1148,7 @@ const pureFunction = () => {};
 ```
 
 #### Code Splitting Strategy
+
 ```javascript
 // Conditional loading of large dependencies
 class Tool {
@@ -1122,7 +1156,7 @@ class Tool {
     if (!this.heavyLib) {
       const { HeavyLibrary } = await import(
         /* webpackChunkName: "heavy-lib" */
-        './heavyLibrary'
+        "./heavyLibrary"
       );
       this.heavyLib = new HeavyLibrary();
     }
@@ -1132,6 +1166,7 @@ class Tool {
 ```
 
 #### Compression Optimization
+
 ```javascript
 // Terser configuration
 optimization: {
@@ -1141,17 +1176,17 @@ optimization: {
         compress: {
           drop_console: true,
           drop_debugger: true,
-          pure_funcs: ['console.log']
+          pure_funcs: ["console.log"],
         },
         mangle: {
-          safari10: true
+          safari10: true,
         },
         output: {
-          comments: false
-        }
-      }
-    })
-  ]
+          comments: false,
+        },
+      },
+    }),
+  ];
 }
 ```
 
@@ -1233,33 +1268,36 @@ async loadToolsConfig() {
 
 Choose an appropriate Lucide icon for your tool:
 
-| Tool Type | Recommended Icons | Examples |
-|-----------|------------------|----------|
-| **Image Processing** | `image`, `camera`, `palette`, `layers` | Base64 tools, PNG to ICO |
-| **File Analysis** | `search`, `file-search`, `scan-line`, `zap` | ICO Analyzer, File Inspector |
-| **Text Processing** | `file-text`, `type`, `edit`, `code` | JSON Formatter, XML Editor |
-| **Conversion Tools** | `shuffle`, `repeat`, `arrow-right-left` | Format converters |
-| **Utilities** | `tool`, `settings`, `wrench`, `cog` | General utilities |
+| Tool Type            | Recommended Icons                           | Examples                     |
+| -------------------- | ------------------------------------------- | ---------------------------- |
+| **Image Processing** | `image`, `camera`, `palette`, `layers`      | Base64 tools, PNG to ICO     |
+| **File Analysis**    | `search`, `file-search`, `scan-line`, `zap` | ICO Analyzer, File Inspector |
+| **Text Processing**  | `file-text`, `type`, `edit`, `code`         | JSON Formatter, XML Editor   |
+| **Conversion Tools** | `shuffle`, `repeat`, `arrow-right-left`     | Format converters            |
+| **Utilities**        | `tool`, `settings`, `wrench`, `cog`         | General utilities            |
 
 **Icon Usage Pattern**:
+
 ```javascript
-icon: createIcon('iconName', 20, 'tool-icon')
+icon: createIcon("iconName", 20, "tool-icon");
 ```
 
 #### Step 4: Category Assignment
 
 Assign your tool to the appropriate category:
 
-| Category (Chinese) | Category (English) | Variable Reference |
-|-------------------|-------------------|-------------------|
-| `圖片處理` | `Image Processing` | `t.categoryImageProcessing` |
-| `Formatter` | `Text Processing` | `t.categoryTextProcessing` |
+| Category (Chinese) | Category (English) | Variable Reference          |
+| ------------------ | ------------------ | --------------------------- |
+| `圖片處理`         | `Image Processing` | `t.categoryImageProcessing` |
+| `Formatter`        | `Text Processing`  | `t.categoryTextProcessing`  |
 
 **Adding New Categories** (if needed):
+
 1. Add category to both language sections in translations
 2. Add category translation key mapping in `getCategoryTranslationKey()` method
 
 #### Step 5: Router Configuration (CRITICAL for Navigation)
+
 **❌ COMMON ISSUE**: Tool appears in sidebar but clicking redirects to default tool.
 The core router maintains a whitelist of valid tools. **Every new tool MUST be added** to the router's validTools array.
 
@@ -1284,6 +1322,7 @@ constructor() {
 ```
 
 **CRITICAL**: The tool ID must match:
+
 - Sidebar registration: `id: 'your-tool-id'`
 - Router validation: `'your-tool-id'`
 - Directory name: `src/tools/your-tool-id/`
@@ -1306,12 +1345,14 @@ After adding your tool to the sidebar:
 ### 6.5.3 Common Issues and Solutions
 
 #### Issue: Tool not appearing in sidebar
+
 ```javascript
 // ❌ Problem: Forgot to add translation keys
 // ✅ Solution: Add keys to BOTH language sections
 ```
 
 #### Issue: Tool shows undefined name
+
 ```javascript
 // ❌ Problem: Translation key mismatch
 {
@@ -1329,21 +1370,24 @@ en: {
 ```
 
 #### Issue: Tool navigation fails
+
 **Most Common Cause**: Tool not added to router's validTools array
+
 ```javascript
 // ❌ Problem: Missing from router configuration
 // User clicks tool → redirects to default tool (base64-decoder)
 // ✅ Solution: Add tool to router.js validTools array
 this.validTools = [
-  'base64-decoder',
-  'base64-encoder',
-  'png-to-ico',
-  'json-formatter',
-  'your-tool-id'        // ➕ ADD YOUR TOOL HERE
+  "base64-decoder",
+  "base64-encoder",
+  "png-to-ico",
+  "json-formatter",
+  "your-tool-id", // ➕ ADD YOUR TOOL HERE
 ];
 ```
 
 **Secondary Cause**: ID mismatch with directory
+
 ```javascript
 // ❌ Problem: ID mismatch with directory
 {
@@ -1358,6 +1402,7 @@ this.validTools = [
 ```
 
 #### Issue: Icon not displaying
+
 ```javascript
 // ❌ Problem: Invalid icon name
 icon: createIcon('invalid-icon', 20, 'tool-icon'),
@@ -1398,22 +1443,27 @@ npm run dev
 ### 7.1 Function Testing Checklist
 
 #### Basic Function Testing
+
 - [ ] **Tool Loading Test**
+
   - [ ] Initial loading works correctly
   - [ ] Repeated loading doesn't re-initialize
   - [ ] Correct unloading when switching tools
 
 - [ ] **Core Function Testing**
+
   - [ ] Main functionality works correctly
   - [ ] Boundary conditions handled properly
   - [ ] Error conditions handled gracefully
 
 - [ ] **UI Interaction Testing**
+
   - [ ] All buttons respond correctly
   - [ ] Form validation works properly
   - [ ] Drag and drop functionality works (if applicable)
 
 - [ ] **Internationalization Testing**
+
   - [ ] Initial language displays correctly
   - [ ] Language switching updates immediately
   - [ ] All text has translations
@@ -1424,12 +1474,15 @@ npm run dev
   - [ ] Mobile (<480px) displays correctly
 
 #### Advanced Function Testing
+
 - [ ] **File Processing Testing** (if applicable)
+
   - [ ] All supported formats can be processed
   - [ ] File size limits are effective
   - [ ] Wrong formats are gracefully rejected
 
 - [ ] **Web Worker Testing** (if applicable)
+
   - [ ] Worker starts correctly
   - [ ] Message passing works correctly
   - [ ] Worker terminates correctly
@@ -1442,23 +1495,25 @@ npm run dev
 ### 7.2 Performance Testing Metrics
 
 #### Load Performance Testing
+
 ```javascript
 // Test tool loading time
 async function measureLoadTime() {
   const start = performance.now();
 
-  const tool = await loader.loadTool('new-tool');
+  const tool = await loader.loadTool("new-tool");
   await tool.init(container);
 
   const loadTime = performance.now() - start;
   console.log(`Tool load time: ${loadTime}ms`);
 
   // Verify: should be < 500ms
-  assert(loadTime < 500, 'Load time exceeds 500ms');
+  assert(loadTime < 500, "Load time exceeds 500ms");
 }
 ```
 
 #### Memory Usage Testing
+
 ```javascript
 // Monitor memory usage
 function measureMemory() {
@@ -1474,12 +1529,13 @@ function measureMemory() {
     console.log(`Memory used: ${used.toFixed(2)} MB`);
 
     // Verify: should be < 50MB
-    assert(used < 50, 'Memory usage exceeds 50MB');
+    assert(used < 50, "Memory usage exceeds 50MB");
   }
 }
 ```
 
 #### Bundle Size Verification
+
 ```bash
 # Run bundle analysis
 npm run build
@@ -1492,25 +1548,27 @@ echo "Check if tool-new-tool.js size is < 30KB"
 ### 7.3 Browser Compatibility Testing
 
 #### Testing Matrix
+
 | Browser | Minimum Version | Test Status |
-|---------|----------------|-------------|
-| Chrome | 90+ | ⏳ Pending |
-| Firefox | 88+ | ⏳ Pending |
-| Safari | 14+ | ⏳ Pending |
-| Edge | 90+ | ⏳ Pending |
+| ------- | --------------- | ----------- |
+| Chrome  | 90+             | ⏳ Pending  |
+| Firefox | 88+             | ⏳ Pending  |
+| Safari  | 14+             | ⏳ Pending  |
+| Edge    | 90+             | ⏳ Pending  |
 
 #### Feature Compatibility Check
+
 ```javascript
 // Feature detection
 function checkCompatibility() {
   const features = {
-    'Web Workers': typeof Worker !== 'undefined',
-    'Canvas': !!document.createElement('canvas').getContext,
-    'File API': !!(window.File && window.FileReader),
-    'ES6 Modules': 'noModule' in HTMLScriptElement.prototype,
-    'Async/Await': (async () => {})() instanceof Promise,
-    'CSS Grid': CSS.supports('display', 'grid'),
-    'Custom Properties': CSS.supports('--test', '0')
+    "Web Workers": typeof Worker !== "undefined",
+    Canvas: !!document.createElement("canvas").getContext,
+    "File API": !!(window.File && window.FileReader),
+    "ES6 Modules": "noModule" in HTMLScriptElement.prototype,
+    "Async/Await": (async () => {})() instanceof Promise,
+    "CSS Grid": CSS.supports("display", "grid"),
+    "Custom Properties": CSS.supports("--test", "0"),
   };
 
   const missing = Object.entries(features)
@@ -1518,7 +1576,7 @@ function checkCompatibility() {
     .map(([feature]) => feature);
 
   if (missing.length > 0) {
-    console.warn('Missing features:', missing);
+    console.warn("Missing features:", missing);
   }
 
   return missing.length === 0;
@@ -1535,9 +1593,11 @@ function checkCompatibility() {
 # [Tool Name] Tool
 
 ## Overview
+
 [Brief description and main purpose of the tool]
 
 ## Tool Purpose and Functionality
+
 - **Primary Function**: [Main function]
 - **Core Features**:
   - [Feature 1]
@@ -1547,6 +1607,7 @@ function checkCompatibility() {
 ## Key Files and Responsibilities
 
 ### `tool.js` (Main Tool Implementation)
+
 - **Bundle Size**: [Actual size]KB (production build, [date])
 - **Primary Class**: `[ClassName]`
 - **Key Methods**:
@@ -1555,52 +1616,65 @@ function checkCompatibility() {
   - `destroy()`: [Description]
 
 ### `config.json` (Tool Metadata)
+
 - **Tool ID**: `[tool-id]`
 - **Category**: [Category]
 - **Preload**: [true/false]
 - **Version**: [Version number]
 
 ### `styles.css` (Visual Styling)
+
 - **Size**: ~[Line count] lines of CSS
 - **Features**: [Style features]
 
 ## Technical Implementation Details
 
 ### [Core Technical Point 1]
+
 [Detailed description]
 
 ### [Core Technical Point 2]
+
 [Detailed description]
 
 ## Bundle Size Considerations
+
 - **Actual Bundle Size**: [Size]KB
 - **Optimization Strategies**: [Optimization strategies]
 
 ## Dependencies and Requirements
+
 - **Browser APIs**: [Used APIs]
 - **External Libraries**: [External dependencies]
 - **Modern Browser Support**: [Browser requirements]
 
 ## Performance Considerations
+
 [Performance-related considerations]
 
 ## Error Handling
+
 [Error handling strategies]
 
 ## Security Considerations
+
 [Security considerations]
 
 ## Current Status ([Date])
+
 - **Bundle Size**: [Size]KB
 - **Integration**: ✅ COMPLETED / ⏳ IN PROGRESS
 - **Production Ready**: Yes/No
 
 ## Recent Updates
+
 ### [Date]: [Update Title]
+
 - [Update content 1]
 - [Update content 2]
 
 ## Future Enhancements
+
 - [Future improvement 1]
 - [Future improvement 2]
 ```
@@ -1608,6 +1682,7 @@ function checkCompatibility() {
 ### 8.2 Deployment Checklist
 
 #### Development Environment Testing
+
 ```bash
 # 1. Install dependencies
 npm install
@@ -1625,6 +1700,7 @@ npm run dev
 ```
 
 #### Production Environment Build
+
 ```bash
 # 1. Build production version
 npm run build
@@ -1640,6 +1716,7 @@ npm run serve:prod
 ```
 
 #### Git Commit and Deployment
+
 ```bash
 # 1. Add new files
 git add src/tools/new-tool/
@@ -1662,24 +1739,25 @@ git push origin main
 ### 8.3 Monitoring & Maintenance
 
 #### Performance Monitoring Setup
+
 ```javascript
 // Add to tool initialization
 class Tool {
   async init(container) {
     // Record load time
-    this.logPerformance('tool-init-start');
+    this.logPerformance("tool-init-start");
 
     // Initialization logic...
 
-    this.logPerformance('tool-init-complete');
+    this.logPerformance("tool-init-complete");
   }
 
   logPerformance(marker) {
     if (window.performance && window.performance.mark) {
       performance.mark(marker);
 
-      if (marker.includes('complete')) {
-        const startMarker = marker.replace('complete', 'start');
+      if (marker.includes("complete")) {
+        const startMarker = marker.replace("complete", "start");
         performance.measure(
           `${this.constructor.name}-init`,
           startMarker,
@@ -1693,7 +1771,7 @@ class Tool {
         console.log(`Init time: ${measure.duration.toFixed(2)}ms`);
 
         // Send to analytics service (if configured)
-        this.sendAnalytics('tool-init-time', measure.duration);
+        this.sendAnalytics("tool-init-time", measure.duration);
       }
     }
   }
@@ -1701,24 +1779,25 @@ class Tool {
 ```
 
 #### Error Tracking Setup
+
 ```javascript
 // Global error handling
-window.addEventListener('error', (event) => {
-  if (event.filename && event.filename.includes('/tools/')) {
+window.addEventListener("error", (event) => {
+  if (event.filename && event.filename.includes("/tools/")) {
     // Tool-related error
-    console.error('Tool error:', {
+    console.error("Tool error:", {
       message: event.message,
       source: event.filename,
       line: event.lineno,
       column: event.colno,
-      error: event.error
+      error: event.error,
     });
 
     // Send error report
     sendErrorReport({
       tool: getCurrentTool(),
       error: event.error,
-      context: getErrorContext()
+      context: getErrorContext(),
     });
   }
 });
@@ -1731,11 +1810,13 @@ window.addEventListener('error', (event) => {
 ### Success Case: PNG to ICO Converter
 
 #### Before Conversion
+
 - **File**: Single index.html (655 lines)
 - **Structure**: Inline CSS + JavaScript
 - **Size**: ~28KB (uncompressed)
 
 #### After Conversion
+
 - **File Structure**:
   ```
   pngToIco/
@@ -1748,6 +1829,7 @@ window.addEventListener('error', (event) => {
 - **Optimization Result**: 45% size reduction
 
 #### Key Optimization Points
+
 1. **CSS Extraction**: 560 lines → 200 lines (removed duplicate styles)
 2. **JS Modularization**: Class-based design, clear method separation
 3. **Lazy Loading**: Changed from preload to on-demand
@@ -1756,6 +1838,7 @@ window.addEventListener('error', (event) => {
 ### Potential Case: JSON Formatter
 
 #### Expected Architecture
+
 ```javascript
 export default class JSONFormatterTool {
   // Monaco Editor for input/output
@@ -1766,6 +1849,7 @@ export default class JSONFormatterTool {
 ```
 
 #### Expected Optimization
+
 - Use Monaco Editor instead of custom editor
 - Shared validation logic and error handling
 - Bundle size target: < 20KB
@@ -1775,12 +1859,15 @@ export default class JSONFormatterTool {
 ## Common Issues & Solutions
 
 ### Q1: Tool Loading Failure
+
 **Possible Causes**:
+
 - Webpack configuration not updated
 - Incorrect file paths
 - Malformed config.json
 
 **Solutions**:
+
 ```bash
 # Check configuration
 npm run validate-config
@@ -1790,14 +1877,18 @@ npm run clean && npm run build
 ```
 
 ### Q2: Bundle Size Exceeds Limit
+
 **Optimization Strategies**:
+
 1. Check for unused dependencies
 2. Consider dynamic loading for large features
 3. Use CDN for external libraries
 4. Check for duplicate code
 
 ### Q3: Monaco Editor Loading Failure
+
 **Solution**:
+
 ```javascript
 // Ensure fallback mechanism
 if (!window.monaco) {
@@ -1807,13 +1898,17 @@ if (!window.monaco) {
 ```
 
 ### Q4: Web Worker Communication Failure
+
 **Check Points**:
+
 - Worker file path is correct
 - Message format is consistent
 - Error handling is complete
 
 ### Q5: Internationalization Display Issues
+
 **Check Points**:
+
 - Translation keys are complete
 - Language change listener is registered
 - DOM update logic is correct
@@ -1830,6 +1925,7 @@ This guide provides a complete tool integration process, with detailed guidance 
 4. **Scalability**: Easy to add new features and tools
 
 Key Success Factors:
+
 - ✅ Strict Bundle Size Control
 - ✅ Standardized API Contracts
 - ✅ Complete Error Handling
@@ -1851,10 +1947,14 @@ Through this standardized process, any single-page HTML tool can be successfully
 ```javascript
 export default class YourTool {
   constructor() {
-    this.currentLanguage = window.appLanguage?.get() || 'zh-TW';
+    this.currentLanguage = window.appLanguage?.get() || "zh-TW";
     this.translations = {
-      'zh-TW': { /* Traditional Chinese translations */ },
-      'en': { /* English translations */ }
+      "zh-TW": {
+        /* Traditional Chinese translations */
+      },
+      en: {
+        /* English translations */
+      },
     };
   }
 
@@ -1891,20 +1991,22 @@ export default class YourTool {
     const t = this.translations[this.currentLanguage];
 
     // Update text content
-    this.container.querySelectorAll('[data-i18n]').forEach(element => {
-      const key = element.getAttribute('data-i18n');
+    this.container.querySelectorAll("[data-i18n]").forEach((element) => {
+      const key = element.getAttribute("data-i18n");
       if (t[key]) element.textContent = t[key];
     });
 
     // Update placeholder attributes
-    this.container.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-      const key = element.getAttribute('data-i18n-placeholder');
-      if (t[key]) element.placeholder = t[key];
-    });
+    this.container
+      .querySelectorAll("[data-i18n-placeholder]")
+      .forEach((element) => {
+        const key = element.getAttribute("data-i18n-placeholder");
+        if (t[key]) element.placeholder = t[key];
+      });
 
     // Update title attributes
-    this.container.querySelectorAll('[data-i18n-title]').forEach(element => {
-      const key = element.getAttribute('data-i18n-title');
+    this.container.querySelectorAll("[data-i18n-title]").forEach((element) => {
+      const key = element.getAttribute("data-i18n-title");
       if (t[key]) element.title = t[key];
     });
   }
@@ -1913,14 +2015,14 @@ export default class YourTool {
 
 ### 2. Data Attribute Conventions
 
-| Attribute | Purpose | Usage |
-|-----------|---------|-------|
-| `data-i18n="key"` | Text content | `<span data-i18n="title"></span>` |
-| `data-i18n-placeholder="key"` | Placeholder text | `<input data-i18n-placeholder="inputHint">` |
-| `data-i18n-title="key"` | Title attribute | `<button data-i18n-title="buttonTooltip">` |
-| `data-i18n-aria-label="key"` | ARIA label | `<div data-i18n-aria-label="accessibleLabel">` |
-| `data-transform="type"` | Text transformation | `data-transform="firstLine"` |
-| `data-suffix="text"` | Add suffix | `data-suffix=":"` |
+| Attribute                     | Purpose             | Usage                                          |
+| ----------------------------- | ------------------- | ---------------------------------------------- |
+| `data-i18n="key"`             | Text content        | `<span data-i18n="title"></span>`              |
+| `data-i18n-placeholder="key"` | Placeholder text    | `<input data-i18n-placeholder="inputHint">`    |
+| `data-i18n-title="key"`       | Title attribute     | `<button data-i18n-title="buttonTooltip">`     |
+| `data-i18n-aria-label="key"`  | ARIA label          | `<div data-i18n-aria-label="accessibleLabel">` |
+| `data-transform="type"`       | Text transformation | `data-transform="firstLine"`                   |
+| `data-suffix="text"`          | Add suffix          | `data-suffix=":"`                              |
 
 ### 3. State Preservation Requirements
 

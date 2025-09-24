@@ -122,7 +122,7 @@ export class Sidebar {
         category: t.categoryTextProcessing,
       },
       {
-        id: 'xmlFormatter',
+        id: 'xml-formatter',
         name: t.xmlFormatterName,
         translationKey: 'xmlFormatterName',
         icon: createIcon('code', 20, 'tool-icon'),

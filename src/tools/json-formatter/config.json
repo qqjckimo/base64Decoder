@@ -9,9 +9,6 @@
   "icon": "📄",
   "version": "1.0.0",
   "author": "Jason Chen",
-  "license": "MIT",
-  "repository": "https://github.com/JasonChenCH/base64Decoder",
-
   "technical": {
     "estimatedSize": "18KB",
     "actualSize": null,
@@ -46,6 +43,15 @@
     "複製到剪貼簿",
     "字元計數統計",
     "Monaco 編輯器整合"
+  ],
+  "featuresEn": [
+    "JSON syntax highlighting",
+    "JSON formatting and beautification",
+    "JSON minification and compression",
+    "Syntax error detection",
+    "Copy to clipboard",
+    "Character count statistics",
+    "Monaco Editor integration"
   ],
 
   "dependencies": {
