@@ -1619,5 +1619,9 @@ export default class Base64EncoderTool {
       MonacoLoader.disposeEditor(this.monacoEditor);
       this.monacoEditor = null;
     }
+    this.workersReady = false;
+    this.encoderWorkerReady = false;
+    this.compressorWorkerReady = false;
+    this.workersInitPromise = null;
   }
 }
