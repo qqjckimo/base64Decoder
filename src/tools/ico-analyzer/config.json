@@ -9,9 +9,6 @@
   "icon": "🔍",
   "version": "1.0.0",
   "author": "Jason Chen",
-  "license": "MIT",
-  "repository": "https://github.com/JasonChenCH/base64Decoder",
-
   "technical": {
     "estimatedSize": "25KB",
     "actualSize": null,
@@ -50,6 +47,16 @@
     "拖放檔案上傳",
     "詳細圖片資訊顯示"
   ],
+  "featuresEn": [
+    "ICO file format validation and parsing",
+    "Individual image extraction and preview",
+    "PNG vs BMP format detection",
+    "File structure analysis",
+    "HEX binary data viewer",
+    "Multi-image ICO support",
+    "Drag-and-drop file upload",
+    "Detailed image information display"
+  ],
 
   "dependencies": {
     "internal": [],
@@ -67,6 +74,11 @@
 
   "analytics": {
     "trackingEnabled": true,
-    "events": ["tool-loaded", "file-analyzed", "format-detected", "image-extracted"]
+    "events": [
+      "tool-loaded",
+      "file-analyzed",
+      "format-detected",
+      "image-extracted"
+    ]
   }
 }

@@ -9,7 +9,13 @@
   "icon": "🎨",
   "version": "1.0.0",
   "author": "Jason Chen",
-  "estimatedSize": "28KB",
-  "keywords": ["png", "ico", "icon", "converter", "image"],
-  "preload": false
+  "technical": {
+    "estimatedSize": "28KB",
+    "actualSize": null,
+    "preload": false,
+    "requiresWorker": false,
+    "requiresMonaco": false,
+    "supportedFormats": ["ico", "image/x-icon"]
+  },
+  "keywords": ["png", "ico", "icon", "converter", "image"]
 }

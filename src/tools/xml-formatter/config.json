@@ -1,0 +1,60 @@
+{
+  "id": "xml-formatter",
+  "name": "XML 格式化工具",
+  "nameEn": "XML Formatter",
+  "description": "格式化、驗證和處理 XML 內容，支援 Confluence Storage Format",
+  "descriptionEn": "Format, validate and process XML content with Confluence Storage Format support",
+  "category": "文字處理",
+  "categoryEn": "Text Processing",
+  "icon": "📝",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "technical": {
+    "preload": false,
+    "estimatedSize": "30KB",
+    "requiresWorker": false,
+    "requiresMonaco": true
+  },
+  "features": [
+    "XML 格式化與美化",
+    "XML 壓縮與最小化",
+    "即時 XML 驗證",
+    "Confluence Storage Format 支援",
+    "智慧 namespace 處理",
+    "錯誤分類與報告",
+    "Monaco Editor 整合",
+    "雙語言介面"
+  ],
+  "featuresEn": [
+    "XML formatting and beautification",
+    "XML minification and compression",
+    "Real-time XML validation",
+    "Confluence Storage Format support",
+    "Smart namespace handling",
+    "Error classification and reporting",
+    "Monaco Editor integration",
+    "Bilingual interface"
+  ],
+  "keywords": [
+    "xml",
+    "formatter",
+    "validator",
+    "confluence",
+    "namespace",
+    "text-processing",
+    "monaco",
+    "parser"
+  ],
+  "requirements": {
+    "browser": "modern",
+    "es6": true,
+    "modules": true
+  },
+  "dependencies": {
+    "internal": ["monacoLoader"],
+    "external": {
+      "cdnLibraries": ["monaco-editor"],
+      "npmPackages": ["fast-xml-parser@4.3.2", "xml-formatter@3.6.7"]
+    }
+  }
+}
