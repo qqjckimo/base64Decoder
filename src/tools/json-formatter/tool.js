@@ -26,7 +26,6 @@ export default class JSONFormatterTool {
         syntaxError: '語法錯誤',
         placeholder: '請在此輸入或貼上 JSON 內容...',
         loadingEditor: '正在載入編輯器...',
-        fallbackMode: '使用基本編輯器模式',
       },
       en: {
         title: 'JSON Formatter',
@@ -48,7 +47,6 @@ export default class JSONFormatterTool {
         syntaxError: 'Syntax error',
         placeholder: 'Enter or paste JSON content here...',
         loadingEditor: 'Loading editor...',
-        fallbackMode: 'Using basic editor mode',
       },
     };
 
@@ -64,8 +62,9 @@ export default class JSONFormatterTool {
     // DOM references
     this.elements = {};
 
-    // Monaco Editor instance
+    // Monaco Editor instance and resize handle
     this.editor = null;
+    this.resizeHandle = null;
 
     // Event handler references for cleanup
     this.eventHandlers = new Map();
@@ -86,8 +85,8 @@ export default class JSONFormatterTool {
     // Bind events
     this.bindEvents();
 
-    // Load Monaco Editor
-    await this.loadMonacoEditor();
+    // Load Monaco Editor with resize capability
+    await this.loadResizableMonacoEditor();
 
     // Setup language listener
     this.setupLanguageListener();
@@ -195,61 +194,54 @@ export default class JSONFormatterTool {
     this.eventHandlers.set('toolbar-click', toolbarClickHandler);
   }
 
-  async loadMonacoEditor() {
+  async loadResizableMonacoEditor() {
     try {
       this.updateStatus(this.t('loadingEditor'));
 
       await MonacoLoader.load();
 
-      // Create Monaco Editor instance
-      this.editor = MonacoLoader.createEditor(this.elements.editor, {
-        value: '',
-        language: 'json',
-        theme: 'vs-light',
-        minimap: { enabled: true },
-        automaticLayout: true,
-        fontSize: 14,
-        folding: true,
-        wordWrap: 'on',
-        lineNumbers: 'on',
-        scrollBeyondLastLine: false,
-        placeholder: this.t('placeholder'),
-        formatOnPaste: true,
-        formatOnType: true,
-      });
+      // Create resizable Monaco Editor instance
+      const result = MonacoLoader.createResizableEditor(
+        this.elements.editorContainer,
+        this.elements.editor,
+        {
+          value: '',
+          language: 'json',
+          theme: 'vs-light',
+          minimap: { enabled: false },
+          fontSize: 14,
+          folding: true,
+          wordWrap: 'on',
+          lineNumbers: 'on',
+          scrollBeyondLastLine: false,
+          formatOnPaste: true,
+          formatOnType: true,
+          resizeOptions: {
+            minHeight: 300,
+            maxHeight: 800
+          }
+        }
+      );
+
+      this.editor = result.editor;
+      this.resizeHandle = result.resizeHandle;
 
       // Listen for content changes
       this.editor.onDidChangeModelContent(() => {
         this.onContentChange();
       });
 
+      // Set initial height for the resizable container
+      this.elements.editorContainer.style.height = '400px';
+
       this.updateStatus(this.t('ready'));
     } catch (error) {
-      console.warn('Monaco Editor loading failed, using fallback:', error);
-      this.setupFallbackEditor();
+      console.error('Monaco Editor loading failed:', error);
+      this.updateStatus(this.t('loadingEditor') + ' - Error', 'error');
+      throw error;
     }
   }
 
-  setupFallbackEditor() {
-    this.updateStatus(this.t('fallbackMode'));
-
-    this.elements.editor.innerHTML = `
-      <textarea
-        class="json-formatter-fallback-editor"
-        placeholder="${this.t('placeholder')}"
-        spellcheck="false"
-      ></textarea>
-    `;
-
-    const textarea = this.elements.editor.querySelector('textarea');
-
-    // Listen for content changes
-    const inputHandler = () => this.onContentChange();
-    textarea.addEventListener('input', inputHandler);
-    this.eventHandlers.set('textarea-input', inputHandler);
-
-    this.updateStatus(this.t('ready'));
-  }
 
   handleToolbarClick(e) {
     e.preventDefault();
@@ -353,24 +345,14 @@ export default class JSONFormatterTool {
   }
 
   getEditorContent() {
-    if (this.editor) {
-      return this.editor.getValue();
-    } else {
-      const textarea = this.elements.editor.querySelector('textarea');
-      return textarea ? textarea.value : '';
-    }
+    return this.editor ? this.editor.getValue() : '';
   }
 
   setEditorContent(content) {
     if (this.editor) {
       this.editor.setValue(content);
-    } else {
-      const textarea = this.elements.editor.querySelector('textarea');
-      if (textarea) {
-        textarea.value = content;
-      }
+      this.onContentChange();
     }
-    this.onContentChange();
   }
 
   onContentChange() {
@@ -498,13 +480,7 @@ export default class JSONFormatterTool {
       }
     });
 
-    // Update placeholder for fallback textarea
-    if (!this.editor) {
-      const textarea = this.elements.editor.querySelector('textarea');
-      if (textarea) {
-        textarea.placeholder = this.t('placeholder');
-      }
-    }
+    // Monaco Editor placeholder is handled automatically
 
     // Update status if it's the default message
     if (!this.state.isProcessing) {
@@ -533,25 +509,17 @@ export default class JSONFormatterTool {
 
     // Remove event listeners
     this.eventHandlers.forEach((handler, event) => {
-      const [element, eventName] = event.split('-');
-      let targetElement = null;
-
-      if (element === 'toolbar' && this.elements?.toolbar) {
-        targetElement = this.elements.toolbar;
-      } else if (element === 'textarea' && this.elements?.editor) {
-        targetElement = this.elements.editor.querySelector('textarea');
-      }
-
-      if (targetElement) {
-        targetElement.removeEventListener(eventName, handler);
+      if (event === 'toolbar-click' && this.elements?.toolbar) {
+        this.elements.toolbar.removeEventListener('click', handler);
       }
     });
     this.eventHandlers.clear();
 
-    // Dispose Monaco Editor
+    // Dispose Monaco Editor and resize handle
     if (this.editor) {
       MonacoLoader.disposeEditor(this.editor);
       this.editor = null;
+      this.resizeHandle = null;
     }
 
     // Reset state completely

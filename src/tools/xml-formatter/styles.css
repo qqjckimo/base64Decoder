@@ -96,39 +96,22 @@
 
 /* Editor Container */
 .xml-formatter-editor-container {
-  flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 300px;
+  height: 400px; /* Default height, will be overridden by resize */
   background: var(--background-color, #ffffff);
+  position: relative;
+  overflow: hidden;
 }
 
 .xml-formatter-editor {
-  flex: 1;
+  height: 100%; /* Fill parent container */
   background: var(--background-color, #ffffff);
   border: none;
   outline: none;
 }
 
-/* Fallback Editor */
-.xml-formatter-fallback-editor {
-  width: 100%;
-  height: 100%;
-  min-height: 300px;
-  padding: 1rem;
-  border: none;
-  outline: none;
-  background: var(--background-color, #ffffff);
-  color: var(--text-primary, #2d3748);
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  resize: none;
-}
-
-.xml-formatter-fallback-editor::placeholder {
-  color: var(--text-secondary, #6b7280);
-}
 
 /* Status Bar */
 .xml-formatter-status-bar {
@@ -379,9 +362,8 @@
     min-height: 44px;
   }
 
-  .xml-formatter-fallback-editor {
-    padding: 0.75rem;
-    font-size: 13px;
+  .xml-formatter-editor {
+    min-height: 250px;
   }
 
   .xml-formatter-stats {

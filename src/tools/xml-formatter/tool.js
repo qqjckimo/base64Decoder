@@ -28,7 +28,6 @@ export default class XMLFormatterTool {
         errors: '個錯誤',
         placeholder: '請在此輸入或貼上 XML 內容...',
         loadingEditor: '正在載入編輯器...',
-        fallbackMode: '使用基本編輯器模式',
         // Validation status
         structureValid: '✓ XML 結構正確',
         namespaceWarning: '✓ 結構正確（有 namespace 警告）',
@@ -71,7 +70,6 @@ export default class XMLFormatterTool {
         errors: 'errors',
         placeholder: 'Enter or paste XML content here...',
         loadingEditor: 'Loading editor...',
-        fallbackMode: 'Using basic editor mode',
         // Validation status
         structureValid: '✓ XML structure is valid',
         namespaceWarning: '✓ Structure valid (namespace warnings)',
@@ -107,8 +105,9 @@ export default class XMLFormatterTool {
     // DOM references
     this.elements = {};
 
-    // Monaco Editor instance
+    // Monaco Editor instance and resize handle
     this.editor = null;
+    this.resizeHandle = null;
 
     // Event handler references for cleanup
     this.eventHandlers = new Map();
@@ -137,8 +136,8 @@ export default class XMLFormatterTool {
     // Load dependencies
     await this.loadDependencies();
 
-    // Load Monaco Editor
-    await this.loadMonacoEditor();
+    // Load Monaco Editor with resize capability
+    await this.loadResizableMonacoEditor();
 
     // Setup language listener
     this.setupLanguageListener();
@@ -364,28 +363,37 @@ export default class XMLFormatterTool {
     }
   }
 
-  async loadMonacoEditor() {
+  async loadResizableMonacoEditor() {
     try {
       this.updateStatus(this.t('loadingEditor'));
 
       await MonacoLoader.load();
 
-      // Create Monaco Editor instance
-      this.editor = MonacoLoader.createEditor(this.elements.editor, {
-        value: '',
-        language: 'xml',
-        theme: 'vs-light',
-        minimap: { enabled: false },
-        automaticLayout: true,
-        fontSize: 14,
-        folding: true,
-        wordWrap: 'on',
-        lineNumbers: 'on',
-        scrollBeyondLastLine: false,
-        placeholder: this.t('placeholder'),
-        formatOnPaste: false,
-        formatOnType: false,
-      });
+      // Create resizable Monaco Editor instance
+      const result = MonacoLoader.createResizableEditor(
+        this.elements.editorContainer,
+        this.elements.editor,
+        {
+          value: '',
+          language: 'xml',
+          theme: 'vs-light',
+          minimap: { enabled: false },
+          fontSize: 14,
+          folding: true,
+          wordWrap: 'on',
+          lineNumbers: 'on',
+          scrollBeyondLastLine: false,
+          formatOnPaste: false,
+          formatOnType: false,
+          resizeOptions: {
+            minHeight: 300,
+            maxHeight: 800
+          }
+        }
+      );
+
+      this.editor = result.editor;
+      this.resizeHandle = result.resizeHandle;
 
       // Listen for content changes
       this.editor.onDidChangeModelContent(() => {
@@ -397,10 +405,14 @@ export default class XMLFormatterTool {
         this.registerXMLFormattingProvider();
       }
 
+      // Set initial height for the resizable container
+      this.elements.editorContainer.style.height = '400px';
+
       this.updateStatus(this.t('ready'));
     } catch (error) {
-      console.warn('Monaco Editor loading failed, using fallback:', error);
-      this.setupFallbackEditor();
+      console.error('Monaco Editor loading failed:', error);
+      this.updateStatus(this.t('loadingEditor') + ' - Error', 'error');
+      throw error;
     }
   }
 
@@ -428,26 +440,6 @@ export default class XMLFormatterTool {
     });
   }
 
-  setupFallbackEditor() {
-    this.updateStatus(this.t('fallbackMode'));
-
-    this.elements.editor.innerHTML = `
-      <textarea
-        class="xml-formatter-fallback-editor"
-        placeholder="${this.t('placeholder')}"
-        spellcheck="false"
-      ></textarea>
-    `;
-
-    const textarea = this.elements.editor.querySelector('textarea');
-
-    // Listen for content changes
-    const inputHandler = () => this.onContentChange();
-    textarea.addEventListener('input', inputHandler);
-    this.eventHandlers.set('textarea-input', inputHandler);
-
-    this.updateStatus(this.t('ready'));
-  }
 
   handleToolbarClick(e) {
     e.preventDefault();
@@ -724,24 +716,14 @@ ${content}
   }
 
   getEditorContent() {
-    if (this.editor) {
-      return this.editor.getValue();
-    } else {
-      const textarea = this.elements.editor.querySelector('textarea');
-      return textarea ? textarea.value : '';
-    }
+    return this.editor ? this.editor.getValue() : '';
   }
 
   setEditorContent(content) {
     if (this.editor) {
       this.editor.setValue(content);
-    } else {
-      const textarea = this.elements.editor.querySelector('textarea');
-      if (textarea) {
-        textarea.value = content;
-      }
+      this.onContentChange();
     }
-    this.onContentChange();
   }
 
   onContentChange() {
@@ -999,13 +981,7 @@ ${content}
       }
     });
 
-    // Update placeholder for fallback textarea
-    if (!this.editor) {
-      const textarea = this.elements.editor.querySelector('textarea');
-      if (textarea) {
-        textarea.placeholder = this.t('placeholder');
-      }
-    }
+    // Monaco Editor placeholder is handled automatically
 
     // Update status if it's the default message
     if (!this.state.isProcessing) {
@@ -1050,19 +1026,15 @@ ${content}
     this.eventHandlers.forEach((handler, event) => {
       if (event === 'container-click' && this.container) {
         this.container.removeEventListener('click', handler);
-      } else if (event === 'textarea-input' && this.elements?.editor) {
-        const textarea = this.elements.editor.querySelector('textarea');
-        if (textarea) {
-          textarea.removeEventListener('input', handler);
-        }
       }
     });
     this.eventHandlers.clear();
 
-    // Dispose Monaco Editor
+    // Dispose Monaco Editor and resize handle
     if (this.editor) {
       MonacoLoader.disposeEditor(this.editor);
       this.editor = null;
+      this.resizeHandle = null;
     }
 
     // Reset state completely

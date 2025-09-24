@@ -24,7 +24,9 @@
       "WebFetch(domain:developers.cloudflare.com)",
       "Bash(cat:*)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(npx http-server:*)"
+      "Bash(npx http-server:*)",
+      "WebFetch(domain:microsoft.github.io)",
+      "WebFetch(domain:berezuzu.medium.com)"
     ],
     "deny": [],
     "ask": []
