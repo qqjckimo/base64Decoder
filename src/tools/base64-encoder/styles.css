@@ -185,8 +185,21 @@
 }
 
 .btn-small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   font-size: 14px;
+}
+
+.btn-icon-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.btn-text {
+  white-space: nowrap;
 }
 
 .monaco-container {

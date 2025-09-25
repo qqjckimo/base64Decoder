@@ -179,16 +179,16 @@ export default class Base64EncoderTool {
     if (elements.editorTitle)
       elements.editorTitle.textContent = `Base64 ${t.result || '結果'}`;
     if (elements.copyBtn) {
-      elements.copyBtn.innerHTML = `${createIcon('copy', 16, 'btn-icon')} ${
-        t.copyBase64
-      }`;
+      const copyTextElement = elements.copyBtn.querySelector('.btn-text');
+      if (copyTextElement) {
+        copyTextElement.textContent = t.copyBase64;
+      }
     }
     if (elements.downloadBtn) {
-      elements.downloadBtn.innerHTML = `${createIcon(
-        'download',
-        16,
-        'btn-icon'
-      )} ${t.downloadBase64}`;
+      const downloadTextElement = elements.downloadBtn.querySelector('.btn-text');
+      if (downloadTextElement) {
+        downloadTextElement.textContent = t.downloadBase64;
+      }
     }
     if (elements.sizeComparisonTitle)
       elements.sizeComparisonTitle.textContent = t.sizeComparison;
@@ -455,10 +455,12 @@ export default class Base64EncoderTool {
             <h3 class="editor-title">Base64 ${t.result || '結果'}</h3>
             <div class="editor-actions">
               <button class="btn btn-small btn-secondary" id="copyBtn">
-                ${createIcon('copy', 16, 'btn-icon')} ${t.copyBase64}
+                <span class="btn-icon-wrapper">${createIcon('copy', 16, 'btn-icon')}</span>
+                <span class="btn-text">${t.copyBase64}</span>
               </button>
               <button class="btn btn-small btn-secondary" id="downloadBtn">
-                ${createIcon('download', 16, 'btn-icon')} ${t.downloadBase64}
+                <span class="btn-icon-wrapper">${createIcon('download', 16, 'btn-icon')}</span>
+                <span class="btn-text">${t.downloadBase64}</span>
               </button>
             </div>
           </div>

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "webpack serve --mode development",
     "build": "cross-env NODE_ENV=production webpack --mode production",
+    "build:dev": "cross-env NODE_ENV=development webpack --mode development",
     "build:analyze": "cross-env ANALYZE=true webpack --mode production",
     "analyze": "npm run build:analyze",
     "clean": "rimraf docs",
