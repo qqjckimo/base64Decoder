@@ -408,13 +408,6 @@ export default class Base64EncoderTool {
         
         <!-- 上傳區域 -->
         <div class="upload-section" id="uploadArea">
-
-        <!-- TODO: update to the style aligned with other tools 
-        <div class="editor-loading">
-          <div class="loading-spinner"></div>
-          <div class="loading-text">${t.loadingEditor}</div>
-        </div>
-        -->
           <div class="upload-icon">📷</div>
           <div class="upload-text">${t.uploadText}</div>
           <div style="color: #999; font-size: 0.9em; margin-bottom: 15px;">${
@@ -425,7 +418,7 @@ export default class Base64EncoderTool {
         </div>
 
         <!-- 控制面板 -->
-        <div class="control-panel" id="controlPanel" style="display: none;">
+        <div class="control-panel" id="controlPanel" style="opacity: 0;">
           <div class="quality-control">
             <label>${
               t.qualityLabel
@@ -464,7 +457,7 @@ export default class Base64EncoderTool {
         </div>
 
         <!-- Monaco Editor 區域 -->
-        <div class="editor-section" id="editorSection" style="display: none;">
+        <div class="editor-section" id="editorSection" style="opacity: 0;">
           <div class="editor-header">
             <h3 class="editor-title">Base64 ${t.result || '結果'}</h3>
             <div class="editor-actions">
@@ -1248,7 +1241,6 @@ export default class Base64EncoderTool {
       // 先創建fallback編輯器確保立即顯示
       if (!this.monacoEditor) {
         console.log('🛠️ [Tool DEBUG] Creating fallback editor first');
-        this.createFallbackEditor();
       }
 
       // 設置base64值到現有編輯器
@@ -1297,11 +1289,9 @@ export default class Base64EncoderTool {
         });
     } catch (error) {
       console.error('❌ [Tool DEBUG] Error in displayBase64:', error);
-      // 立即創建fallback編輯器
       console.log(
         '🛠️ [Tool DEBUG] Creating immediate fallback editor due to error'
       );
-      this.createFallbackEditor();
       if (this.monacoEditor && this.monacoEditor.setValue) {
         try {
           this.monacoEditor.setValue(base64);
@@ -1367,24 +1357,6 @@ export default class Base64EncoderTool {
       console.log('Monaco Editor initialized successfully for Encoder');
     } catch (error) {
       console.error('Failed to load Monaco Editor:', error);
-      // 只有在沒有編輯器的情況下才創建fallback
-      if (!this.monacoEditor) {
-        this.createFallbackEditor();
-      }
-    }
-  }
-
-  createFallbackEditor() {
-    const container = document.getElementById('monacoContainer');
-    if (container) {
-      this.monacoEditor = MonacoLoader.createFallbackEditor(container, {
-        value: '',
-        readOnly: true,
-      });
-      // Mark as fallback editor for identification
-      if (this.monacoEditor) {
-        this.monacoEditor.isFallback = true;
-      }
     }
   }
 

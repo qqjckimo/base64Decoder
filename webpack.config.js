@@ -11,8 +11,10 @@ const BundleAnalyzerPlugin =
 const WebpackObfuscator = require('webpack-obfuscator');
 const portfinder = require('portfinder');
 
-const isProduction = process.env.NODE_ENV === 'production';
-const shouldAnalyze = process.env.ANALYZE === 'true';
+const gEnv = {
+  isProduction: process.env.NODE_ENV === 'production',
+  shouldAnalyze: process.env.ANALYZE === 'true',
+};
 
 // Unified asset filename generator to avoid conflicts
 const generateAssetFilename = (pathData) => {
@@ -43,7 +45,7 @@ const generateAssetFilename = (pathData) => {
   }
 
   // Return unified format: [subdir][name]-[pathHash].[contenthash:8][ext]
-  return isProduction
+  return gEnv.isProduction
     ? `${subdir}${basename}-${pathHash}.[contenthash:8]${ext}`
     : `${subdir}${basename}-${pathHash}${ext}`;
 };
@@ -60,7 +62,7 @@ class BundleSizePlugin {
   apply(compiler) {
     compiler.hooks.afterEmit.tap('BundleSizePlugin', (compilation) => {
       // Skip size checks in development mode
-      if (!isProduction) {
+      if (!gEnv.isProduction) {
         console.log('📦 Skipping bundle size checks in development mode');
         return;
       }
@@ -171,7 +173,7 @@ class BundleSizePlugin {
         console.warn('\n⚠️  Bundle Size Warnings:');
         warnings.forEach((w) => console.warn(`   ${w}`));
         // Temporarily disable build failure for testing Worker functionality
-        // if (isProduction) {
+        // if (gEnv.isProduction) {
         //     throw new Error('Bundle size limits exceeded. Build failed.');
         // }
       } else {
@@ -181,17 +183,12 @@ class BundleSizePlugin {
   }
 }
 
-// Log configuration for debugging
-console.log('🔧 Webpack Configuration:');
-console.log(`   Mode: ${isProduction ? 'production' : 'development'}`);
-console.log(`   Analyze: ${shouldAnalyze}`);
-
 // Base port configuration
 const DEFAULT_PORT = 3000;
 portfinder.basePort = DEFAULT_PORT;
 
 const webpackConfig = {
-  mode: isProduction ? 'production' : 'development',
+  mode: gEnv.isProduction ? 'production' : 'development',
   entry: {
     core: './src/core/app.js',
     'encoder-worker': './src/tools/base64-encoder/encoder.worker.js',
@@ -200,11 +197,11 @@ const webpackConfig = {
   output: {
     path: path.resolve(__dirname, 'docs'),
     filename: (pathData) => {
-      return isProduction
+      return gEnv.isProduction
         ? '[name].[contenthash:8].bundle.js'
         : '[name].bundle.js';
     },
-    chunkFilename: isProduction
+    chunkFilename: gEnv.isProduction
       ? 'chunks/[name].[contenthash:8].chunk.js'
       : 'chunks/[name].chunk.js',
     publicPath: '/',
@@ -264,7 +261,7 @@ const webpackConfig = {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: !isProduction,
+              sourceMap: !gEnv.isProduction,
               modules: false,
               importLoaders: 1,
             },
@@ -275,7 +272,7 @@ const webpackConfig = {
               postcssOptions: {
                 plugins: [
                   ['autoprefixer'],
-                  isProduction && [
+                  gEnv.isProduction && [
                     'cssnano',
                     {
                       preset: [
@@ -294,7 +291,7 @@ const webpackConfig = {
         ],
       },
       // 核心業務邏輯 - 高強度混淆
-      isProduction && {
+      !gEnv.isProduction && {
         test: /\.js$/,
         exclude: [
           /node_modules/,
@@ -308,7 +305,7 @@ const webpackConfig = {
             compact: true,
             controlFlowFlattening: false,
             deadCodeInjection: true,
-            debugProtection: false,
+            debugProtection: true,
             disableConsoleOutput: true,
             identifierNamesGenerator: 'mangled-shuffled',
             ignoreImports: true, // 忽略 import 語句
@@ -319,7 +316,7 @@ const webpackConfig = {
             splitStrings: false, // 避免增加體積
             stringArray: true,
             stringArrayCallsTransform: false,
-            stringArrayEncoding: ['base64'],
+            stringArrayEncoding: ['rc4'],
             stringArrayIndexShift: true,
             stringArrayRotate: true,
             stringArrayShuffle: true,
@@ -343,7 +340,7 @@ const webpackConfig = {
   plugins: [
     new webpack.DefinePlugin({
       _APP_VERSION_: JSON.stringify(packageJson.version),
-      __PRODUCTION__: JSON.stringify(isProduction),
+      __PRODUCTION__: JSON.stringify(gEnv.isProduction),
     }),
     new webpack.BannerPlugin({
       banner: `/*!
@@ -358,7 +355,7 @@ const webpackConfig = {
         _APP_VERSION_: packageJson.version,
         _BUILD_DATE_: new Date().toISOString().split('T')[0],
       },
-      minify: isProduction
+      minify: gEnv.isProduction
         ? {
             collapseWhitespace: true,
             removeComments: true,
@@ -383,18 +380,18 @@ const webpackConfig = {
       inject: 'body',
     }),
     // new WebpackObfuscator({
-    //   stringArray: isProduction,
+    //   stringArray: gEnv.isProduction,
     //   stringArrayThreshold: 1,
     //   rotateStringArray: false,
     //   stringArrayEncoding: ["base64", "rc4"],
-    //   compact: isProduction,
+    //   compact: gEnv.isProduction,
     //   controlFlowFlattening: false,
-    //   deadCodeInjection: isProduction,
-    //   // debugProtection: isProduction,
-    //   disableConsoleOutput: isProduction,
+    //   deadCodeInjection: gEnv.isProduction,
+    //   // debugProtection: gEnv.isProduction,
+    //   disableConsoleOutput: gEnv.isProduction,
     //   identifierNamesGenerator: "mangled-shuffled",
     //   renameGlobals: false,
-    //   selfDefending: isProduction,
+    //   selfDefending: gEnv.isProduction,
     //   splitStrings: false,
     //   unicodeEscapeSequence: false,
     // }),
@@ -437,14 +434,14 @@ const webpackConfig = {
         },
       ],
     }),
-    isProduction &&
+    gEnv.isProduction &&
       new CompressionPlugin({
         test: /\.(js|css|html)$/,
         algorithm: 'gzip',
         threshold: 1024,
         minRatio: 0.8,
       }),
-    isProduction &&
+    gEnv.isProduction &&
       new CompressionPlugin({
         test: /\.(js|css|html)$/,
         algorithm: 'brotliCompress',
@@ -452,8 +449,8 @@ const webpackConfig = {
         threshold: 1024,
         minRatio: 0.8,
       }),
-    isProduction && new BundleSizePlugin(),
-    shouldAnalyze &&
+    gEnv.isProduction && new BundleSizePlugin(),
+    gEnv.shouldAnalyze &&
       new BundleAnalyzerPlugin({
         analyzerMode: 'static',
         reportFilename: 'bundle-report.html',
@@ -461,14 +458,14 @@ const webpackConfig = {
       }),
   ].filter(Boolean),
   optimization: {
-    minimize: isProduction,
+    minimize: gEnv.isProduction,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
           parse: { ecma: 2020 },
           compress: {
             ecma: 2020,
-            drop_console: isProduction,
+            drop_console: gEnv.isProduction,
             // drop_debugger: false,
             // pure_funcs: ["console.log", "console.info", "console.debug"],
             // passes: 2,
@@ -607,7 +604,7 @@ const webpackConfig = {
       );
     },
   },
-  devtool: isProduction ? false : 'eval-source-map',
+  devtool: gEnv.isProduction ? false : 'eval-source-map',
   stats: {
     assets: true,
     chunks: true,
@@ -667,6 +664,14 @@ const mainConfig = {
 // Export configuration with port finding for dev server
 module.exports = (env, argv) => {
   const mode = argv.mode || 'development';
+
+  gEnv.isProduction = mode === 'production';
+  gEnv.shouldAnalyze = process.env.ANALYZE === 'true';
+
+  // Log configuration for debugging
+  console.log('🔧 Webpack Configuration:');
+  console.log(`   Mode: ${gEnv.isProduction ? 'production' : 'development'}`);
+  console.log(`   Analyze: ${gEnv.shouldAnalyze}\n`);
 
   if (mode === 'development') {
     return portfinder

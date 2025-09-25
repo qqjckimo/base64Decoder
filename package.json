@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "dev": "webpack serve --mode development",
-    "build": "webpack --mode production",
+    "build": "cross-env NODE_ENV=production webpack --mode production",
     "build:analyze": "cross-env ANALYZE=true webpack --mode production",
     "analyze": "npm run build:analyze",
     "clean": "rimraf docs",
