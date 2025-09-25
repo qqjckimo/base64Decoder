@@ -48,6 +48,7 @@
     "fflate": "^0.8.2",
     "html-minifier-terser": "^7.2.0",
     "html-webpack-plugin": "^5.5.3",
+    "license-webpack-plugin": "^4.0.2",
     "mini-css-extract-plugin": "^2.7.6",
     "portfinder": "^1.0.37",
     "postcss": "^8.4.31",

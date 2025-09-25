@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const BundleAnalyzerPlugin =
   require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const WebpackObfuscator = require('webpack-obfuscator');
+const { LicenseWebpackPlugin } = require('license-webpack-plugin');
 const portfinder = require('portfinder');
 
 const gEnv = {
@@ -441,6 +442,17 @@ const webpackConfig = {
         minRatio: 0.8,
       }),
     gEnv.isProduction && new BundleSizePlugin(),
+    gEnv.isProduction &&
+      new LicenseWebpackPlugin({
+        outputFilename: 'third-party-licenses.txt',
+        perChunkOutput: false,
+        addBanner: false,
+        unacceptablePattern: /GPL|AGPL|LGPL/i,
+        excludedPackageTest: (packageName) => {
+          // Exclude the main application package
+          return packageName === 'developer-tools-collection';
+        }
+      }),
     gEnv.shouldAnalyze &&
       new BundleAnalyzerPlugin({
         analyzerMode: 'static',
