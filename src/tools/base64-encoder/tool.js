@@ -4,6 +4,7 @@ import {
   initializeLucideIcons,
 } from '../../components/shared/Icon.js';
 import './styles.css';
+import { WorkerCreator } from './worker-creator.js';
 
 export default class Base64EncoderTool {
   constructor() {
@@ -242,11 +243,7 @@ export default class Base64EncoderTool {
       // 建立並初始化 Encoder Worker
       const encoderPromise = new Promise((resolve, reject) => {
         try {
-          this.encoderWorker = new Worker(
-            /* webpackChunkName: "encoder-worker" */
-            new URL('./encoder.worker.js', import.meta.url),
-            { type: 'module' }
-          );
+          this.encoderWorker = WorkerCreator.createEncoderWorker();
 
           // 設定訊息處理
           const initTimeout = setTimeout(() => {
@@ -285,11 +282,7 @@ export default class Base64EncoderTool {
       // 建立並初始化 Compressor Worker
       const compressorPromise = new Promise((resolve, reject) => {
         try {
-          this.compressorWorker = new Worker(
-            /* webpackChunkName: "compressor-worker" */
-            new URL('./compressor.worker.js', import.meta.url),
-            { type: 'module' }
-          );
+          this.compressorWorker = WorkerCreator.createCompressorWorker();
 
           // 設定訊息處理
           const initTimeout = setTimeout(() => {
@@ -418,7 +411,7 @@ export default class Base64EncoderTool {
         </div>
 
         <!-- 控制面板 -->
-        <div class="control-panel" id="controlPanel" style="opacity: 0;">
+        <div class="control-panel" id="controlPanel" style="display: none;">
           <div class="quality-control">
             <label>${
               t.qualityLabel
@@ -457,7 +450,7 @@ export default class Base64EncoderTool {
         </div>
 
         <!-- Monaco Editor 區域 -->
-        <div class="editor-section" id="editorSection" style="opacity: 0;">
+        <div class="editor-section" id="editorSection" style="display: none;">
           <div class="editor-header">
             <h3 class="editor-title">Base64 ${t.result || '結果'}</h3>
             <div class="editor-actions">

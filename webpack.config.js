@@ -16,6 +16,12 @@ const gEnv = {
   shouldAnalyze: process.env.ANALYZE === 'true',
 };
 
+// Log configuration for debugging
+console.log('🔧 Webpack Configuration:');
+console.log(`   Mode: ${gEnv.isProduction ? 'production' : 'development'}`);
+console.log(`   Analyze: ${gEnv.shouldAnalyze}\n`);
+// gEnv.isProduction = false;
+
 // Unified asset filename generator to avoid conflicts
 const generateAssetFilename = (pathData) => {
   // Get relative path for uniqueness
@@ -291,12 +297,13 @@ const webpackConfig = {
         ],
       },
       // 核心業務邏輯 - 高強度混淆
-      !gEnv.isProduction && {
+      gEnv.isProduction && {
         test: /\.js$/,
         exclude: [
           /node_modules/,
-          /\.worker\.mjs$/, // 排除 worker 的 mjs 檔案
+          /\.worker\./, // 排除 worker 的 mjs 檔案
           /monaco-editor/, // 排除 Monaco Editor
+          /base64-encoder\/worker-creator\.js$/, // 排除整個 base64-encoder worker-creator.js
         ],
         enforce: 'post',
         use: {
@@ -379,22 +386,6 @@ const webpackConfig = {
       chunks: ['core'],
       inject: 'body',
     }),
-    // new WebpackObfuscator({
-    //   stringArray: gEnv.isProduction,
-    //   stringArrayThreshold: 1,
-    //   rotateStringArray: false,
-    //   stringArrayEncoding: ["base64", "rc4"],
-    //   compact: gEnv.isProduction,
-    //   controlFlowFlattening: false,
-    //   deadCodeInjection: gEnv.isProduction,
-    //   // debugProtection: gEnv.isProduction,
-    //   disableConsoleOutput: gEnv.isProduction,
-    //   identifierNamesGenerator: "mangled-shuffled",
-    //   renameGlobals: false,
-    //   selfDefending: gEnv.isProduction,
-    //   splitStrings: false,
-    //   unicodeEscapeSequence: false,
-    // }),
     // Copy static assets
     new CopyWebpackPlugin({
       patterns: [
@@ -478,11 +469,12 @@ const webpackConfig = {
           },
           mangle: {
             safari10: true,
-            // Enhanced property mangling
-            properties: {
-              regex: /^_/, // Mangle properties starting with _
-              keep_quoted: true, // Keep quoted property names
-            },
+            // // Enhanced property mangling
+            // properties: {
+            //   regex: /^_/, // Mangle properties starting with _
+            //   keep_quoted: true, // Keep quoted property names
+            // },
+            keep_fnames: true, // Keep function names for better stack traces
           },
           // format: {
           //   ecma: 2020,
@@ -641,8 +633,10 @@ const workerConfig = {
     ...webpackConfig.optimization,
     splitChunks: {
       chunks: (chunk) => {
-        // Allow splitting for worker chunks
-        return !chunk.name?.includes('codecs/');
+        // Don't split worker chunks and codec chunks
+        return (
+          !chunk.name?.includes('-worker') && !chunk.name?.includes('codecs/')
+        );
       },
       cacheGroups: {
         // Only keep essential cache groups for workers
@@ -664,14 +658,6 @@ const mainConfig = {
 // Export configuration with port finding for dev server
 module.exports = (env, argv) => {
   const mode = argv.mode || 'development';
-
-  gEnv.isProduction = mode === 'production';
-  gEnv.shouldAnalyze = process.env.ANALYZE === 'true';
-
-  // Log configuration for debugging
-  console.log('🔧 Webpack Configuration:');
-  console.log(`   Mode: ${gEnv.isProduction ? 'production' : 'development'}`);
-  console.log(`   Analyze: ${gEnv.shouldAnalyze}\n`);
 
   if (mode === 'development') {
     return portfinder

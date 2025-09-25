@@ -97,7 +97,6 @@
   outline: none;
 }
 
-
 /* Status Bar */
 .status-bar {
   background: var(--bg-primary, #ffffff);
@@ -156,10 +155,6 @@
   .json-formatter-tool .btn {
     padding: var(--spacing-xs, 4px) var(--spacing-md, 16px);
     font-size: 13px;
-  }
-
-  .json-formatter-tool .btn .btn-text {
-    display: none;
   }
 
   .json-formatter-tool .btn-icon {
