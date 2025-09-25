@@ -185,7 +185,8 @@ export default class Base64EncoderTool {
       }
     }
     if (elements.downloadBtn) {
-      const downloadTextElement = elements.downloadBtn.querySelector('.btn-text');
+      const downloadTextElement =
+        elements.downloadBtn.querySelector('.btn-text');
       if (downloadTextElement) {
         downloadTextElement.textContent = t.downloadBase64;
       }
@@ -412,22 +413,6 @@ export default class Base64EncoderTool {
 
         <!-- 控制面板 -->
         <div class="control-panel" id="controlPanel" style="display: none;">
-          <div class="quality-control">
-            <label>${
-              t.qualityLabel
-            }: <span class="quality-value" id="qualityValue">75</span></label>
-            <input type="range" class="quality-slider" id="qualitySlider" 
-                   min="1" max="100" value="75" step="1">
-          </div>
-          
-          <!-- 進度條 -->
-          <div class="compression-progress" id="progressContainer" style="display: none;">
-            <div class="progress-bar">
-              <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText"></div>
-          </div>
-          
           <!-- 檔案資訊 -->
           <div class="file-info" id="fileInfoContainer" style="display: none;">
             <div class="info-item">
@@ -455,11 +440,19 @@ export default class Base64EncoderTool {
             <h3 class="editor-title">Base64 ${t.result || '結果'}</h3>
             <div class="editor-actions">
               <button class="btn btn-small btn-secondary" id="copyBtn">
-                <span class="btn-icon-wrapper">${createIcon('copy', 16, 'btn-icon')}</span>
+                <span class="btn-icon-wrapper">${createIcon(
+                  'copy',
+                  16,
+                  'btn-icon'
+                )}</span>
                 <span class="btn-text">${t.copyBase64}</span>
               </button>
               <button class="btn btn-small btn-secondary" id="downloadBtn">
-                <span class="btn-icon-wrapper">${createIcon('download', 16, 'btn-icon')}</span>
+                <span class="btn-icon-wrapper">${createIcon(
+                  'download',
+                  16,
+                  'btn-icon'
+                )}</span>
                 <span class="btn-text">${t.downloadBase64}</span>
               </button>
             </div>
@@ -469,6 +462,22 @@ export default class Base64EncoderTool {
 
         <!-- 檔案大小比較 -->
         <div class="size-comparison" id="sizeComparison" style="display: none;">
+          <div class="quality-control">
+            <label>${
+              t.qualityLabel
+            }: <span class="quality-value" id="qualityValue">75</span></label>
+            <input type="range" class="quality-slider" id="qualitySlider" 
+                   min="1" max="100" value="75" step="1">
+          </div>
+          
+          <!-- 進度條 -->
+          <div class="compression-progress" id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText"></div>
+          </div>
+          
           <h3>${t.sizeComparison}</h3>
           <div class="chart-container">
             <canvas class="chart-canvas" id="chartCanvas"></canvas>
@@ -509,6 +518,9 @@ export default class Base64EncoderTool {
 
     // 品質滑桿事件
     qualitySlider?.addEventListener('input', (e) =>
+      this.handleQualityValueUpdate(e)
+    );
+    qualitySlider?.addEventListener('change', (e) =>
       this.handleQualityChange(e)
     );
 
@@ -1492,10 +1504,12 @@ export default class Base64EncoderTool {
     return colors[format] || '#6c757d';
   }
 
-  handleQualityChange(event) {
+  handleQualityValueUpdate(event) {
     const quality = event.target.value;
     document.getElementById('qualityValue').textContent = quality;
+  }
 
+  handleQualityChange(event) {
     // 重新壓縮
     if (this.currentFile) {
       this.startCompression();
