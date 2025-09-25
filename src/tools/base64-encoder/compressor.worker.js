@@ -171,12 +171,16 @@ async function compressImage(imageData, id) {
 
         const compressionTime = Date.now() - startTime;
 
+        // 複製 ArrayBuffer 用於傳輸
+        const transferBuffer = compressedBuffer.slice();
+
         results.push({
           format,
           size: compressedBuffer.byteLength,
           compressionTime,
           quality,
           success: true,
+          data: compressedBuffer, // 包含壓縮後的數據
         });
 
         // 即時回報單一格式結果
@@ -190,8 +194,9 @@ async function compressImage(imageData, id) {
             compressionTime,
             quality,
             success: true,
+            data: transferBuffer, // 包含壓縮後的數據
           },
-        });
+        }, [transferBuffer]); // 使用 Transferable Objects 傳輸 ArrayBuffer
       } catch (formatError) {
         console.error(
           `❌ Failed to compress as ${format}:`,

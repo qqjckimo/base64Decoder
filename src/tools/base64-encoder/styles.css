@@ -294,9 +294,43 @@
   color: #666;
 }
 
+.format-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .format-size {
   font-weight: bold;
   font-size: 1.1em;
+}
+
+.format-download-btn {
+  background: #007bff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  min-width: 28px;
+  height: 28px;
+}
+
+.format-download-btn:hover {
+  background: #0056b3;
+}
+
+.format-download-btn:active {
+  transform: translateY(1px);
+}
+
+.format-download-btn .download-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .error-message {
@@ -400,6 +434,16 @@
     flex-direction: column;
     text-align: center;
     gap: 8px;
+  }
+
+  .format-actions {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .format-download-btn {
+    margin-top: 5px;
   }
   
   .button-group {

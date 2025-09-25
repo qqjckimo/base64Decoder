@@ -527,6 +527,16 @@ export default class Base64EncoderTool {
     // 按鈕事件
     copyBtn?.addEventListener('click', () => this.copyBase64());
     downloadBtn?.addEventListener('click', () => this.downloadBase64());
+
+    // 格式下載按鈕事件（使用事件委派，因為按鈕是動態生成的）
+    const formatResults = document.getElementById('formatResults');
+    formatResults?.addEventListener('click', (e) => {
+      if (e.target.closest('.format-download-btn')) {
+        const btn = e.target.closest('.format-download-btn');
+        const format = btn.getAttribute('data-format');
+        this.downloadFormatResult(format);
+      }
+    });
   }
 
   handleFileSelect(event) {
@@ -1218,7 +1228,7 @@ export default class Base64EncoderTool {
       compressing: '計算 Gzip 大小...',
       loading: '載入壓縮工具...',
       preparing: '準備壓縮...',
-      compressing_png: '壓縮 PNG...',
+      compressing_png: '壓縮 oxiPNG...',
       compressing_webp: '壓縮 WebP...',
       compressing_avif: '壓縮 AVIF...',
     };
@@ -1381,12 +1391,23 @@ export default class Base64EncoderTool {
       div.className = `format-result ${format}`;
       div.innerHTML = `
         <div class="format-info">
-          <div class="format-name">${format.toUpperCase()}</div>
+          <div class="format-name">${
+            format === 'png' ? 'oxiPNG' : format.toUpperCase()
+          }</div>
           <div class="format-time">${this.formatTime(
             result.compressionTime
           )}</div>
         </div>
-        <div class="format-size">${this.formatFileSize(result.size)}</div>
+        <div class="format-actions">
+          <div class="format-size">${this.formatFileSize(result.size)}</div>
+            <button class="btn btn-secondary" data-format="${format}" title="下載 ${
+        format === 'png' ? 'oxiPNG' : format.toUpperCase()
+      } 格式">
+            <span class="btn-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" class="lucide lucide-download lucide-icon btn-icon" style="width: 16px; height: 16px;"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
+            </span>
+            </button>
+        </div>
       `;
       container.appendChild(div);
     }
@@ -1425,7 +1446,8 @@ export default class Base64EncoderTool {
     Object.values(this.compressionResults).forEach((result) => {
       if (result.success) {
         data.push({
-          label: result.format.toUpperCase(),
+          label:
+            result.format === 'png' ? 'oxiPNG' : result.format.toUpperCase(),
           size: result.size,
           color: this.getFormatColor(result.format),
         });
@@ -1546,6 +1568,50 @@ export default class Base64EncoderTool {
       'success',
       this.translations[this.currentLanguage].downloadSuccess
     );
+  }
+
+  downloadFormatResult(format) {
+    // 檢查是否有該格式的壓縮結果
+    const result = this.compressionResults[format];
+    if (!result || !result.success || !result.data) {
+      this.showMessage(
+        'error',
+        `無法下載 ${format.toUpperCase()} 格式：數據不可用`
+      );
+      return;
+    }
+
+    try {
+      // 根據格式設置 MIME type
+      const mimeTypes = {
+        png: 'image/png',
+        webp: 'image/webp',
+        avif: 'image/avif',
+      };
+
+      const mimeType = mimeTypes[format] || 'application/octet-stream';
+      const formatDisplayName =
+        format === 'png' ? 'oxiPNG' : format.toUpperCase();
+
+      // 創建 Blob 和下載
+      const blob = new Blob([result.data], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // 生成檔案名稱
+      const originalName = this.currentFile?.name || 'image';
+      const nameWithoutExt = originalName.replace(/\.[^/.]+$/, ''); // 移除原始副檔名
+      a.download = `${nameWithoutExt}_${format}.${format}`;
+
+      a.click();
+      URL.revokeObjectURL(url);
+
+      this.showMessage('success', `${formatDisplayName} 格式檔案下載完成`);
+    } catch (error) {
+      console.error('Download failed:', error);
+      this.showMessage('error', `下載失敗: ${error.message}`);
+    }
   }
 
   showMessage(type, message) {
