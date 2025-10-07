@@ -1,6 +1,6 @@
 {
   "name": "developer-tools-collection",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "A lightweight collection of developer tools with dynamic module loading",
   "main": "index.html",
   "scripts": {
