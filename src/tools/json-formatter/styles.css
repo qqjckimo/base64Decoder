@@ -17,6 +17,7 @@
   box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--spacing-md, 16px);
   border-bottom: 1px solid var(--border-color, #e0e0e0);
   flex-wrap: wrap;
@@ -26,8 +27,14 @@
   font-size: 20px;
   font-weight: 600;
   color: var(--text-primary, #333333);
-  margin-right: auto;
   white-space: nowrap;
+}
+
+.tool-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  flex-wrap: wrap;
 }
 
 /* Button Styles */
@@ -45,6 +52,8 @@
   color: var(--text-primary, #333333);
   font-family: inherit;
   white-space: nowrap;
+  flex-grow: unset;
+  flex-shrink: unset;
 }
 
 .json-formatter-tool .btn:hover {
@@ -85,8 +94,8 @@
   position: relative;
   overflow: hidden;
   background: var(--bg-primary, #ffffff);
+  flex: 1; /* 佔滿剩餘高度 */
   min-height: 300px;
-  height: 400px; /* Default height, will be overridden by resize */
   display: flex;
   flex-direction: column;
 }

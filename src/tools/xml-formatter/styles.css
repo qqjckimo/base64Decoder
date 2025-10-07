@@ -98,8 +98,8 @@
 .xml-formatter-editor-container {
   display: flex;
   flex-direction: column;
+  flex: 1; /* 佔滿剩餘高度 */
   min-height: 300px;
-  height: 400px; /* Default height, will be overridden by resize */
   background: var(--background-color, #ffffff);
   position: relative;
   overflow: hidden;

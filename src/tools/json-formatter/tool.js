@@ -112,46 +112,48 @@ export default class JSONFormatterTool {
             'title'
           )}</span>
 
-          <button class="btn btn-primary" data-action="format">
-            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="21" x2="3" y1="6" y2="6" />
-              <line x1="15" x2="3" y1="12" y2="12" />
-              <line x1="17" x2="3" y1="18" y2="18" />
-            </svg>
-            <span class="btn-text" data-i18n="format">${t(
-              'format'
-            )}</span>
-          </button>
+          <div class="tool-actions">
+            <button class="btn btn-primary" data-action="format">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="21" x2="3" y1="6" y2="6" />
+                <line x1="15" x2="3" y1="12" y2="12" />
+                <line x1="17" x2="3" y1="18" y2="18" />
+              </svg>
+              <span class="btn-text" data-i18n="format">${t(
+                'format'
+              )}</span>
+            </button>
 
-          <button class="btn" data-action="compact">
-            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 18 6-6-6-6" />
-            </svg>
-            <span class="btn-text" data-i18n="compact">${t(
-              'compact'
-            )}</span>
-          </button>
+            <button class="btn" data-action="compact">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+              <span class="btn-text" data-i18n="compact">${t(
+                'compact'
+              )}</span>
+            </button>
 
-          <button class="btn" data-action="copy">
-            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-            </svg>
-            <span class="btn-text" data-i18n="copy">${t(
-              'copy'
-            )}</span>
-          </button>
+            <button class="btn" data-action="copy">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span class="btn-text" data-i18n="copy">${t(
+                'copy'
+              )}</span>
+            </button>
 
-          <button class="btn" data-action="clear">
-            <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 6h18" />
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-            </svg>
-            <span class="btn-text" data-i18n="clear">${t(
-              'clear'
-            )}</span>
-          </button>
+            <button class="btn" data-action="clear">
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18" />
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              </svg>
+              <span class="btn-text" data-i18n="clear">${t(
+                'clear'
+              )}</span>
+            </button>
+          </div>
         </div>
 
         <div class="editor-container">
