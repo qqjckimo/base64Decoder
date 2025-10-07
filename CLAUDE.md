@@ -13,6 +13,33 @@ A collection of developer tools built as a modular single-page web application. 
 **Version**: 2.1.0 (as of 2025-09-18)
 **Latest Updates**: Enhanced build system with cross-platform compatibility and streamlined deployment
 
+## Role and Interaction Guidelines
+
+<role>
+You are a human-like Software Architect and Engineering Expert. Your role is to be constructive but deliberately challenging: question assumptions, critique solutions, and push for better design choices. You may appear contrarian, picky, or self-assured, but always remain professional and helpful.
+
+For detailed role instructions, behavioral rules, and interaction process, refer to: [ROLE_INSTRUCTIONS.md](./ROLE_INSTRUCTIONS.md)
+</role>
+
+<interaction_process>
+
+1. **Phase 1: Exploration** - Start by questioning assumptions, identifying risks, and asking for missing context
+2. **Phase 2: Challenge** - Suggest better architectural approaches. Consider POC → MVP → Full Solution when appropriate. Do not provide code yet
+3. **Phase 3: Confirmation** - Wait for explicit user confirmation: "I agree with this approach" or "Proceed with implementation"
+4. **Phase 4: Final Output** - Only after confirmation, produce complete, functional code
+   </interaction_process>
+
+<golden_rules>
+
+- **Rule 1**: Consider entire codebase; update existing files without redundancy
+- **Rule 2**: Keep responses concise
+- **Rule 3**: Ask for clarification if unclear
+- **Rule 4**: No code until explicit user confirmation
+- **Rule 5**: Traditional Chinese explanations, American English code
+- **Rule 6**: Avoid over-engineering - justify all complexity (YAGNI Principle)
+- **Rule 7**: DRY Principle - Eliminate duplication immediately; extracting functions is NOT over-engineering when logic repeats
+  </golden_rules>
+
 ### Technical Architecture
 
 #### Core Technologies
@@ -75,7 +102,7 @@ A collection of developer tools built as a modular single-page web application. 
 - **Minification**: Terser for JS, cssnano for CSS, html-minifier-terser for HTML
 - **Bundle Analysis**: Built-in size monitoring and alerts for size regression
 - **Output**: Optimized bundles in `docs/` directory
-- **Deployment**: 
+- **Deployment**:
   - GitHub Pages ready with CDN optimization
   - Cloudflare Workers support via Wrangler
 - **Asset Management**: Unified filename generation with content hashing
@@ -208,6 +235,7 @@ Each tool MUST follow these guidelines:
 ### Language Update Architecture (MANDATORY)
 
 #### Core Principle
+
 **NEVER** call `render()` or recreate DOM during language updates. This destroys state, breaks UI components, and creates poor user experience.
 
 #### Required Implementation Pattern
@@ -215,6 +243,7 @@ Each tool MUST follow these guidelines:
 **All components and tools MUST implement this pattern:**
 
 1. **Split rendering methods**:
+
    ```javascript
    renderInitial() {
      // Create DOM structure with data-i18n attributes
@@ -238,6 +267,7 @@ Each tool MUST follow these guidelines:
    ```
 
 2. **Language event handling**:
+
    ```javascript
    window.addEventListener("languageChanged", (e) => {
      this.currentLanguage = e.detail.language;
@@ -252,12 +282,14 @@ Each tool MUST follow these guidelines:
    - Use `data-suffix=":"` for adding punctuation
 
 #### Benefits
+
 - ✅ **State Preservation**: Monaco Editors, Web Workers, form data maintained
 - ✅ **Performance**: No DOM recreation, instant language switching
 - ✅ **Memory Efficiency**: No event listener duplication
 - ✅ **User Experience**: Smooth language transitions without interruption
 
 #### Examples
+
 - **Sidebar Component**: Successfully refactored with `renderInitial()` and `updateLanguage()`
 - **Base64 Decoder Tool**: Implements comprehensive data attribute system
 - **Base64 Encoder Tool**: Preserves Web Worker state during language changes
@@ -315,6 +347,7 @@ For detailed implementation and maintenance information, refer to the module-spe
   - HEX viewer for binary analysis
 
 - **[PNG to ICO Converter](./src/tools/pngToIco/claude.md)**: Professional icon creation (~28KB, needs integration)
+
   - Multi-size icon generation
   - High-quality scaling algorithms
   - Three conversion modes
@@ -339,6 +372,7 @@ For detailed implementation and maintenance information, refer to the module-spe
 ### 🎉 Major Performance Breakthroughs
 
 #### 2025-09-11: Dynamic Codec System
+
 - **Compressor Worker**: 99.3% size reduction (441KB → 3.49KB)
 - **Dynamic Codec Loading**: All three image formats (PNG, WebP, AVIF) load on-demand
 - **Base64 Encoder**: Massive optimization through codec separation
@@ -346,18 +380,21 @@ For detailed implementation and maintenance information, refer to the module-spe
 - **Architecture**: Clean, maintainable, and future-proof dynamic loading system
 
 #### 2025-09-15: Oxipng Optimization
+
 - **Single-Thread Implementation**: Switched from oxipng-parallel to standard oxipng
 - **Dependency Reduction**: Eliminated complex parallel processing dependencies
 - **PNG Codec**: Optimized to 2.55KB with single-thread processing
 - **Stability**: Improved build reliability and cross-platform compatibility
 
 #### 2025-09-17: Build System Enhancement
+
 - **Cross-Platform Build**: Unified build system for Windows, macOS, and Linux
 - **Deployment Streamlined**: Direct GitHub Pages deployment from docs/ directory
 - **Build Performance**: Optimized webpack configuration for faster builds
 - **Developer Experience**: Improved npm scripts for common development tasks
 
 #### 2025-01-17: JSON Formatter Tool Integration
+
 - **New Tool Added**: JSON Formatter with Monaco Editor (~16.1KB)
 - **Text Processing Category**: First tool in text processing category
 - **SEO Enhanced**: Updated meta tags, sitemap, and PWA manifest

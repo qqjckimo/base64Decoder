@@ -1,8 +1,12 @@
 import { MonacoLoader } from '../../utils/monacoLoader.js';
+import { EditorStorage } from '../../utils/editorStorage.js';
 import './styles.css';
 
 export default class JSONFormatterTool {
   constructor() {
+    // Storage key for this tool
+    this.storageKey = 'json-formatter';
+
     // Language system initialization
     this.currentLanguage = window.appLanguage?.get() || 'zh-TW';
     this.translations = {
@@ -71,6 +75,9 @@ export default class JSONFormatterTool {
 
     // Update timer for character counting
     this.updateTimer = null;
+
+    // Storage auto-save timer
+    this.saveTimer = null;
   }
 
   async init(container) {
@@ -90,6 +97,9 @@ export default class JSONFormatterTool {
 
     // Setup language listener
     this.setupLanguageListener();
+
+    // Load saved content from storage
+    this.loadFromStorage();
 
     // Initial state setup - ensure DOM is ready
     if (this.elements?.statusText) {
@@ -288,6 +298,7 @@ export default class JSONFormatterTool {
       const formatted = JSON.stringify(parsed, null, 2);
 
       this.setEditorContent(formatted);
+      this.saveToStorage(); // Save formatted content
       this.updateStatus(this.t('formatSuccess'), 'success');
     } catch (error) {
       console.error('JSON format error:', error);
@@ -315,6 +326,7 @@ export default class JSONFormatterTool {
       const compacted = JSON.stringify(parsed);
 
       this.setEditorContent(compacted);
+      this.saveToStorage(); // Save compacted content
       this.updateStatus(this.t('compactSuccess'), 'success');
     } catch (error) {
       console.error('JSON compact error:', error);
@@ -342,6 +354,7 @@ export default class JSONFormatterTool {
 
   clearContent() {
     this.setEditorContent('');
+    EditorStorage.clear(this.storageKey); // Clear storage
     this.updateStatus(this.t('clearSuccess'), 'success');
     this.updateCharacterCount();
   }
@@ -372,6 +385,15 @@ export default class JSONFormatterTool {
       this.updateCharacterCount();
       this.validateJSON();
     }, 150);
+
+    // Debounced auto-save to storage
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+    }
+
+    this.saveTimer = setTimeout(() => {
+      this.saveToStorage();
+    }, 500); // Save after 500ms of inactivity
   }
 
   updateCharacterCount() {
@@ -502,11 +524,42 @@ export default class JSONFormatterTool {
     });
   }
 
+  // Storage helper methods
+  loadFromStorage() {
+    try {
+      const savedContent = EditorStorage.load(this.storageKey);
+      if (savedContent && this.editor) {
+        this.editor.setValue(savedContent);
+        console.log('Loaded saved content from storage');
+      }
+    } catch (error) {
+      console.warn('Failed to load from storage:', error);
+    }
+  }
+
+  saveToStorage() {
+    try {
+      const content = this.getEditorContent();
+      if (content) {
+        EditorStorage.save(this.storageKey, content);
+      } else {
+        EditorStorage.clear(this.storageKey);
+      }
+    } catch (error) {
+      console.warn('Failed to save to storage:', error);
+    }
+  }
+
   destroy() {
     // Clear timers
     if (this.updateTimer) {
       clearTimeout(this.updateTimer);
       this.updateTimer = null;
+    }
+
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = null;
     }
 
     // Remove event listeners

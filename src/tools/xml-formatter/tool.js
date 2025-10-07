@@ -1,8 +1,12 @@
 import { MonacoLoader } from '../../utils/monacoLoader.js';
+import { EditorStorage } from '../../utils/editorStorage.js';
 import './styles.css';
 
 export default class XMLFormatterTool {
   constructor() {
+    // Storage key for this tool
+    this.storageKey = 'xml-formatter';
+
     // Language system initialization
     this.currentLanguage = window.appLanguage?.get() || 'zh-TW';
     this.translations = {
@@ -115,6 +119,9 @@ export default class XMLFormatterTool {
     // Update timer for character counting
     this.updateTimer = null;
 
+    // Storage auto-save timer
+    this.saveTimer = null;
+
     // XML libraries (loaded dynamically)
     this.XMLValidator = null;
     this.XMLParser = null;
@@ -141,6 +148,9 @@ export default class XMLFormatterTool {
 
     // Setup language listener
     this.setupLanguageListener();
+
+    // Load saved content from storage
+    this.loadFromStorage();
 
     // Initial state setup
     if (this.elements?.statusText) {
@@ -498,6 +508,7 @@ export default class XMLFormatterTool {
 
       const formatted = this.formatXMLContent(content);
       this.setEditorContent(formatted);
+      this.saveToStorage(); // Save formatted content
       this.updateStatus(this.t('formatSuccess'), 'success');
     } catch (error) {
       console.error('XML format error:', error);
@@ -543,6 +554,7 @@ export default class XMLFormatterTool {
         .trim();
 
       this.setEditorContent(minified);
+      this.saveToStorage(); // Save minified content
       this.updateStatus(this.t('minifySuccess'), 'success');
     } catch (error) {
       console.error('XML minify error:', error);
@@ -711,6 +723,7 @@ ${content}
     this.setEditorContent('');
     this.state.validationResult = null;
     this.updateValidationDisplay();
+    EditorStorage.clear(this.storageKey); // Clear storage
     this.updateStatus(this.t('clearSuccess'), 'success');
     this.updateCharacterCount();
   }
@@ -742,6 +755,15 @@ ${content}
       this.state.validationResult = null;
       this.updateValidationDisplay();
     }, 150);
+
+    // Debounced auto-save to storage
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+    }
+
+    this.saveTimer = setTimeout(() => {
+      this.saveToStorage();
+    }, 500); // Save after 500ms of inactivity
   }
 
   updateCharacterCount() {
@@ -1015,11 +1037,42 @@ ${content}
     });
   }
 
+  // Storage helper methods
+  loadFromStorage() {
+    try {
+      const savedContent = EditorStorage.load(this.storageKey);
+      if (savedContent && this.editor) {
+        this.editor.setValue(savedContent);
+        console.log('Loaded saved content from storage');
+      }
+    } catch (error) {
+      console.warn('Failed to load from storage:', error);
+    }
+  }
+
+  saveToStorage() {
+    try {
+      const content = this.getEditorContent();
+      if (content) {
+        EditorStorage.save(this.storageKey, content);
+      } else {
+        EditorStorage.clear(this.storageKey);
+      }
+    } catch (error) {
+      console.warn('Failed to save to storage:', error);
+    }
+  }
+
   destroy() {
     // Clear timers
     if (this.updateTimer) {
       clearTimeout(this.updateTimer);
       this.updateTimer = null;
+    }
+
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = null;
     }
 
     // Remove event listeners
