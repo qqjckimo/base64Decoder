@@ -10,6 +10,7 @@ export class Router {
       'json-formatter',
       'ico-analyzer',
       'xml-formatter',
+      'json-toon-converter',
     ]; // List of valid tools
     this.init();
   }
