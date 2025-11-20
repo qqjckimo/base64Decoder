@@ -1,0 +1,87 @@
+{
+  "id": "json-toon-converter",
+  "name": "JSON to TOON 轉換器",
+  "nameEn": "JSON to TOON Converter",
+  "description": "將 JSON 轉換為 Token-Oriented Object Notation (TOON) 格式，節省 30-60% LLM tokens",
+  "descriptionEn": "Convert JSON to Token-Oriented Object Notation (TOON) format, saving 30-60% LLM tokens",
+  "category": "文字處理",
+  "categoryEn": "Text Processing",
+  "icon": "🎒",
+  "version": "1.0.0",
+  "author": "Jason Chen",
+  "technical": {
+    "estimatedSize": "35KB",
+    "actualSize": null,
+    "preload": false,
+    "requiresWorker": false,
+    "requiresMonaco": true,
+    "externalLibraries": ["@toon-format/toon"],
+    "supportedFormats": ["json", "toon"],
+    "maxFileSize": "50MB",
+    "browserRequirements": {
+      "chrome": "90",
+      "firefox": "88",
+      "safari": "14",
+      "edge": "90"
+    }
+  },
+
+  "keywords": [
+    "json",
+    "toon",
+    "converter",
+    "token",
+    "llm",
+    "optimization",
+    "ai",
+    "prompt"
+  ],
+
+  "features": [
+    "JSON 到 TOON 格式轉換",
+    "雙編輯器並排佈局",
+    "即時 Token 估算",
+    "Token 節省百分比顯示",
+    "JSON 語法驗證",
+    "Monaco 編輯器整合",
+    "本地儲存支援",
+    "響應式設計 (桌面/手機)"
+  ],
+  "featuresEn": [
+    "JSON to TOON format conversion",
+    "Dual editor side-by-side layout",
+    "Real-time token estimation",
+    "Token savings percentage display",
+    "JSON syntax validation",
+    "Monaco Editor integration",
+    "Local storage support",
+    "Responsive design (desktop/mobile)"
+  ],
+
+  "dependencies": {
+    "internal": ["monacoLoader", "editorStorage"],
+    "external": {
+      "cdnLibraries": ["monaco-editor"],
+      "npmPackages": ["@toon-format/toon@1.0.0"]
+    }
+  },
+
+  "performance": {
+    "loadTime": "<500ms",
+    "memoryUsage": "<40MB",
+    "cpuIntensive": false
+  },
+
+  "analytics": {
+    "trackingEnabled": true,
+    "events": ["tool-loaded", "convert-to-toon", "format-json", "copy-toon"]
+  },
+
+  "relatedTools": ["json-formatter", "xml-formatter"],
+
+  "documentation": {
+    "readme": "claude.md",
+    "examples": true,
+    "api": false
+  }
+}
