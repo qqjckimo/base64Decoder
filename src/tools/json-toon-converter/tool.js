@@ -92,21 +92,32 @@ export default class JSONToTOONConverter {
   }
 
   async init(container) {
+    console.log('JSON to TOON Converter init called with container:', container);
+
+    if (!container) {
+      throw new Error('Container is required for tool initialization');
+    }
+
     this.container = container;
 
     // Setup DOM structure
+    console.log('Rendering initial DOM...');
     this.renderInitial();
 
     // Cache DOM elements
+    console.log('Caching DOM elements...');
     this.cacheElements();
 
     // Bind events
+    console.log('Binding events...');
     this.bindEvents();
 
     // Load Monaco Editor
+    console.log('Loading Monaco editors...');
     await this.loadMonacoEditors();
 
     // Load TOON library
+    console.log('Loading TOON library...');
     await this.loadTOONLibrary();
 
     // Setup language listener
@@ -122,7 +133,7 @@ export default class JSONToTOONConverter {
 
     this.updateStatistics();
 
-    console.log('JSON to TOON Converter initialized');
+    console.log('JSON to TOON Converter initialized successfully');
   }
 
   renderInitial() {
@@ -221,6 +232,16 @@ export default class JSONToTOONConverter {
       tokenSavings: this.container.querySelector('#token-savings'),
       title: this.container.querySelector('.tool-title'),
     };
+
+    // Validate critical elements
+    if (!this.elements.jsonEditorContainer) {
+      console.error('JSON editor container not found:', this.container);
+      throw new Error('JSON editor container element not found');
+    }
+    if (!this.elements.toonEditorContainer) {
+      console.error('TOON editor container not found:', this.container);
+      throw new Error('TOON editor container element not found');
+    }
   }
 
   bindEvents() {
@@ -234,8 +255,18 @@ export default class JSONToTOONConverter {
     try {
       this.updateStatus(this.t('loadingEditor'));
 
+      // Validate containers exist before loading
+      if (!this.elements.jsonEditorContainer) {
+        throw new Error('JSON editor container is null');
+      }
+      if (!this.elements.toonEditorContainer) {
+        throw new Error('TOON editor container is null');
+      }
+
+      console.log('Loading Monaco Editor...');
       await MonacoLoader.load();
 
+      console.log('Creating JSON editor...');
       // Create JSON input editor (left)
       this.jsonEditor = MonacoLoader.createEditor(
         this.elements.jsonEditorContainer,
@@ -254,6 +285,7 @@ export default class JSONToTOONConverter {
         }
       );
 
+      console.log('Creating TOON editor...');
       // Create TOON output editor (right, read-only)
       this.toonEditor = MonacoLoader.createEditor(
         this.elements.toonEditorContainer,
@@ -276,9 +308,14 @@ export default class JSONToTOONConverter {
         this.onJSONContentChange();
       });
 
+      console.log('Monaco editors created successfully');
       this.updateStatus(this.t('ready'));
     } catch (error) {
       console.error('Monaco Editor loading failed:', error);
+      console.error('Elements state:', {
+        jsonEditorContainer: this.elements.jsonEditorContainer,
+        toonEditorContainer: this.elements.toonEditorContainer,
+      });
       this.updateStatus(this.t('loadingEditor') + ' - Error', 'error');
       throw error;
     }
