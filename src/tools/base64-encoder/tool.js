@@ -54,6 +54,12 @@ export default class Base64EncoderTool {
         fileTooLarge: '檔案過大',
         processingFailed: '處理失敗',
         initializing: '工具初始化中，請稍候...',
+        downloadFormat: '下載',
+        downloadAll: '下載所有格式 (ZIP)',
+        downloading: '下載中...',
+        downloadComplete: '下載完成',
+        downloadFailed: '下載失敗',
+        loadingZipLibrary: '載入壓縮庫中...',
       },
       en: {
         title: 'Image to Base64 Tool',
@@ -84,6 +90,12 @@ export default class Base64EncoderTool {
         fileTooLarge: 'File too large',
         processingFailed: 'Processing failed',
         initializing: 'Tool initializing, please wait...',
+        downloadFormat: 'Download',
+        downloadAll: 'Download All (ZIP)',
+        downloading: 'Downloading...',
+        downloadComplete: 'Download complete',
+        downloadFailed: 'Download failed',
+        loadingZipLibrary: 'Loading ZIP library...',
       },
     };
   }
@@ -487,6 +499,16 @@ export default class Base64EncoderTool {
           <div class="compression-results" id="compressionResults">
             <h4>${t.compressionResults}</h4>
             <div id="formatResults"></div>
+            <div id="downloadAllContainer" style="display: none; margin-top: 15px;">
+              <button class="btn btn-download-all" id="downloadAllBtn">
+                <span class="btn-icon-wrapper">${createIcon(
+                  'download',
+                  16,
+                  'btn-icon'
+                )}</span>
+                <span class="btn-text">${t.downloadAll}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1190,7 +1212,13 @@ export default class Base64EncoderTool {
         break;
 
       case 'formatComplete':
-        console.log(`${format} compression complete:`, result);
+        console.log(`${format} compression complete:`, {
+          format,
+          size: result.size,
+          hasBuffer: !!result.buffer,
+          success: result.success,
+        });
+        // Store complete result including buffer for download
         this.compressionResults[format] = result;
         this.updateFormatResult(format, result);
         this.updateChart();
@@ -1375,10 +1403,12 @@ export default class Base64EncoderTool {
       existing.remove();
     }
 
+    const t = this.translations[this.currentLanguage];
+    const div = document.createElement('div');
+    div.id = `result-${format}`;
+    div.className = `format-result ${format}`;
+
     if (result.success) {
-      const div = document.createElement('div');
-      div.id = `result-${format}`;
-      div.className = `format-result ${format}`;
       div.innerHTML = `
         <div class="format-info">
           <div class="format-name">${format.toUpperCase()}</div>
@@ -1387,9 +1417,39 @@ export default class Base64EncoderTool {
           )}</div>
         </div>
         <div class="format-size">${this.formatFileSize(result.size)}</div>
+        <button class="btn-download-format" data-format="${format}" title="${
+        t.downloadFormat
+      }">
+          ${createIcon('download', 16, 'btn-icon')}
+        </button>
       `;
-      container.appendChild(div);
+
+      // Attach download event listener
+      const downloadBtn = div.querySelector('.btn-download-format');
+      downloadBtn.addEventListener('click', () =>
+        this.downloadFormat(format)
+      );
+    } else {
+      // Show error state with disabled button
+      div.innerHTML = `
+        <div class="format-info">
+          <div class="format-name">${format.toUpperCase()}</div>
+          <div class="format-error">${result.error || t.processingFailed}</div>
+        </div>
+        <div class="format-size">-</div>
+        <button class="btn-download-format" disabled title="${t.downloadFailed}">
+          ${createIcon('download', 16, 'btn-icon')}
+        </button>
+      `;
     }
+
+    container.appendChild(div);
+
+    // Initialize Lucide icons for the new button
+    initializeLucideIcons();
+
+    // Check if we should show "Download All" button
+    this.updateDownloadAllButton();
 
     document.getElementById('sizeComparison').style.display = 'block';
   }
@@ -1546,6 +1606,156 @@ export default class Base64EncoderTool {
       'success',
       this.translations[this.currentLanguage].downloadSuccess
     );
+  }
+
+  /**
+   * Sanitize filename to prevent download issues with special characters
+   */
+  sanitizeFileName(fileName) {
+    // Remove file extension
+    const nameWithoutExt = fileName.replace(/\.[^.]+$/, '');
+    // Keep only safe characters (alphanumeric, Chinese, underscore, hyphen)
+    return nameWithoutExt.replace(/[^\w\u4e00-\u9fa5-]/g, '_');
+  }
+
+  /**
+   * Download compressed image in specific format
+   */
+  downloadFormat(format) {
+    const result = this.compressionResults[format];
+    const t = this.translations[this.currentLanguage];
+
+    if (!result || !result.success || !result.buffer) {
+      this.showMessage('error', t.downloadFailed);
+      return;
+    }
+
+    try {
+      // Create blob from buffer
+      const blob = new Blob([result.buffer], { type: `image/${format}` });
+      const url = URL.createObjectURL(blob);
+
+      // Generate safe filename
+      const baseName = this.sanitizeFileName(
+        this.currentFile?.name || 'image'
+      );
+      const fileName = `${baseName}_compressed_${format}.${format}`;
+
+      // Trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+
+      // Cleanup
+      URL.revokeObjectURL(url);
+
+      this.showMessage('success', t.downloadComplete);
+    } catch (error) {
+      console.error('Download failed:', error);
+      this.showMessage('error', t.downloadFailed);
+    }
+  }
+
+  /**
+   * Update visibility of "Download All" button based on available results
+   */
+  updateDownloadAllButton() {
+    const container = document.getElementById('downloadAllContainer');
+    const btn = document.getElementById('downloadAllBtn');
+
+    if (!container || !btn) return;
+
+    // Count successful compression results
+    const successfulFormats = Object.values(this.compressionResults).filter(
+      (result) => result.success && result.buffer
+    );
+
+    // Show button only if we have 2 or more successful compressions
+    if (successfulFormats.length >= 2) {
+      container.style.display = 'block';
+
+      // Attach event listener (only once)
+      if (!btn.dataset.listenerAttached) {
+        btn.addEventListener('click', () => this.downloadAllAsZip());
+        btn.dataset.listenerAttached = 'true';
+      }
+    } else {
+      container.style.display = 'none';
+    }
+  }
+
+  /**
+   * Download all compressed formats as ZIP file (dynamic JSZip loading)
+   */
+  async downloadAllAsZip() {
+    const t = this.translations[this.currentLanguage];
+    const btn = document.getElementById('downloadAllBtn');
+
+    try {
+      // Disable button during processing
+      if (btn) {
+        btn.disabled = true;
+        btn.querySelector('.btn-text').textContent = t.loadingZipLibrary;
+      }
+
+      // Dynamic import JSZip
+      const { default: JSZip } = await import(
+        /* webpackChunkName: "jszip" */ 'jszip'
+      );
+
+      if (btn) {
+        btn.querySelector('.btn-text').textContent = t.downloading;
+      }
+
+      // Create ZIP file
+      const zip = new JSZip();
+      const baseName = this.sanitizeFileName(
+        this.currentFile?.name || 'image'
+      );
+
+      // Add all successful compression results
+      Object.entries(this.compressionResults).forEach(([format, result]) => {
+        if (result.success && result.buffer) {
+          const fileName = `${baseName}_compressed_${format}.${format}`;
+          zip.file(fileName, result.buffer);
+        }
+      });
+
+      // Generate ZIP blob
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+      // Trigger download
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${baseName}_compressed_formats.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      this.showMessage('success', t.downloadComplete);
+    } catch (error) {
+      console.error('ZIP download failed:', error);
+
+      // Fallback: download files individually
+      this.showMessage(
+        'info',
+        'ZIP library loading failed, downloading files individually...'
+      );
+
+      Object.keys(this.compressionResults).forEach((format) => {
+        const result = this.compressionResults[format];
+        if (result.success && result.buffer) {
+          setTimeout(() => this.downloadFormat(format), 300);
+        }
+      });
+    } finally {
+      // Re-enable button
+      if (btn) {
+        btn.disabled = false;
+        btn.querySelector('.btn-text').textContent = t.downloadAll;
+      }
+    }
   }
 
   showMessage(type, message) {

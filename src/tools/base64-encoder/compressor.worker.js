@@ -171,15 +171,19 @@ async function compressImage(imageData, id) {
 
         const compressionTime = Date.now() - startTime;
 
+        // Clone buffer for results array (since we'll transfer the original)
+        const bufferForResults = compressedBuffer.slice(0);
+
         results.push({
           format,
           size: compressedBuffer.byteLength,
           compressionTime,
           quality,
           success: true,
+          buffer: bufferForResults,
         });
 
-        // 即時回報單一格式結果
+        // 即時回報單一格式結果（使用 Transferable Objects 優化效能）
         postMessage({
           type: "formatComplete",
           id,
@@ -190,8 +194,9 @@ async function compressImage(imageData, id) {
             compressionTime,
             quality,
             success: true,
+            buffer: compressedBuffer,  // Transfer ownership to main thread
           },
-        });
+        }, [compressedBuffer]);  // Transferable Objects - zero-copy transfer
       } catch (formatError) {
         console.error(
           `❌ Failed to compress as ${format}:`,
