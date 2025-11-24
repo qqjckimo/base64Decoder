@@ -176,8 +176,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
@@ -293,6 +297,8 @@
 
 .info-value {
   color: #333;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .info-card h3 {
