@@ -2,6 +2,7 @@
 # See: https://developers.cloudflare.com/workers/wrangler/configuration/
 
 name = "tools"
+main = "src/worker.js"
 compatibility_date = "2024-09-11"
 
 # Static assets configuration
