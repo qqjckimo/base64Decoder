@@ -1,13 +1,23 @@
 # URL Scissors — Step 0 Spike Results
 
-Date: 2026-11-04 · Chrome for Testing 153.0.8010.12 · Linux container, `--headless=new`
-Harness: `spike/run-spike.js` (0-2/0-3), `spike/run-b.js` (0-1 with controls), `spike/run-a2.js` (0-2 decomposition)
+Date: 2026-11-04 · Chrome for Testing 153.0.8010.12
+Environments: (1) `--headless=new`; (2) **headful on Xvfb :99 + openbox WM** — the
+environment that actually exercises window focus, and therefore the one the 0-1
+verdict rests on.
+Harness: `spike/run-spike.js` `spike/run-a2.js` (tab-hosted), `spike/run-b.js`
+(headless 0-1), **`spike/run-wm.js`** (headful 0-1 + real-popup perf),
+**`spike/run-size.js`** (sizing).
+
+> **Read this first.** The early runs used *tab-hosted* `popup.html`, not a real
+> popup bubble. They were right about the conclusions but wrong about the surface.
+> Every number that matters was re-measured in a **real popup** under a real WM;
+> where the two disagree, the headful numbers win.
 
 ---
 
 ## 0-1 — Does the popup survive `chrome.tabs.update()`?
 
-### Verdict: **SURVIVES** (with validated instrument, headless caveat below)
+### Verdict: **SURVIVES** — settled under headful Chrome with a real window manager
 
 Measured via a long-lived `chrome.runtime.connect()` port; the service worker's
 `port.onDisconnect` is a reliable "this popup document died" signal.
@@ -36,27 +46,57 @@ Two things were learned the hard way and are baked into the harness:
   created **before** the dedicated test window, and the target tab id passed explicitly.
   Otherwise the popup aims at the trigger page itself and the test measures nothing.
 
-### ⚠️ Caveat that must be closed on real hardware
+### Headful confirmation (this is what settles it)
 
-`--headless=new` has no real window-focus semantics. Direct evidence: focusing another
-window did **not** dismiss the popup, which on a desktop it would. Focus moving to the
-navigating web contents is exactly the mechanism most likely to close a popup for real.
+`--headless=new` has no real window-focus semantics, so the headless result alone could
+not rule out focus-driven dismissal. Re-run on **Xvfb + openbox**, with every action driven
+from the service worker so no automation step could steal focus, and with each popup
+carrying a unique `pid` so a disconnect attributes to a specific instance:
 
-So this result proves **nothing in Chrome's navigation machinery kills the popup**, but it
-cannot rule out focus-driven dismissal on a desktop. → run `LOCAL-TEST.md` (2 minutes).
+| | result |
+|---|---|
+| popup `p16` applied | `…&spike=applied` |
+| navigation committed | yes (`tabs.onUpdated` + `tabs.get`) |
+| **disconnect after navigation** | **none** |
+| **GATE: switch tab in the same window** | **disconnect fires** — `msAfterApply=2857`, `lastPhase=post-apply`, same `pid` |
 
-**Either way, the state-restore path is still built** — it is needed anyway for click-away,
-Esc, and tab-switch-and-return.
+The gate is the point: the very same popup instance was demonstrably killable, was killed
+by a tab switch, and was *not* killed by the navigation. Earlier headless runs failed this
+gate (nothing dismissed the popup), which is why their verdict did not count.
+
+Three traps the harness had to grow past, each of which had produced a false answer:
+
+- **Chrome refuses a second `openPopup()` while one is open** — it does not replace it. Every
+  case must start from a dismissed state or later cases silently record 0 connects.
+- **`ctx.newPage()` lands in the currently focused window**, so a trigger page created after
+  the target window became the active tab, and the popup aimed at the trigger page itself.
+- **Under a real WM, any Playwright page interaction steals activation**, so
+  `openPopup({windowId})` fails with *"Cannot show popup for an inactive window."*
+  Driving everything from `sw.evaluate()` is the only sequence that holds.
+
+**The state-restore path is still built regardless** — click-away, Esc and tab-switch all
+destroy the popup (the gate above proves the tab-switch case directly).
 
 ---
 
 ## 0-3 — What does `chrome.tabs.query` cost, and is the `?u=` trick worth it?
 
-| metric | pre-seeded `?u=` (sync render) | via `chrome.tabs.query` (await first) |
+Measured twice: tab-hosted first, then in a **real popup** (which is the number that counts).
+
+**Real popup, headful + openbox, n=6:**
+
+| variant | IPC before paint | doc start → rows painted |
 |---|---|---|
-| `chrome.tabs.query` | 3.2ms p50 / 4.1ms p90 | 3.2ms p50 / 4.9ms p90 |
-| doc start → rows painted | **46.6ms p50** | **45.9ms p50** |
-| first-contentful-paint | 40ms p50 | 32ms p50 |
+| A — `tabs.query` + `windows.getCurrent` | 2.1ms p50 | **31.3ms p50** |
+| C — zero IPC before paint (`?u=` + pre-seeded size) | 0 | **31.0ms p50** |
+
+Tab-hosted (earlier, n=10): `tabs.query` 3.2ms p50; rows-painted 46.6 vs 45.9ms p50.
+
+Both surfaces agree: removing **all** IPC from the critical path buys **~0.3ms**.
+
+> One early real-popup sample showed `ipc 28.7ms` and briefly looked like it overturned
+> this. Eight warm samples put it at 1.7–2.1ms p50 — that reading was the first cold open
+> after extension load, not the steady state.
 
 ### Verdict: **drop the `?u=` trick. `activeTab` only, no `tabs` permission.**
 
@@ -73,12 +113,16 @@ Esc, and tab-switch-and-return.
 `blank.html` (doctype + 2 CSS lines + a 6-line script) establishes the document-creation
 and paint floor. Everything above it is ours. 20 iterations each.
 
-| page | doc start → painted (p50) | our marginal cost |
+| page (tab-hosted, n=20) | doc start → painted (p50) | our marginal cost |
 |---|---|---|
 | `blank.html` — floor | 46.5ms | — |
 | `popup.html`, 0 params | 46.8ms | **~0.3ms** |
 | `popup.html`, 7 params | 47.5ms | **~1.0ms** |
 | `popup.html`, 40 params | 48.9ms | **~2.4ms** |
+
+Real popup for comparison: doc start → rows painted **31.0–31.3ms p50** regardless of how
+much IPC is removed, i.e. the same picture — a fixed floor we do not control, with our own
+work lost in the noise.
 
 ### Verdict: **~98% of the open cost is renderer/document creation we cannot touch.**
 
@@ -123,3 +167,37 @@ node run-spike.js      # 0-2 + 0-3, both render paths
 node run-b.js          # 0-1 with negative controls
 ITER=20 node run-a2.js # 0-2 decomposition against the blank floor
 ```
+
+---
+
+## Sizing behaviour (verified headful + openbox, `spike/run-size.js`)
+
+Requirements: anchor under the toolbar button, inner scroll past the container height,
+a minimum width/height, and never exceed the browser window beyond that minimum.
+
+Implementation: `MIN 360×320`, preferred width 480, Chrome's hard cap 800×600, vertical
+reserve 112px for toolbar + tabstrip. Computed from `chrome.windows.getCurrent()` **before
+the first render**, so there is exactly one paint and no post-paint window resize.
+
+| browser window | params | computed | popup box | behaviour |
+|---|---|---|---|---|
+| 1200×820 | 28 | w=480 maxh=600 | **480×600** | grows to the 600 cap, rows scroll |
+| **900×430** | 28 | w=480 **maxh=320** | **480×320** | **clamped to the short window**, floored at MIN_H |
+| 508×760 | 28 | w=480 maxh=600 | 480×600 | width still fits a narrow window |
+| 1200×820 | **1** | w=480 maxh=600 | **480×320** | **minimum height enforced** |
+
+All four fit inside their window. Screenshot `31-short-28.png` shows the clamped case:
+popup anchored under the toolbar icon, only two rows visible with a scrollbar, header and
+footer pinned, nothing spilling past the window edge.
+
+The ~2ms the two pre-render IPC calls cost is affordable precisely because of the 0-2
+finding — the open cost is ~31ms of which our work is noise, so paying 2ms to get the size
+right on the first paint is strictly better than a visible resize afterwards.
+
+## Not measured
+
+- Steady-state interaction cost (keystroke → repaint). Headless/Xvfb paint timing without a
+  GPU is not trustworthy for this; needs a real device. Covered in Step 4.
+- Cold-process first open (no extension renderer at all). Every sample here had a warm
+  extension process.
+- Absolute values throughout are container figures; the **ratios** are the robust findings.

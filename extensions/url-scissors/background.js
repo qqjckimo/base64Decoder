@@ -17,21 +17,23 @@ log({ type: 'sw-boot' });
 
 /* ---- spike 0-1: popup liveness via long-lived port ---- */
 chrome.runtime.onConnect.addListener(port => {
-  if (port.name !== 'popup-alive') return;
+  if (!port.name.startsWith('popup-alive')) return;
+  const pid = port.name.slice('popup-alive:'.length) || '?';
   const openedAt = Date.now();
   let lastPhase = 'opened';
   let applyAt = null;
-  log({ type: 'popup-connect' });
+  log({ type: 'popup-connect', pid });
 
   port.onMessage.addListener(m => {
     lastPhase = m.type;
     if (m.type === 'pre-apply') applyAt = Date.now();
-    log({ type: 'popup-msg', phase: m.type, url: m.url, applyDispatchMs: m.applyDispatchMs });
+    log({ type: 'popup-msg', pid, phase: m.type, url: m.url, applyDispatchMs: m.applyDispatchMs });
   });
 
   port.onDisconnect.addListener(() => {
     log({
       type: 'popup-disconnect',
+      pid,
       lastPhase,
       aliveMs: Date.now() - openedAt,
       msAfterApply: applyAt ? Date.now() - applyAt : null

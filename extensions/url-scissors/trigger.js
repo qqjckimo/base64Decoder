@@ -14,6 +14,10 @@ async function go(){
     .replace('__URL__', encodeURIComponent(tab.url))
     .replace('__TAB__', String(tab.id));
   await chrome.action.setPopup({ popup });
+  // Headful Chrome refuses openPopup for an inactive window, and anything that
+  // happens between focusing and opening can steal activation back - so focus
+  // inside this same gesture handler, immediately before opening.
+  await chrome.windows.update(win, { focused: true });
   await chrome.action.openPopup({ windowId: win });
   const [activeInWin] = await chrome.tabs.query({ active: true, windowId: win });
   return { windowId: win, targetTabId: tab.id, targetUrl: tab.url,
