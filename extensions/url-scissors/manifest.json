@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "URL Scissors (spike)",
+  "description": "Spike harness: measures popup render cost and popup survival across tabs.update() navigation.",
+  "version": "0.0.1",
+  "minimum_chrome_version": "127",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "URL Scissors"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Alt+Shift+U" }
+    }
+  },
+  "permissions": ["activeTab", "tabs", "storage"]
+}

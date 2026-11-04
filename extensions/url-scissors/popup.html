@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>URL Scissors</title>
+<style>
+/* Phase A: color-scheme first so dark mode never flashes white */
+:root{
+  color-scheme: light dark;
+  --bg:#fff; --fg:#14181d; --muted:#5b6774; --line:#e3e8ee;
+  --field:#f6f8fa; --accent:#00b9fe; --danger:#e5484d;
+  --sp:8px; --r:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#16191d; --fg:#e8edf2; --muted:#9aa7b4;
+         --line:#272c33; --field:#1e2228; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+/* Fixed outer box: Chrome sizes the popup to content, so any post-paint
+   size change visibly jolts the window. Inner scroll absorbs row changes. */
+body{
+  width:420px; height:520px;
+  display:flex; flex-direction:column;
+  background:var(--bg); color:var(--fg);
+  font:13px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+header{
+  padding:calc(var(--sp)*1.5); border-bottom:1px solid var(--line);
+  display:flex; flex-direction:column; gap:var(--sp);
+}
+.head-row{display:flex;gap:var(--sp);align-items:center}
+.brand{font-weight:600;letter-spacing:.01em}
+.brand b{color:var(--accent)}
+#base{
+  width:100%; font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+  background:var(--field); border:1px solid var(--line); border-radius:var(--r);
+  color:var(--fg); padding:6px 8px;
+}
+#rows{flex:1; overflow-y:auto; padding:var(--sp)}
+.row{
+  /* Limit layout invalidation to the row being edited */
+  contain:layout style;
+  display:grid; grid-template-columns:14px 1fr 1fr 22px;
+  gap:6px; align-items:start; margin-bottom:6px;
+}
+.row input{
+  font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+  background:var(--field); border:1px solid var(--line); border-radius:6px;
+  color:var(--fg); padding:5px 7px; min-width:0;
+  field-sizing:content;            /* engine-side autosize: no JS measuring */
+}
+.row input:focus-visible{outline:2px solid var(--accent); outline-offset:1px; border-color:transparent}
+.grip{cursor:grab;color:var(--muted);text-align:center;padding-top:5px;user-select:none}
+.del{
+  background:none;border:0;color:var(--muted);cursor:pointer;border-radius:5px;
+  padding:3px; line-height:1; transition:color .15s, background .15s;
+}
+.del:hover{color:var(--danger)}
+footer{
+  padding:calc(var(--sp)*1.5); border-top:1px solid var(--line);
+  display:flex; flex-direction:column; gap:var(--sp);
+}
+#preview{
+  font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
+  color:var(--muted); max-height:48px; overflow:auto; word-break:break-all;
+}
+.btns{display:flex;gap:var(--sp)}
+button.primary{
+  flex:1; background:var(--accent); color:#001b26; border:0; border-radius:var(--r);
+  padding:8px; font-weight:600; cursor:pointer;
+  transition:opacity .15s, transform .15s;      /* compositor-only props */
+}
+button.primary:active{transform:translateY(1px)}
+button.ghost{
+  background:none;border:1px solid var(--line);color:var(--fg);
+  border-radius:var(--r);padding:8px 10px;cursor:pointer;
+}
+#perf{
+  font:10px/1.5 ui-monospace,monospace; color:var(--muted);
+  border-top:1px dashed var(--line); padding-top:6px; white-space:pre;
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head-row"><span class="brand">URL <b>Scissors</b></span></div>
+  <input id="base" spellcheck="false" aria-label="origin + path">
+</header>
+
+<div id="rows" role="list"></div>
+
+<footer>
+  <div id="preview"></div>
+  <div class="btns">
+    <button class="primary" id="apply">套用</button>
+    <button class="ghost" id="add">+ 參數</button>
+  </div>
+  <div id="perf"></div>
+</footer>
+
+<template id="row-tpl">
+  <div class="row" role="listitem">
+    <span class="grip" draggable="true">⋮</span>
+    <input class="k" spellcheck="false" placeholder="key"   aria-label="key">
+    <input class="v" spellcheck="false" placeholder="value" aria-label="value">
+    <button class="del" title="刪除" aria-label="刪除">✕</button>
+  </div>
+</template>
+
+<script src="popup.js"></script>
+</body>
+</html>
