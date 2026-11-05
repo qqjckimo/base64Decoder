@@ -1,5 +1,15 @@
 # URL Scissors — Step 0 Spike Results
 
+> **後續修正（2026-11-05，見 [PERF.md](PERF.md)）** —— 這份是 Step 0 的原始紀錄，保留供追溯；
+> spike 的量測鷹架已從產品目錄移除，完整保存在 git commit `3899abb`。以下結論已被推翻或修正：
+>
+> - **「開啟成本 ~31ms，其中我們佔 ~1ms」**：量的是 service worker 活著的**熱** process。
+>   沒有 SW 的外掛在 popup 關閉後約 10ms 就回收 process，**真實每次都是冷開啟**；
+>   而且 spike 沒量到「按鍵 → 文件開始」，未釘選時那段就有 ~260ms。
+> - **「我們的程式碼只佔 1ms」**：冷 process 裡第一次 IPC 往返要 ~20ms，在可見路徑上。
+> - **0-1 SURVIVES** 與 **0-3 放棄 `?u=`** 兩個結論仍成立，並在 PERF.md 的真實按鍵量測中再次確認。
+
+
 Date: 2026-11-04 · Chrome for Testing 153.0.8010.12
 Environments: (1) `--headless=new`; (2) **headful on Xvfb :99 + openbox WM** — the
 environment that actually exercises window focus, and therefore the one the 0-1
