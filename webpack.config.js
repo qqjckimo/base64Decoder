@@ -318,6 +318,7 @@ const webpackConfig = {
             identifierNamesGenerator: 'mangled-shuffled',
             ignoreImports: true, // 忽略 import 語句
             log: false,
+            seed: 5, // Deterministic output keeps chunk hashes stable across deploys
             renameGlobals: false, // 保護 webpack runtime
             selfDefending: false, // 避免效能影響
             simplify: true,
