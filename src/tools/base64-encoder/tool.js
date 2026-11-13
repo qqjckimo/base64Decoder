@@ -5,6 +5,7 @@ import {
 } from '../../components/shared/Icon.js';
 import './styles.css';
 import { WorkerCreator } from './worker-creator.js';
+import { reloadOnStaleChunk } from '../../core/loader.js';
 
 export default class Base64EncoderTool {
   constructor() {
@@ -1212,6 +1213,7 @@ export default class Base64EncoderTool {
         break;
 
       case 'formatComplete':
+        if (/importScripts|Loading chunk/.test(result.error) && reloadOnStaleChunk()) return;
         console.log(`${format} compression complete:`, {
           format,
           size: result.size,

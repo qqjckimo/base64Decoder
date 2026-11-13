@@ -198,8 +198,6 @@ const webpackConfig = {
   mode: gEnv.isProduction ? 'production' : 'development',
   entry: {
     core: './src/core/app.js',
-    'encoder-worker': './src/tools/base64-encoder/encoder.worker.js',
-    'compressor-worker': './src/tools/base64-encoder/compressor.worker.js',
   },
   output: {
     path: path.resolve(__dirname, 'docs'),
@@ -297,7 +295,7 @@ const webpackConfig = {
           },
         ],
       },
-      // 核心業務邏輯 - 高強度混淆
+      // 核心業務邏輯 - 輕度混淆
       gEnv.isProduction && {
         test: /\.js$/,
         exclude: [
@@ -312,8 +310,8 @@ const webpackConfig = {
           options: {
             compact: true,
             controlFlowFlattening: false,
-            deadCodeInjection: true,
-            debugProtection: true,
+            deadCodeInjection: false,
+            debugProtection: false,
             disableConsoleOutput: true,
             identifierNamesGenerator: 'mangled-shuffled',
             ignoreImports: true, // 忽略 import 語句
@@ -325,15 +323,12 @@ const webpackConfig = {
             splitStrings: false, // 避免增加體積
             stringArray: true,
             stringArrayCallsTransform: false,
-            stringArrayEncoding: ['rc4'],
-            stringArrayIndexShift: true,
+            stringArrayEncoding: [],
+            stringArrayIndexShift: false,
             stringArrayRotate: true,
             stringArrayShuffle: true,
-            stringArrayWrappersCount: 1,
-            stringArrayWrappersChainedCalls: true,
-            stringArrayWrappersParametersMaxCount: 2,
-            stringArrayWrappersType: 'variable',
-            stringArrayThreshold: 1, // 平衡體積和安全性
+            stringArrayWrappersCount: 0,
+            stringArrayThreshold: 0.75,
             unicodeEscapeSequence: false,
           },
         },
@@ -623,51 +618,6 @@ const webpackConfig = {
   },
 };
 
-// Worker-specific configuration
-const workerConfig = {
-  ...webpackConfig,
-  target: 'webworker',
-  entry: {
-    'encoder-worker': './src/tools/base64-encoder/encoder.worker.js',
-    'compressor-worker': './src/tools/base64-encoder/compressor.worker.js',
-  },
-  output: {
-    ...webpackConfig.output,
-    environment: {
-      ...webpackConfig.output.environment,
-      document: false, // Disable document references for workers
-    },
-  },
-  resolve: {
-    ...webpackConfig.resolve, // Inherit resolve config including ESM fix
-  },
-  devServer: undefined, // Workers don't need dev server
-  optimization: {
-    ...webpackConfig.optimization,
-    splitChunks: {
-      chunks: (chunk) => {
-        // Don't split worker chunks and codec chunks
-        return (
-          !chunk.name?.includes('-worker') && !chunk.name?.includes('codecs/')
-        );
-      },
-      cacheGroups: {
-        // Only keep essential cache groups for workers
-        default: false,
-        defaultVendors: false,
-      },
-    },
-  },
-};
-
-// Main app configuration (without workers)
-const mainConfig = {
-  ...webpackConfig,
-  entry: {
-    core: './src/core/app.js',
-  },
-};
-
 // Export configuration with port finding for dev server
 module.exports = (env, argv) => {
   const mode = argv.mode || 'development';
@@ -685,14 +635,14 @@ module.exports = (env, argv) => {
           );
         }
 
-        mainConfig.devServer.port = port;
-        return [mainConfig, workerConfig];
+        webpackConfig.devServer.port = port;
+        return webpackConfig;
       })
       .catch((err) => {
         console.error('Could not find an available port:', err);
-        return [mainConfig, workerConfig];
+        return webpackConfig;
       });
   }
 
-  return [mainConfig, workerConfig];
+  return webpackConfig;
 };
