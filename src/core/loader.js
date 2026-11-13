@@ -1,3 +1,11 @@
+// Stale chunk after a new deploy: reload once to fetch fresh bundles
+export function reloadOnStaleChunk() {
+    if (sessionStorage.getItem('chunkReload')) return false;
+    sessionStorage.setItem('chunkReload', '1');
+    location.reload();
+    return true;
+}
+
 export class ToolLoader {
     constructor() {
         this.loadedTools = new Map();
@@ -43,10 +51,7 @@ export class ToolLoader {
             };
         } catch (error) {
             console.error(`Failed to load tool: ${toolName}`, error);
-            // Stale chunk after a new deploy: reload once to fetch fresh bundles
-            if (error.name === 'ChunkLoadError' && !sessionStorage.getItem('chunkReload')) {
-                sessionStorage.setItem('chunkReload', '1');
-                location.reload();
+            if (error.name === 'ChunkLoadError' && reloadOnStaleChunk()) {
                 return new Promise(() => {});
             }
             throw new Error(`工具載入失敗: ${toolName}`);
