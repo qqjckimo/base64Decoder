@@ -109,9 +109,10 @@ npm run analyze
 
 ### Production Deployment
 
-- **GitHub Pages**: Push to GitHub, auto-deploys from `docs/` directory
-- **Static Hosting**: Upload `docs/` contents to any CDN or static host
-- **Self-hosted**: Serve `docs/` directory with any web server
+Production 只透過 **Cloudflare Workers Builds** 部署：push 或 merge 到 `main` 就會自動 build 並部署。
+
+> ⚠️ **重要：不要手動執行 `wrangler deploy`。**
+> chunk 檔名雜湊和 build 機器的絕對路徑有關（webpack 會把 @jsquash 裡的 `import.meta.url` 換成 `file:///<build 路徑>`）。手動 build 出來的檔名和 Cloudflare build 的不同，每換一次 build 來源，舊 chunk 就會被刪掉，已經開著的頁面會載入失敗，要重新整理才會恢復。
 
 ### No-build Usage
 
@@ -297,10 +298,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🚀 線上使用
 
-訪問 GitHub Pages 部署的版本：
-[https://tools.jzsobiz.cc/](https://tools.jzsobiz.cc/)
-
-> **注意**：GitHub Pages 部署已設定完成！請參考 [GitHub Pages 部署指南](GITHUB_PAGES_SETUP.md) 來啟用 GitHub Pages 功能。
+[https://tools.jzsobiz.cc/](https://tools.jzsobiz.cc/)（Cloudflare Workers，從 `main` 自動部署）
 
 ## 📱 使用方法
 

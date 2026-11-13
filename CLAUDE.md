@@ -65,22 +65,21 @@ For detailed role instructions, behavioral rules, and interaction process, refer
 
 #### Architecture Strategy
 
-- **Initial Load**: < 50KB for core app shell (HTML + critical CSS + router)
-  - Core modules: **35.29KB** (app.js, router.js, loader.js, styles.css) - **ACHIEVED**
-  - Components: ~9KB (sidebar, icon system)
-  - Utilities: **4.43KB** (MonacoLoader) - **ACHIEVED**
-- **Common Tools Bundle**: Pre-bundled frequently used tools
-  - Base64 Decoder: **28.54KB** (preloaded for optimal UX) - **ACHIEVED**
-- **Dynamic Tools**: Loaded on-demand with revolutionary size reduction
-  - Base64 Encoder: **23.53KB** (main tool, dynamic codec loading) - **OPTIMIZED**
-  - Encoder Worker: **8.20KB** (background processing)
-  - Compressor Worker: **3.49KB** (down from 441KB) - **MASSIVE OPTIMIZATION**
-  - Codec Bundles: Dynamic loading (PNG: 2.55KB, WebP: 1.60KB, AVIF: 2.04KB)
-  - JSON Formatter: **16.1KB** (Monaco Editor integration, validation) - **ACHIEVED**
-  - ICO Analyzer: ~25KB (pending modularization)
-  - PNG to ICO: **15.43KB** (modularized, part of tools chunk) - **ACHIEVED**
-- **Shared Modules**: Common utilities extracted (**4.43KB** actual) - **ACHIEVED**
-- **Total Initial Experience**: Core + Base64 Decoder = **~64KB** (excellent achievement under 150KB target)
+Measured 2026-11-13 (production build, light obfuscation). Format: minified / gzip.
+
+- **Initial Load**:
+  - Core bundle (app, router, loader, sidebar, styles): **56.56KB / 16.00KB**
+  - Utils bundle (MonacoLoader, languageDetector): **17.94KB / 6.36KB**
+  - Base64 Decoder (preloaded): **31.30KB / 10.74KB**
+  - **Total**: **105.80KB / 33.10KB**
+- **Dynamic Tools**:
+  - Base64 Encoder: **39.68KB / 13.06KB**
+  - Encoder Worker: **8.78KB / 4.23KB**
+  - Compressor Worker: **4.36KB / 1.73KB**
+  - Codec wrappers: PNG **4.27KB / 1.98KB**, WebP **3.03KB / 1.60KB**, AVIF **3.48KB / 1.73KB**
+  - Codec glue chunks (emscripten JS, excludes .wasm): 21–31KB each / 7.5–10.6KB gzip
+  - JSZip (loaded only for "Download All"): **96.11KB / 28.06KB**
+  - Tools chunk (PNG to ICO, ICO Analyzer, JSON Formatter, XML Formatter, JSON to TOON): **110.53KB / 29.83KB**
 
 #### Module Structure
 
@@ -102,9 +101,7 @@ For detailed role instructions, behavioral rules, and interaction process, refer
 - **Minification**: Terser for JS, cssnano for CSS, html-minifier-terser for HTML
 - **Bundle Analysis**: Built-in size monitoring and alerts for size regression
 - **Output**: Optimized bundles in `docs/` directory
-- **Deployment**:
-  - GitHub Pages ready with CDN optimization
-  - Cloudflare Workers support via Wrangler
+- **Deployment**: Cloudflare Workers Builds auto-deploys on push to `main` (see deployment rule below)
 - **Asset Management**: Unified filename generation with content hashing
 - **Codec Strategy**: Single-thread implementations to avoid dependency bloat
 
@@ -193,7 +190,9 @@ base64Decoder/
 - **Check bundle size**: `npm run analyze`
 - **Local development**: `npm run dev` (with hot reload)
 - **Add new tool**: `npm run create-tool [name]`
-- **Deploy**: Push to GitHub, builds automatically serve from `docs/`
+- **Deploy**: Merge to `main`; Cloudflare Workers Builds builds and deploys automatically
+
+> ⚠️ **DEPLOYMENT RULE (CRITICAL)**: Production deploys ONLY via Cloudflare Workers Builds, triggered by pushing/merging to `main`. **NEVER run `wrangler deploy` manually.** Chunk hashes depend on the build machine's absolute path (webpack inlines `import.meta.url` from @jsquash as `file:///<build path>`), so a manual build produces different filenames than Cloudflare's. Every switch between builders deletes the chunks that already-open pages still reference, breaking tools until reload.
 
 #### Bundle Size Guidelines
 
@@ -361,12 +360,10 @@ For detailed implementation and maintenance information, refer to the module-spe
 ### Current Status
 
 - **Integrated Tools**:
-  - Base64 Decoder (28.54KB, preloaded)
-  - Base64 Encoder (23.53KB, with dynamic codec loading)
-  - JSON Formatter (16.1KB, Monaco Editor integration)
-  - PNG to ICO Converter (15.43KB, modularized)
-- **Pending Integration**: ICO Analyzer (standalone HTML file, ~25KB target)
-- **Bundle Size Achievement**: Core + Base64 Decoder = **~64KB** (excellent under 150KB target)
+  - Base64 Decoder (31.30KB / 10.74KB gzip, preloaded)
+  - Base64 Encoder (39.68KB / 13.06KB gzip, with dynamic codec loading)
+  - PNG to ICO, ICO Analyzer, JSON Formatter, XML Formatter, JSON to TOON (shared tools chunk, 110.53KB / 29.83KB gzip)
+- **Bundle Size**: Initial load (core + utils + Base64 Decoder) = **105.80KB minified / 33.10KB gzip**
 - **Production Build**: Fully optimized with gzip/brotli compression
 
 ### 🎉 Major Performance Breakthroughs
