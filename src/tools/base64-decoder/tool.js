@@ -255,7 +255,7 @@ export default class Base64DecoderTool {
                     </div>
 
                     <div class="card image-display">
-                        <h3 data-i18n="waitingText" data-transform="removeDots"></h3>
+                        <h3 id="previewTitle" data-i18n="waitingText" data-transform="removeDots"></h3>
                         <div id="imageContainer" class="image-container">
                             <div class="placeholder" data-i18n="waitingText"></div>
                         </div>
@@ -507,12 +507,14 @@ export default class Base64DecoderTool {
       this.displayImage(img, base64String);
       this.analyzePixels(img);
       this.showAlert(t.decodeSuccess, "success");
+      this.setPreviewTitle("imageInfo");
     };
 
     img.onerror = () => {
       this.showAlert(t.decodeError);
       const container = this.container.querySelector("#imageContainer");
       container.innerHTML = `<div class="placeholder">${t.loadFailed}</div>`;
+      this.setPreviewTitle("loadFailed");
     };
 
     img.src = base64String;
@@ -753,6 +755,12 @@ export default class Base64DecoderTool {
     this.container.querySelector("#clickedPixelInfo").style.display = "none";
     this.currentCanvas = null;
     this.currentContext = null;
+    this.setPreviewTitle("waitingText");
+  }
+
+  setPreviewTitle(key) {
+    this.container.querySelector("#previewTitle").dataset.i18n = key;
+    this.updateLanguage();
   }
 
   async loadExample() {

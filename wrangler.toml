@@ -8,6 +8,7 @@ compatibility_date = "2024-09-11"
 # Static assets configuration
 [assets]
 directory = "./docs"
+binding = "ASSETS"
 # Serve all files from docs/ directory as static assets
 
 # Build configuration for automatic deployment

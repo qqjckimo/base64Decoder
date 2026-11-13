@@ -32,6 +32,7 @@ export class ToolLoader {
         try {
             const module = await import(`../tools/${toolName}/tool.js`);
 
+            sessionStorage.removeItem('chunkReload');
             const ToolClass = module.default;
             const instance = new ToolClass();
             
@@ -42,6 +43,12 @@ export class ToolLoader {
             };
         } catch (error) {
             console.error(`Failed to load tool: ${toolName}`, error);
+            // Stale chunk after a new deploy: reload once to fetch fresh bundles
+            if (error.name === 'ChunkLoadError' && !sessionStorage.getItem('chunkReload')) {
+                sessionStorage.setItem('chunkReload', '1');
+                location.reload();
+                return new Promise(() => {});
+            }
             throw new Error(`工具載入失敗: ${toolName}`);
         }
     }
