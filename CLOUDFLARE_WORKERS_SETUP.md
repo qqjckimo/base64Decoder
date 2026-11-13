@@ -34,15 +34,7 @@ npm run build
 
 ### 4. 部署到 Cloudflare Workers
 
-#### 手動部署
-```bash
-npm run deploy
-```
-
-#### 建置並部署
-```bash
-npm run build:deploy
-```
+Production 只透過 Cloudflare Workers Builds 從 `main` 自動部署，**不要手動執行 `wrangler deploy`**，原因見 README 的 Production Deployment。
 
 #### 本地預覽
 ```bash
@@ -128,10 +120,7 @@ npx wrangler whoami
 ```
 
 ### 部署失敗
-```bash
-# 查看詳細錯誤
-npx wrangler deploy --compatibility-date=2024-09-11 --verbose
-```
+到 Cloudflare dashboard 的 Workers Builds 查看 build log。
 
 ### GitHub 整合問題
 1. 確認 GitHub App 已正確安裝
@@ -149,12 +138,6 @@ npm run build
 
 # 本地預覽 Workers
 npm run preview
-
-# 部署到 Workers
-npm run deploy
-
-# 建置並部署
-npm run build:deploy
 
 # 查看部署資訊
 npx wrangler deployments list
